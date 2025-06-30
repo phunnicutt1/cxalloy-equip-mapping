@@ -1,107 +1,145 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processingService, ProcessingOptions, ProcessingResult } from '@/lib/services/processing-service';
+import { ProcessingService, ProcessingResult, ProcessingStatus } from '../../../lib/services/processing-service';
+import { storeProcessingResult } from '../../../lib/stores/equipment-store';
 
 interface ProcessRequest {
   fileId: string;
-  fileName: string;
-  options?: ProcessingOptions;
+  filename: string;
+  options?: {
+    enableNormalization?: boolean;
+    enableTagging?: boolean;
+    includeVendorTags?: boolean;
+  };
 }
 
 interface ProcessResponse {
   success: boolean;
-  message: string;
-  fileId?: string;
   result?: ProcessingResult;
+  status?: ProcessingStatus;
   error?: string;
 }
 
+// In-memory store for processing status (in production, use Redis or database)
+const processingStore = new Map<string, ProcessingStatus>();
+
 export async function POST(request: NextRequest): Promise<NextResponse<ProcessResponse>> {
   try {
-    const body: ProcessRequest = await request.json();
-    const { fileId, fileName, options = {} } = body;
+    const body = await request.json() as ProcessRequest;
+    const { fileId, filename, options = {} } = body;
 
-    if (!fileId || !fileName) {
-      return NextResponse.json({
-        success: false,
-        message: 'Missing required fields: fileId and fileName',
-        error: 'Invalid request parameters'
-      }, { status: 400 });
+    if (!fileId || !filename) {
+      return NextResponse.json(
+        { success: false, error: 'Missing fileId or filename' },
+        { status: 400 }
+      );
     }
 
-    // Start processing in background
-    try {
-      const result = await processingService.processFile(fileId, fileName, options);
+    // Check if already processing
+    const existingStatus = processingStore.get(fileId);
+    if (existingStatus && existingStatus.stage !== 'completed' && existingStatus.stage !== 'error') {
+      return NextResponse.json(
+        { success: false, error: 'File is already being processed' },
+        { status: 409 }
+      );
+    }
+
+    // Initialize processing service
+    const processingService = new ProcessingService();
+
+    // Set up status update callback
+    const onStatusUpdate = (status: ProcessingStatus) => {
+      processingStore.set(fileId, status);
+    };
+
+    // Process file
+    const result = await processingService.processFile(fileId, filename, onStatusUpdate);
+
+    if (result.success && result.equipment && result.points) {
+      // Store the processing result for retrieval via equipment API
+      storeProcessingResult(fileId, result.equipment, result.points);
       
       return NextResponse.json({
         success: true,
-        message: 'File processed successfully',
-        fileId,
         result
-      }, { status: 200 });
-
-    } catch (processingError) {
-      return NextResponse.json({
-        success: false,
-        message: 'Processing failed',
-        fileId,
-        error: processingError instanceof Error ? processingError.message : 'Unknown processing error'
-      }, { status: 500 });
+      });
+    } else {
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: 422 }
+      );
     }
 
   } catch (error) {
-    console.error('Process API error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Invalid request format',
-      error: error instanceof Error ? error.message : 'Request parsing failed'
-    }, { status: 400 });
+    console.error('Processing error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error during processing' },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url);
-  const fileId = searchParams.get('fileId');
+export async function GET(request: NextRequest): Promise<NextResponse<ProcessResponse>> {
+  try {
+    const { searchParams } = new URL(request.url);
+    const fileId = searchParams.get('fileId');
 
-  if (fileId) {
-    // Get status for specific file
-    const status = processingService.getProcessingStatus(fileId);
+    if (!fileId) {
+      return NextResponse.json(
+        { success: false, error: 'Missing fileId parameter' },
+        { status: 400 }
+      );
+    }
+
+    const status = processingStore.get(fileId);
     
     if (!status) {
-      return NextResponse.json({
-        success: false,
-        message: 'Processing job not found',
-        error: 'Invalid file ID'
-      }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Processing status not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Processing status retrieved',
       status
     });
-  } else {
-    // Get all processing jobs
-    const jobs = processingService.getAllProcessingJobs();
-    
-    return NextResponse.json({
-      success: true,
-      message: 'All processing jobs retrieved',
-      jobs,
-      total: jobs.length
-    });
+
+  } catch (error) {
+    console.error('Status check error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url);
-  const maxAge = searchParams.get('maxAge');
-  
-  const maxAgeMs = maxAge ? parseInt(maxAge) * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // Default 24 hours
-  const cleaned = processingService.cleanupOldJobs(maxAgeMs);
+  try {
+    const { searchParams } = new URL(request.url);
+    const maxAge = searchParams.get('maxAge');
+    
+    const maxAgeMs = maxAge ? parseInt(maxAge) * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // Default 24 hours
+    const cutoffTime = Date.now() - maxAgeMs;
+    
+    let cleaned = 0;
+    for (const [fileId, status] of processingStore.entries()) {
+      // Remove completed or errored tasks older than cutoff
+      if ((status.stage === 'completed' || status.stage === 'error')) {
+        processingStore.delete(fileId);
+        cleaned++;
+      }
+    }
 
-  return NextResponse.json({
-    success: true,
-    message: `Cleaned up ${cleaned} old processing jobs`,
-    cleaned
-  });
+    return NextResponse.json({
+      success: true,
+      message: `Cleaned up ${cleaned} old processing jobs`,
+      cleaned
+    });
+  } catch (error) {
+    console.error('Cleanup error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error during cleanup' },
+      { status: 500 }
+    );
+  }
 } 

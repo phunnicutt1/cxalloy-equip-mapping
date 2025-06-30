@@ -56,87 +56,86 @@ function PointRow({ point, index }: PointRowProps) {
   return (
     <div 
       className={cn(
-        "border-b border-border p-4 hover:bg-muted/30 transition-colors",
+        "border-b border-border p-3 hover:bg-muted/30 transition-colors",
         index % 2 === 0 ? "bg-background" : "bg-muted/10"
       )}
     >
-      <div className="space-y-2">
-        {/* Point Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            {getPointIcon(point.objectType)}
-            <div className="space-y-1">
-              <div className="font-medium text-sm text-foreground">
-                {point.normalizedName || point.originalName}
-              </div>
-              {point.normalizedName && point.originalName !== point.normalizedName && (
-                <div className="text-xs text-muted-foreground font-mono">
-                  Original: {point.originalName}
-                </div>
-              )}
+      {/* Compact Row Layout */}
+      <div className="flex items-center gap-4">
+        {/* Left: Icon and Point Name */}
+        <div className="flex items-center gap-2 min-w-0 flex-shrink-0 pr-6" style={{ minWidth: '200px', maxWidth: '300px' }}>
+          {getPointIcon(point.objectType)}
+          <div className="min-w-0">
+            <div className="font-medium text-sm text-foreground truncate">
+              {point.normalizedName || point.originalName}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {point.unit && getUnitDisplay(point.unit)}
-            {point.objectType && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-mono">
-                {point.objectType}
-              </span>
+            {point.normalizedName && point.originalName !== point.normalizedName && (
+              <div className="text-xs text-muted-foreground font-mono truncate">
+                Original: {point.originalName}
+              </div>
             )}
           </div>
         </div>
 
-        {/* Point Description */}
-        {point.description && (
-          <div className="text-sm text-muted-foreground">
-            {point.description}
+        {/* Middle: Metadata and Tags - Flexible width */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Point Metadata - Single line, no wrap */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
+            {point.dataType && (
+              <span>Type: {point.dataType}</span>
+            )}
+            {point.kind && (
+              <>
+                <span>•</span>
+                <span>Kind: {point.kind}</span>
+              </>
+            )}
+            {point.bacnetCur && (
+              <>
+                <span>•</span>
+                <span>BACnet: {point.bacnetCur}</span>
+              </>
+            )}
+            {point.writable && (
+              <>
+                <span>•</span>
+                <span className="text-orange-600">Writable</span>
+              </>
+            )}
           </div>
-        )}
 
-        {/* Point Metadata */}
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          {point.dataType && (
-            <span>Type: {point.dataType}</span>
-          )}
-          {point.kind && (
-            <>
-              <span>•</span>
-              <span>Kind: {point.kind}</span>
-            </>
-          )}
-          {point.bacnetCur && (
-            <>
-              <span>•</span>
-              <span>BACnet: {point.bacnetCur}</span>
-            </>
-          )}
-          {point.writable && (
-            <>
-              <span>•</span>
-              <span className="text-orange-600">Writable</span>
-            </>
+          {/* Haystack Tags */}
+          {point.haystackTags && point.haystackTags.length > 0 && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {point.haystackTags.map((tag: string, idx: number) => (
+                <span 
+                  key={idx}
+                  className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 whitespace-nowrap"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Haystack Tags */}
-        {point.haystackTags && point.haystackTags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {point.haystackTags.slice(0, 5).map((tag: string, idx: number) => (
-              <span 
-                key={idx}
-                className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-200"
-              >
-                {tag}
-              </span>
-            ))}
-            {point.haystackTags.length > 5 && (
-              <span className="text-xs text-muted-foreground">
-                +{point.haystackTags.length - 5} more
-              </span>
-            )}
-          </div>
-        )}
+        {/* Right: Unit and Object Type */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {point.unit && getUnitDisplay(point.unit)}
+          {point.objectType && (
+            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-mono">
+              {point.objectType}
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Description (only if exists and not too long) */}
+      {point.description && (
+        <div className="text-xs text-muted-foreground mt-1 pl-6">
+          {point.description}
+        </div>
+      )}
     </div>
   );
 }

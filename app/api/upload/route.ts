@@ -1,102 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { existsSync } from 'fs';
+import path from 'path';
+import { nanoid } from 'nanoid';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
+const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_EXTENSIONS = ['.trio', '.csv', '.txt'];
 
-interface UploadResult {
+interface UploadResponse {
   success: boolean;
-  fileId: string;
-  fileName: string;
-  fileSize: number;
-  uploadedAt: string;
-  message?: string;
+  fileId?: string;
+  filename?: string;
+  size?: number;
   error?: string;
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse<UploadResult>> {
+export async function POST(request: NextRequest): Promise<NextResponse<UploadResponse>> {
   try {
-    // Ensure upload directory exists
-    await mkdir(UPLOAD_DIR, { recursive: true });
-
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({
-        success: false,
-        fileId: '',
-        fileName: '',
-        fileSize: 0,
-        uploadedAt: new Date().toISOString(),
-        error: 'No file provided'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'No file provided' },
+        { status: 400 }
+      );
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({
-        success: false,
-        fileId: '',
-        fileName: file.name,
-        fileSize: file.size,
-        uploadedAt: new Date().toISOString(),
-        error: `File size exceeds maximum limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB`
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: `File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit` },
+        { status: 400 }
+      );
     }
 
     // Validate file extension
-    const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-    if (!ALLOWED_EXTENSIONS.includes(extension)) {
-      return NextResponse.json({
-        success: false,
-        fileId: '',
-        fileName: file.name,
-        fileSize: file.size,
-        uploadedAt: new Date().toISOString(),
-        error: `File type not allowed. Supported types: ${ALLOWED_EXTENSIONS.join(', ')}`
-      }, { status: 400 });
+    const fileExtension = path.extname(file.name).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
+      return NextResponse.json(
+        { success: false, error: `File type not allowed. Supported: ${ALLOWED_EXTENSIONS.join(', ')}` },
+        { status: 400 }
+      );
     }
 
-    // Generate unique file ID and save file
-    const fileId = uuidv4();
-    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filePath = join(UPLOAD_DIR, `${fileId}_${sanitizedFileName}`);
+    // Ensure upload directory exists
+    if (!existsSync(UPLOAD_DIR)) {
+      await mkdir(UPLOAD_DIR, { recursive: true });
+    }
 
+    // Generate unique file ID and filename
+    const fileId = nanoid();
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const filename = `${fileId}_${sanitizedName}`;
+    const filepath = path.join(UPLOAD_DIR, filename);
+
+    // Convert file to buffer and save
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    await writeFile(filepath, buffer);
 
     return NextResponse.json({
       success: true,
       fileId,
-      fileName: file.name,
-      fileSize: file.size,
-      uploadedAt: new Date().toISOString(),
-      message: 'File uploaded successfully'
-    }, { status: 200 });
+      filename: sanitizedName,
+      size: file.size,
+    });
 
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({
-      success: false,
-      fileId: '',
-      fileName: '',
-      fileSize: 0,
-      uploadedAt: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Upload failed'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Internal server error during upload' },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET(): Promise<NextResponse> {
-  return NextResponse.json({
-    message: 'File upload endpoint',
-    maxFileSize: `${MAX_FILE_SIZE / (1024 * 1024)}MB`,
-    allowedExtensions: ALLOWED_EXTENSIONS,
-    method: 'POST'
-  });
+  return NextResponse.json(
+    { 
+      message: 'File upload endpoint',
+      supportedFormats: ALLOWED_EXTENSIONS,
+      maxSize: `${MAX_FILE_SIZE / (1024 * 1024)}MB`
+    },
+    { status: 200 }
+  );
 } 

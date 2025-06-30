@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ThreePanelLayout } from '../../components/layout/ThreePanelLayout';
 import { EquipmentBrowser } from '../../components/equipment/EquipmentBrowser';
 import { PointDetails } from '../../components/points/PointDetails';
 import { CxAlloyPanel } from '../../components/mapping/CxAlloyPanel';
 import { Button } from '../../components/ui/button';
+import { FileUploadDialog } from '../../components/ui/file-upload-dialog';
 import { useAppStore } from '../../store/app-store';
 import { 
   Upload, 
@@ -17,10 +18,20 @@ import { EquipmentStatus, ConnectionState } from '../../types/equipment';
 
 function DashboardHeader() {
   const { isLoading, setLoading } = useAppStore();
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   const handleUpload = () => {
-    // This would trigger file upload dialog
-    console.log('Upload trio files');
+    setUploadDialogOpen(true);
+  };
+
+  const handleUploadComplete = (results: any[]) => {
+    console.log('Upload completed:', results);
+    // Here you can update the equipment store or trigger a refresh
+    // For now, we'll just close the dialog and show a success message
+    setUploadDialogOpen(false);
+    
+    // Optional: trigger a refresh to show the new data
+    handleRefresh();
   };
 
   const handleRefresh = () => {
@@ -86,6 +97,12 @@ function DashboardHeader() {
           </Button>
         </div>
       </div>
+
+      <FileUploadDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        onUploadComplete={handleUploadComplete}
+      />
     </div>
   );
 }

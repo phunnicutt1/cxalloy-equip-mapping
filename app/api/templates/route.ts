@@ -1,234 +1,281 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { EquipmentTemplate } from '@/types/equipment';
 
-// Mock template storage (in a real application, this would be a database)
-const templates: EquipmentTemplate[] = [
-  {
-    id: 'vav-no-reheat',
-    name: 'VAV No Reheat',
-    equipmentType: 'VAV Controller',
-    description: 'Standard VAV controller without reheat coil',
-    pointPatterns: [],
-    requiredPoints: [],
-    optionalPoints: [],
-    pointMappings: [
-      {
-        pointName: 'ROOM TEMP',
-        normalizedName: 'Room Temperature Sensor',
-        objectType: 'AI',
-        unit: '°F',
-        required: true,
-        haystackTags: ['sensor', 'temp', 'room', 'zone']
-      },
-      {
-        pointName: 'DAMPER POS',
-        normalizedName: 'Supply Air Damper Position',
-        objectType: 'AO',
-        unit: '%',
-        required: true,
-        haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
-      },
-      {
-        pointName: 'AIRFLOW',
-        normalizedName: 'Supply Air Flow Rate',
-        objectType: 'AI',
-        unit: 'cfm',
-        required: true,
-        haystackTags: ['sensor', 'flow', 'air', 'supply']
-      }
-    ],
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-01'),
-    isBuiltIn: true
-  },
-  {
-    id: 'vav-with-reheat',
-    name: 'VAV with Reheat',
-    equipmentType: 'VAV Controller',
-    description: 'VAV controller with hot water reheat coil',
-    pointPatterns: [],
-    requiredPoints: [],
-    optionalPoints: [],
-    pointMappings: [
-      {
-        pointName: 'ROOM TEMP',
-        normalizedName: 'Room Temperature Sensor',
-        objectType: 'AI',
-        unit: '°F',
-        required: true,
-        haystackTags: ['sensor', 'temp', 'room', 'zone']
-      },
-      {
-        pointName: 'DAMPER POS',
-        normalizedName: 'Supply Air Damper Position',
-        objectType: 'AO',
-        unit: '%',
-        required: true,
-        haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
-      },
-      {
-        pointName: 'REHEAT VALVE',
-        normalizedName: 'Reheat Valve Position',
-        objectType: 'AO',
-        unit: '%',
-        required: true,
-        haystackTags: ['cmd', 'valve', 'position', 'reheat', 'hot', 'water']
-      }
-    ],
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-01'),
-    isBuiltIn: true
-  },
-  {
-    id: 'lab-air-valve',
-    name: 'Lab Air Valve',
-    equipmentType: 'Lab Air Valve',
-    description: 'Laboratory exhaust air valve controller',
-    pointPatterns: [],
-    requiredPoints: [],
-    optionalPoints: [],
-    pointMappings: [
-      {
-        pointName: 'EX DIFF P',
-        normalizedName: 'Extract Air Differential Pressure',
-        objectType: 'AI',
-        unit: 'inH₂O',
-        required: true,
-        haystackTags: ['sensor', 'pressure', 'diff', 'extract', 'air']
-      },
-      {
-        pointName: 'VALVE POS',
-        normalizedName: 'Extract Air Valve Position',
-        objectType: 'AO',
-        unit: '%',
-        required: true,
-        haystackTags: ['cmd', 'valve', 'position', 'extract', 'air']
-      }
-    ],
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-01'),
-    isBuiltIn: true
-  }
-];
+export interface Template {
+  id: string;
+  name: string;
+  description: string;
+  equipmentType: string;
+  points: TemplatePoint[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TemplatePoint {
+  id: string;
+  name: string;
+  description: string;
+  objectType: string;
+  unit?: string;
+  dataType: string;
+  required: boolean;
+  haystackTags: string[];
+}
 
 interface TemplateResponse {
   success: boolean;
-  message: string;
-  templates?: EquipmentTemplate[];
-  template?: EquipmentTemplate;
+  templates?: Template[];
+  template?: Template;
   error?: string;
 }
 
 interface CreateTemplateRequest {
   name: string;
+  description: string;
   equipmentType: string;
-  description?: string;
-  pointMappings: EquipmentTemplate['pointMappings'];
+  points: Omit<TemplatePoint, 'id'>[];
 }
+
+interface UpdateTemplateRequest {
+  name?: string;
+  description?: string;
+  equipmentType?: string;
+  points?: Omit<TemplatePoint, 'id'>[];
+}
+
+// In-memory storage for templates (use database in production)
+const templatesStore = new Map<string, Template>();
+
+// Initialize with some default templates
+const initializeDefaultTemplates = () => {
+  if (templatesStore.size === 0) {
+    const defaultTemplates: Template[] = [
+      {
+        id: 'vav-standard',
+        name: 'VAV Standard',
+        description: 'Standard Variable Air Volume box template',
+        equipmentType: 'VAV',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        points: [
+          {
+            id: 'room-temp',
+            name: 'Room Temperature',
+            description: 'Zone temperature sensor',
+            objectType: 'AI',
+            unit: '°F',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['sensor', 'temp', 'zone', 'room']
+          },
+          {
+            id: 'damper-pos',
+            name: 'Damper Position',
+            description: 'Supply air damper position command',
+            objectType: 'AO',
+            unit: '%',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
+          },
+          {
+            id: 'airflow',
+            name: 'Air Flow',
+            description: 'Supply air flow measurement',
+            objectType: 'AI',
+            unit: 'cfm',
+            dataType: 'Number',
+            required: false,
+            haystackTags: ['sensor', 'flow', 'air', 'supply']
+          }
+        ]
+      },
+      {
+        id: 'vav-reheat',
+        name: 'VAV with Reheat',
+        description: 'Variable Air Volume box with reheat coil',
+        equipmentType: 'VAV',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        points: [
+          {
+            id: 'room-temp',
+            name: 'Room Temperature',
+            description: 'Zone temperature sensor',
+            objectType: 'AI',
+            unit: '°F',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['sensor', 'temp', 'zone', 'room']
+          },
+          {
+            id: 'damper-pos',
+            name: 'Damper Position',
+            description: 'Supply air damper position command',
+            objectType: 'AO',
+            unit: '%',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
+          },
+          {
+            id: 'reheat-valve',
+            name: 'Reheat Valve',
+            description: 'Hot water reheat valve position',
+            objectType: 'AO',
+            unit: '%',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['cmd', 'valve', 'position', 'hotWater', 'reheat']
+          }
+        ]
+      },
+      {
+        id: 'ahu-basic',
+        name: 'AHU Basic',
+        description: 'Basic Air Handling Unit template',
+        equipmentType: 'AHU',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        points: [
+          {
+            id: 'supply-temp',
+            name: 'Supply Air Temperature',
+            description: 'Discharge air temperature sensor',
+            objectType: 'AI',
+            unit: '°F',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['sensor', 'temp', 'air', 'discharge', 'supply']
+          },
+          {
+            id: 'return-temp',
+            name: 'Return Air Temperature',
+            description: 'Return air temperature sensor',
+            objectType: 'AI',
+            unit: '°F',
+            dataType: 'Number',
+            required: true,
+            haystackTags: ['sensor', 'temp', 'air', 'return']
+          },
+          {
+            id: 'supply-fan',
+            name: 'Supply Fan',
+            description: 'Supply fan start/stop command',
+            objectType: 'BO',
+            dataType: 'Boolean',
+            required: true,
+            haystackTags: ['cmd', 'fan', 'supply']
+          }
+        ]
+      }
+    ];
+
+    defaultTemplates.forEach(template => {
+      templatesStore.set(template.id, template);
+    });
+  }
+};
 
 export async function GET(request: NextRequest): Promise<NextResponse<TemplateResponse>> {
   try {
+    initializeDefaultTemplates();
+
     const { searchParams } = new URL(request.url);
-    const equipmentType = searchParams.get('equipmentType');
     const templateId = searchParams.get('id');
+    const equipmentType = searchParams.get('type');
 
     if (templateId) {
       // Get specific template
-      const template = templates.find(t => t.id === templateId);
+      const template = templatesStore.get(templateId);
       
       if (!template) {
-        return NextResponse.json({
-          success: false,
-          message: 'Template not found',
-          error: 'Template with specified ID not found'
-        }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: 'Template not found' },
+          { status: 404 }
+        );
       }
 
       return NextResponse.json({
         success: true,
-        message: 'Template retrieved successfully',
         template
       });
     }
 
-    // Filter by equipment type if specified
-    let filteredTemplates = templates;
+    // Get all templates or filter by equipment type
+    let templates = Array.from(templatesStore.values());
+
     if (equipmentType) {
-      filteredTemplates = templates.filter(t => 
-        t.equipmentType?.toLowerCase() === equipmentType.toLowerCase()
+      templates = templates.filter(t => 
+        t.equipmentType.toLowerCase() === equipmentType.toLowerCase()
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Templates retrieved successfully',
-      templates: filteredTemplates
+      templates
     });
 
   } catch (error) {
     console.error('Templates GET error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Failed to retrieve templates',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<TemplateResponse>> {
   try {
-    const body: CreateTemplateRequest = await request.json();
-    const { name, equipmentType, description, pointMappings } = body;
+    const body = await request.json() as CreateTemplateRequest;
+    const { name, description, equipmentType, points } = body;
 
-    if (!name || !equipmentType || !pointMappings || !Array.isArray(pointMappings) || pointMappings.length === 0) {
-      return NextResponse.json({
-        success: false,
-        message: 'Missing required fields: name, equipmentType, and pointMappings',
-        error: 'Invalid request parameters'
-      }, { status: 400 });
+    if (!name || !description || !equipmentType || !points) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
-    // Generate ID from name
-    const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+    // Generate unique ID
+    const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
     
-    // Check if template with this ID already exists
-    if (templates.find(t => t.id === id)) {
-      return NextResponse.json({
-        success: false,
-        message: 'Template with this name already exists',
-        error: 'Duplicate template name'
-      }, { status: 409 });
+    // Check if template already exists
+    if (templatesStore.has(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Template with this name already exists' },
+        { status: 409 }
+      );
     }
 
-    const newTemplate: EquipmentTemplate = {
+    // Create template points with IDs
+    const templatePoints: TemplatePoint[] = points.map((point, index) => ({
+      ...point,
+      id: `${id}-point-${index}`
+    }));
+
+    const template: Template = {
       id,
       name,
+      description,
       equipmentType,
-      description: description || '',
-      pointMappings,
-      pointPatterns: [],
-      requiredPoints: [],
-      optionalPoints: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isBuiltIn: false
+      points: templatePoints,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
 
-    templates.push(newTemplate);
+    templatesStore.set(id, template);
 
     return NextResponse.json({
       success: true,
-      message: 'Template created successfully',
-      template: newTemplate
-    }, { status: 201 });
+      template
+    });
 
   } catch (error) {
     console.error('Templates POST error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Failed to create template',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -238,108 +285,88 @@ export async function PUT(request: NextRequest): Promise<NextResponse<TemplateRe
     const templateId = searchParams.get('id');
 
     if (!templateId) {
-      return NextResponse.json({
-        success: false,
-        message: 'Template ID is required',
-        error: 'Missing template ID in query parameters'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Template ID is required' },
+        { status: 400 }
+      );
     }
 
-    const updates: Partial<CreateTemplateRequest> = await request.json();
-    const templateIndex = templates.findIndex(t => t.id === templateId);
-
-    if (templateIndex === -1) {
-      return NextResponse.json({
-        success: false,
-        message: 'Template not found',
-        error: 'Template with specified ID not found'
-      }, { status: 404 });
+    const existingTemplate = templatesStore.get(templateId);
+    
+    if (!existingTemplate) {
+      return NextResponse.json(
+        { success: false, error: 'Template not found' },
+        { status: 404 }
+      );
     }
 
-    const existingTemplate = templates[templateIndex];
+    const updates = await request.json() as UpdateTemplateRequest;
 
-    // Prevent updating built-in templates
-    if (existingTemplate.isBuiltIn) {
-      return NextResponse.json({
-        success: false,
-        message: 'Cannot update built-in templates',
-        error: 'Built-in templates are read-only'
-      }, { status: 403 });
+    // Update template points with IDs if provided
+    let updatedPoints = existingTemplate.points;
+    if (updates.points) {
+      updatedPoints = updates.points.map((point, index) => ({
+        ...point,
+        id: `${templateId}-point-${index}`
+      }));
     }
 
-    // Update template
-    const updatedTemplate: EquipmentTemplate = {
+    const updatedTemplate: Template = {
       ...existingTemplate,
       ...updates,
-      id: templateId, // Prevent ID changes
-      updatedAt: new Date()
+      points: updatedPoints,
+      id: templateId, // Ensure ID cannot be changed
+      updatedAt: new Date().toISOString()
     };
 
-    templates[templateIndex] = updatedTemplate;
+    templatesStore.set(templateId, updatedTemplate);
 
     return NextResponse.json({
       success: true,
-      message: 'Template updated successfully',
       template: updatedTemplate
     });
 
   } catch (error) {
     console.error('Templates PUT error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Failed to update template',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: NextRequest): Promise<NextResponse<{ success: boolean; message: string; error?: string }>> {
+export async function DELETE(request: NextRequest): Promise<NextResponse<{ success: boolean; error?: string }>> {
   try {
     const { searchParams } = new URL(request.url);
     const templateId = searchParams.get('id');
 
     if (!templateId) {
-      return NextResponse.json({
-        success: false,
-        message: 'Template ID is required',
-        error: 'Missing template ID in query parameters'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Template ID is required' },
+        { status: 400 }
+      );
     }
 
-    const templateIndex = templates.findIndex(t => t.id === templateId);
-
-    if (templateIndex === -1) {
-      return NextResponse.json({
-        success: false,
-        message: 'Template not found',
-        error: 'Template with specified ID not found'
-      }, { status: 404 });
+    const template = templatesStore.get(templateId);
+    
+    if (!template) {
+      return NextResponse.json(
+        { success: false, error: 'Template not found' },
+        { status: 404 }
+      );
     }
 
-    const template = templates[templateIndex];
-
-    // Prevent deleting built-in templates
-    if (template.isBuiltIn) {
-      return NextResponse.json({
-        success: false,
-        message: 'Cannot delete built-in templates',
-        error: 'Built-in templates cannot be deleted'
-      }, { status: 403 });
-    }
-
-    templates.splice(templateIndex, 1);
+    templatesStore.delete(templateId);
 
     return NextResponse.json({
-      success: true,
-      message: 'Template deleted successfully'
+      success: true
     });
 
   } catch (error) {
     console.error('Templates DELETE error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Failed to delete template',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 } 

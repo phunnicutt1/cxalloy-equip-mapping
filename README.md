@@ -1,36 +1,376 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CxAlloy Equipment Mapping
 
-## Getting Started
+A Next.js TypeScript application for intelligent mapping and classification of BACnet equipment and points from trio files, with automated equipment type detection and Project Haystack standardization.
 
-First, run the development server:
+## 🏗️ Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This application processes BACnet trio files to:
+
+*   **Classify Equipment Types** from filename patterns (VAV controllers, AHUs, chillers, etc.)
+*   **Normalize Point Names** from cryptic BACnet identifiers to human-readable descriptions
+*   **Generate Haystack Tags** following Project Haystack 5.0 standards
+*   **Map Equipment Points** with intelligent type inference and validation
+*   **Export Standardized Data** in multiple formats (CSV, JSON, trio, Haystack)
+
+## ✨ Key Features
+
+### 🔍 **Intelligent Processing Pipeline**
+
+*   **Trio File Parsing** - Parse and validate BACnet trio file formats
+*   **Equipment Classification** - Auto-detect equipment types from filenames and patterns
+*   **Point Normalization** - Transform cryptic BACnet point names using comprehensive dictionaries
+*   **Haystack Tagging** - Generate standardized Project Haystack tags
+*   **Semantic Inference** - Intelligent point classification using context and patterns
+
+### 🖥️ **Modern User Interface**
+
+*   **Three-Panel Layout** - Equipment browser, details view, and mapping panel
+*   **Drag & Drop Upload** - Easy file upload with progress tracking
+*   **Real-time Processing** - Live status updates during file processing
+*   **Template Management** - Create and manage equipment point templates
+*   **Responsive Design** - Works on desktop and mobile devices
+
+### 🔌 **Comprehensive API**
+
+*   **File Upload API** - Handle trio file uploads with validation
+*   **Processing API** - Full pipeline processing with status tracking
+*   **Equipment API** - CRUD operations on equipment data
+*   **Export API** - Multiple export formats (CSV, JSON, trio, Haystack)
+*   **Templates API** - Equipment template management
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+*   Node.js 18+
+*   npm or yarn package manager
+
+### Installation
+
+**Clone the repository**
+
+**Install dependencies**
+
+**Start development server**
+
+**Open in browser**  
+Navigate to [http://localhost:3000](http://localhost:3000)
+
+### First Upload Test
+
+1.  Go to the **Dashboard** (`/dashboard`)
+2.  Click **"Upload Trio Files"** in the upper right
+3.  Drag & drop sample files from `sample_data/current-working/sample_point_data/`
+4.  Watch the processing pipeline in action!
+
+## 📁 Project Structure
+
+```
+cxalloy-equip-mapping/
+├── app/                          # Next.js App Router
+│   ├── api/                      # API Routes
+│   │   ├── upload/               # File upload endpoint
+│   │   ├── process/              # Processing pipeline
+│   │   ├── equipment/[id]/       # Equipment CRUD
+│   │   ├── export/               # Data export
+│   │   └── templates/            # Template management
+│   ├── dashboard/                # Main dashboard page
+│   └── layout.tsx               # Root layout
+├── components/                   # React Components
+│   ├── equipment/                # Equipment browser
+│   ├── points/                   # Point details view
+│   ├── mapping/                  # CxAlloy mapping panel
+│   ├── layout/                   # Layout components
+│   └── ui/                       # UI components & upload dialog
+├── lib/                          # Core Logic
+│   ├── classifiers/              # Equipment classification
+│   ├── normalizers/              # Point name normalization
+│   ├── parsers/                  # Trio file parsing
+│   ├── services/                 # Processing orchestration
+│   ├── stores/                   # Data management  
+│   ├── dictionaries/             # BACnet & vendor mappings
+│   └── utils/                    # Utilities & validation
+├── types/                        # TypeScript definitions
+├── sample_data/                  # Test data sets
+│   ├── current-working/          # Primary test files
+│   ├── WakeMedED/                # Hospital HVAC systems
+│   ├── kingshighway/             # Office building
+│   └── intuitivedurham/          # Healthcare facility
+└── __tests__/                    # Test suites
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Usage Guide
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1\. **Upload Files**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+*   Click "Upload Trio Files" in the dashboard header
+*   Drag & drop `.trio`, `.csv`, or `.txt` files (max 10MB each)
+*   Watch real-time progress: Upload → Processing → Complete
+*   Files are validated and processed through the full pipeline
 
-## Learn More
+### 2\. **Browse Equipment**
 
-To learn more about Next.js, take a look at the following resources:
+*   **Left Panel**: Browse detected equipment by type
+*   **Toggle Views**: Switch between Equipment and Template modes
+*   **Equipment Types**: VAV Controllers, AHUs, Chillers, Pumps, etc.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3\. **View Point Details**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+*   **Middle Panel**: Detailed point information
+*   **Original Names**: Raw BACnet point identifiers
+*   **Normalized Names**: Human-readable descriptions
+*   **Haystack Tags**: Standardized Project Haystack tags
+*   **Metadata**: Type, units, data types, and more
 
-## Deploy on Vercel
+### 4\. **Export Data**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+*   Multiple export formats available
+*   **CSV**: Spreadsheet-compatible format
+*   **JSON**: Structured data format
+*   **Trio**: BACnet trio format
+*   **Haystack**: Project Haystack standard format
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔧 API Endpoints
+
+### **File Upload**
+
+```
+POST /api/upload
+Content-Type: multipart/form-data
+
+# Upload trio files with validation
+```
+
+### **Process Files**
+
+```
+POST /api/process
+Content-Type: application/json
+
+{
+  "fileId": "uploaded-file-id",
+  "filename": "AHU-1.trio",
+  "options": {
+    "enableNormalization": true,
+    "enableTagging": true,
+    "includeVendorTags": true
+  }
+}
+```
+
+### **Equipment Management**
+
+```
+GET    /api/equipment/{id}     # Get equipment details
+PUT    /api/equipment/{id}     # Update equipment
+DELETE /api/equipment/{id}     # Delete equipment
+```
+
+### **Data Export**
+
+```
+GET /api/export?format=csv&equipmentId={id}
+GET /api/export?format=json&includePoints=true
+GET /api/export?format=haystack&includeMetadata=true
+```
+
+## 🧠 Processing Pipeline
+
+### 1\. **Trio Parsing**
+
+*   Validates trio file format and structure
+*   Extracts equipment metadata and point definitions
+*   Handles multiple trio sections and record types
+
+### 2\. **Equipment Classification**
+
+*   Analyzes filename patterns (`AHU-1`, `VAV_201`, `CHW-System`)
+*   Maps to equipment types (Air Handler, VAV Controller, Chiller System)
+*   Applies confidence scoring and fallback logic
+
+### 3\. **Point Normalization**
+
+*   Uses comprehensive BACnet acronym dictionaries
+*   Applies equipment-specific and vendor-specific mappings
+*   Transforms cryptic names (`ZN-T`, `SA-CFM`) to readable descriptions
+
+### 4\. **Haystack Tagging**
+
+*   Generates Project Haystack 5.0 compliant tags
+*   Applies semantic inference for point classification
+*   Includes equipment-specific tag patterns
+
+## 📊 Sample Data
+
+The application includes extensive test data:
+
+### **Current Working Set** (`sample_data/current-working/`)
+
+*   Primary development and testing files
+*   Various equipment types: AHUs, VAVs, Chillers, Pumps, Boilers
+*   Representative of typical BACnet installations
+
+### **Real-World Data Sets**
+
+*   **WakeMedED**: Hospital HVAC systems
+*   **KingsHighway**: Office building automation
+*   **Intuitive Durham**: Healthcare facility systems
+*   **GBS Sonoma County**: Government building systems
+*   **McKinstry HCPSU**: University healthcare systems
+
+## 🧪 Testing
+
+### **Run Tests**
+
+```
+npm test                    # Run all tests
+npm run test:watch         # Watch mode
+npm run test:coverage      # Coverage report
+```
+
+### **Test Categories**
+
+*   **Unit Tests**: Core logic and utilities
+*   **Parser Tests**: Trio file parsing validation
+*   **Normalizer Tests**: Point name transformation
+*   **Classifier Tests**: Equipment type detection
+*   **API Tests**: Endpoint functionality
+
+### **API Testing**
+
+```
+node test-api.js           # Test all API endpoints
+```
+
+## 🛠️ Technology Stack
+
+### **Frontend**
+
+*   **Next.js 15** - React framework with App Router
+*   **TypeScript** - Type-safe development
+*   **Tailwind CSS** - Utility-first styling
+*   **Radix UI** - Accessible component primitives
+*   **Lucide React** - Icon library
+
+### **Backend**
+
+*   **Next.js API Routes** - Serverless API endpoints
+*   **Node.js** - JavaScript runtime
+*   **File System APIs** - File upload and processing
+*   **TypeScript** - Type safety throughout
+
+### **Processing**
+
+*   **Custom Parsers** - Trio file format handling
+*   **Dictionary Systems** - BACnet acronym mappings
+*   **Classification Algorithms** - Equipment type detection
+*   **Semantic Inference** - Intelligent point tagging
+
+## 🏗️ Architecture
+
+### **Three-Panel Layout**
+
+*   **Left**: Equipment browser with filtering and templates
+*   **Middle**: Point details with normalization results
+*   **Right**: CxAlloy mapping and export tools
+
+### **Processing Service Architecture**
+
+```
+Upload → Parse → Classify → Normalize → Tag → Store → Export
+```
+
+### **Data Flow**
+
+1.  **File Upload** via drag & drop dialog
+2.  **Validation** of file format and size
+3.  **Processing Pipeline** with status tracking
+4.  **Equipment Storage** in memory store
+5.  **UI Updates** with real-time results
+
+## 📈 Performance
+
+### **File Processing**
+
+*   Handles files up to 10MB
+*   Processes multiple files sequentially
+*   Real-time progress tracking
+*   Error handling and recovery
+
+### **Memory Management**
+
+*   In-memory equipment store for development
+*   Efficient trio parsing and processing
+*   Optimized dictionary lookups
+
+## 🔒 Security
+
+### **File Upload Security**
+
+*   File type validation (.trio, .csv, .txt only)
+*   File size limits (10MB maximum)
+*   Secure file storage with unique IDs
+*   Input sanitization and validation
+
+### **API Security**
+
+*   Request validation and error handling
+*   Rate limiting via middleware
+*   Secure headers and CORS policies
+
+## 🚀 Deployment
+
+### **Build for Production**
+
+```
+npm run build              # Build optimized production version
+npm start                  # Start production server
+```
+
+### **Environment Variables**
+
+```
+# Add any environment-specific configuration
+NODE_ENV=production
+PORT=3000
+```
+
+## 🤝 Contributing
+
+1.  Fork the repository
+2.  Create a feature branch (`git checkout -b feature/amazing-feature`)
+3.  Make your changes and add tests
+4.  Commit your changes (`git commit -m 'Add amazing feature'`)
+5.  Push to the branch (`git push origin feature/amazing-feature`)
+6.  Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For questions, issues, or feature requests:
+
+*   Open a GitHub issue
+*   Check the documentation in `design.md` and `design-ext.md`
+*   Review the BACnet processing guide: `BACnet Point Processing.pdf`
+
+---
+
+Built with ❤️ for the Building Automation Industry
+
+```
+npm run build && npm start
+# or for development mode:
+npm run dev
+```
+
+```
+npm install
+```
+
+```
+git clone <repository-url>
+cd cxalloy-equip-mapping
+```

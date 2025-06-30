@@ -1,256 +1,254 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processingService } from '@/lib/services/processing-service';
-import { exportToZinc, exportToSkySpark } from '../../../../lib/utils/haystack-validation';
+import { getAllEquipment } from '../../../lib/stores/equipment-store';
+import type { Equipment, NormalizedPoint } from '../../../types/equipment';
 
 interface ExportRequest {
-  fileIds?: string[];
-  format: 'json' | 'csv' | 'zinc' | 'skyspark';
-  includeNormalized?: boolean;
-  includeHaystackTags?: boolean;
+  equipmentIds?: string[];
+  format: 'csv' | 'json' | 'trio' | 'haystack';
+  includePoints?: boolean;
+  includeMetadata?: boolean;
 }
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
+interface ExportResponse {
+  success: boolean;
+  data?: string;
+  filename?: string;
+  contentType?: string;
+  error?: string;
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse<ExportResponse | ArrayBuffer>> {
   try {
-    const body: ExportRequest = await request.json();
-    const { fileIds, format, includeNormalized = true, includeHaystackTags = true } = body;
+    const body = await request.json() as ExportRequest;
+    const { equipmentIds, format, includePoints = true, includeMetadata = true } = body;
 
     if (!format) {
-      return NextResponse.json({
-        success: false,
-        message: 'Export format is required',
-        error: 'Missing format parameter'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Export format is required' },
+        { status: 400 }
+      );
     }
 
-    // Get all processing jobs if no specific fileIds provided
-    const jobs = fileIds 
-      ? fileIds.map(id => processingService.getProcessingStatus(id)).filter(Boolean)
-      : processingService.getAllProcessingJobs();
+    // Get equipment data
+    const allEquipment = getAllEquipment();
+    const equipment = equipmentIds 
+      ? allEquipment.filter(eq => equipmentIds.includes(eq.id))
+      : allEquipment;
 
-    if (jobs.length === 0) {
-      return NextResponse.json({
-        success: false,
-        message: 'No data available for export',
-        error: 'No processing jobs found'
-      }, { status: 404 });
-    }
-
-    // Collect all equipment data
-    const validJobs = jobs.filter((job): job is NonNullable<typeof job> => 
-      job !== null && job.result?.success === true && job.result.equipment.length > 0
-    );
-    const allEquipment = validJobs.flatMap(job => job.result!.equipment);
-
-    if (allEquipment.length === 0) {
-      return NextResponse.json({
-        success: false,
-        message: 'No equipment data available for export',
-        error: 'No processed equipment found'
-      }, { status: 404 });
+    if (equipment.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'No equipment found to export' },
+        { status: 404 }
+      );
     }
 
     // Generate export data based on format
-    let exportData: string;
-    let contentType: string;
-    let filename: string;
-
     switch (format) {
       case 'json':
-        exportData = JSON.stringify({
-          exportedAt: new Date().toISOString(),
-          totalEquipment: allEquipment.length,
-          equipment: allEquipment.map(eq => ({
-            id: eq.id,
-            name: eq.name,
-            displayName: eq.displayName,
-            type: eq.type,
-            filename: eq.filename,
-            description: eq.description,
-            status: eq.status,
-            connectionStatus: eq.connectionStatus,
-            vendor: eq.vendor,
-            model: eq.model,
-            createdAt: eq.createdAt,
-            updatedAt: eq.updatedAt,
-            points: eq.points?.map(point => ({
-              id: point.id,
-              originalName: point.originalName,
-              normalizedName: includeNormalized ? point.normalizedName : undefined,
-              description: point.description,
-              objectType: point.objectType,
-              unit: point.unit,
-              dataType: point.dataType,
-              kind: point.kind,
-              bacnetCur: point.bacnetCur,
-              writable: point.writable,
-              haystackTags: includeHaystackTags ? point.haystackTags : undefined
-            }))
-          }))
-        }, null, 2);
-        contentType = 'application/json';
-        filename = `equipment-export-${new Date().toISOString().split('T')[0]}.json`;
-        break;
-
+        return exportAsJSON(equipment, includePoints, includeMetadata);
+      
       case 'csv':
-        // Generate CSV format
-        const csvHeaders = [
-          'Equipment ID',
-          'Equipment Name',
-          'Equipment Type',
-          'Filename',
-          'Point ID',
-          'Original Point Name',
-          ...(includeNormalized ? ['Normalized Point Name'] : []),
-          'Point Description',
-          'Object Type',
-          'Unit',
-          'Data Type',
-          'BACnet Current',
-          'Writable',
-          ...(includeHaystackTags ? ['Haystack Tags'] : [])
-        ];
-
-        const csvRows = [csvHeaders.join(',')];
-        
-        for (const equipment of allEquipment) {
-          if (equipment.points) {
-            for (const point of equipment.points) {
-              const row = [
-                `"${equipment.id}"`,
-                `"${equipment.name}"`,
-                `"${equipment.type}"`,
-                `"${equipment.filename}"`,
-                `"${point.id}"`,
-                `"${point.originalName}"`,
-                ...(includeNormalized ? [`"${point.normalizedName || ''}"`] : []),
-                `"${point.description || ''}"`,
-                `"${point.objectType || ''}"`,
-                `"${point.unit || ''}"`,
-                `"${point.dataType || ''}"`,
-                `"${point.bacnetCur || ''}"`,
-                `"${point.writable || false}"`,
-                ...(includeHaystackTags ? [`"${point.haystackTags?.join(';') || ''}"`] : [])
-              ];
-              csvRows.push(row.join(','));
-            }
-          }
-        }
-
-        exportData = csvRows.join('\n');
-        contentType = 'text/csv';
-        filename = `equipment-export-${new Date().toISOString().split('T')[0]}.csv`;
-        break;
-
-      case 'zinc':
-        // Generate Haystack Zinc format
-        if (!includeHaystackTags) {
-          return NextResponse.json({
-            success: false,
-            message: 'Zinc format requires Haystack tags',
-            error: 'Cannot export Zinc format without Haystack tags'
-          }, { status: 400 });
-        }
-
-        const zincExports = [];
-        for (const equipment of allEquipment) {
-          if (equipment.points) {
-            for (const point of equipment.points) {
-              if (point.haystackTags && point.haystackTags.length > 0) {
-                const tagSet = {
-                  id: point.id,
-                  dis: point.normalizedName || point.originalName,
-                  markers: point.haystackTags,
-                  values: {
-                    equipRef: equipment.id,
-                    objectType: point.objectType,
-                    unit: point.unit
-                  }
-                } as any;
-                zincExports.push(exportToZinc(tagSet));
-              }
-            }
-          }
-        }
-
-        exportData = zincExports.join('\n---\n');
-        contentType = 'text/plain';
-        filename = `equipment-export-${new Date().toISOString().split('T')[0]}.zinc`;
-        break;
-
-      case 'skyspark':
-        // Generate SkySpark format
-        if (!includeHaystackTags) {
-          return NextResponse.json({
-            success: false,
-            message: 'SkySpark format requires Haystack tags',
-            error: 'Cannot export SkySpark format without Haystack tags'
-          }, { status: 400 });
-        }
-
-        const skySparkExports = [];
-        for (const equipment of allEquipment) {
-          if (equipment.points) {
-            for (const point of equipment.points) {
-              if (point.haystackTags && point.haystackTags.length > 0) {
-                const tagSet = {
-                  id: point.id,
-                  dis: point.normalizedName || point.originalName,
-                  markers: point.haystackTags,
-                  values: {
-                    equipRef: equipment.id,
-                    objectType: point.objectType,
-                    unit: point.unit
-                  }
-                } as any;
-                skySparkExports.push(exportToSkySpark(tagSet));
-              }
-            }
-          }
-        }
-
-        exportData = skySparkExports.join('\n');
-        contentType = 'text/plain';
-        filename = `equipment-export-${new Date().toISOString().split('T')[0]}.axon`;
-        break;
-
+        return exportAsCSV(equipment, includePoints, includeMetadata);
+      
+      case 'trio':
+        return exportAsTrio(equipment, includePoints);
+      
+      case 'haystack':
+        return exportAsHaystack(equipment, includePoints);
+      
       default:
-        return NextResponse.json({
-          success: false,
-          message: 'Unsupported export format',
-          error: `Format '${format}' is not supported`
-        }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: 'Unsupported export format' },
+          { status: 400 }
+        );
     }
 
-    // Return file as download
-    return new NextResponse(exportData, {
-      status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${filename}"`,
-        'Cache-Control': 'no-cache'
-      }
-    });
-
   } catch (error) {
-    console.error('Export API error:', error);
-    return NextResponse.json({
-      success: false,
-      message: 'Export failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Export error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error during export' },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET(): Promise<NextResponse> {
+function exportAsJSON(
+  equipment: Equipment[], 
+  includePoints: boolean, 
+  includeMetadata: boolean
+): NextResponse<ExportResponse> {
+  const exportData = {
+    metadata: includeMetadata ? {
+      exportedAt: new Date().toISOString(),
+      equipmentCount: equipment.length,
+      format: 'json',
+      version: '1.0'
+    } : undefined,
+    equipment: equipment.map(eq => ({
+      ...eq,
+      pointCount: includePoints && eq.points ? eq.points.length : undefined
+    }))
+  };
+
+  const jsonData = JSON.stringify(exportData, null, 2);
+  const filename = `equipment_export_${Date.now()}.json`;
+
   return NextResponse.json({
-    message: 'Equipment data export endpoint',
-    supportedFormats: ['json', 'csv', 'zinc', 'skyspark'],
-    method: 'POST',
-    parameters: {
-      fileIds: 'Array of file IDs to export (optional, exports all if not provided)',
-      format: 'Export format: json, csv, zinc, or skyspark',
-      includeNormalized: 'Include normalized point names (default: true)',
-      includeHaystackTags: 'Include Haystack tags (default: true)'
+    success: true,
+    data: jsonData,
+    filename,
+    contentType: 'application/json'
+  });
+}
+
+function exportAsCSV(
+  equipment: Equipment[], 
+  includePoints: boolean, 
+  includeMetadata: boolean
+): NextResponse<ExportResponse> {
+  const headers = [
+    'Equipment ID',
+    'Name',
+    'Type',
+    'Vendor',
+    'Model',
+    'Description'
+  ];
+
+  if (includePoints) {
+    headers.push('Point Count');
+  }
+
+  let csvContent = headers.join(',') + '\n';
+
+  // Add metadata as comments if requested
+  if (includeMetadata) {
+    csvContent = `# Equipment Export\n# Generated: ${new Date().toISOString()}\n# Equipment Count: ${equipment.length}\n\n` + csvContent;
+  }
+
+  // Add equipment data
+  for (const eq of equipment) {
+    const row = [
+      `"${eq.id}"`,
+      `"${eq.name}"`,
+      `"${eq.type}"`,
+      `"${eq.vendor || ''}"`,
+      `"${eq.model || ''}"`,
+      `"${eq.description || ''}"`
+    ];
+
+    if (includePoints) {
+      row.push(eq.points?.length.toString() || '0');
+    }
+
+    csvContent += row.join(',') + '\n';
+  }
+
+  const filename = `equipment_export_${Date.now()}.csv`;
+
+  return NextResponse.json({
+    success: true,
+    data: csvContent,
+    filename,
+    contentType: 'text/csv'
+  });
+}
+
+function exportAsTrio(
+  equipment: Equipment[], 
+  includePoints: boolean
+): NextResponse<ExportResponse> {
+  let trioContent = '';
+
+  // Add header comment
+  trioContent += `// Equipment Export - Trio Format\n`;
+  trioContent += `// Generated: ${new Date().toISOString()}\n`;
+  trioContent += `// Equipment Count: ${equipment.length}\n\n`;
+
+  for (const eq of equipment) {
+    // Equipment record
+    trioContent += `id:${eq.id}\n`;
+    trioContent += `dis:"${eq.name}"\n`;
+    trioContent += `equipType:"${eq.type}"\n`;
+    if (eq.vendor) trioContent += `vendor:"${eq.vendor}"\n`;
+    if (eq.model) trioContent += `model:"${eq.model}"\n`;
+    if (eq.description) trioContent += `desc:"${eq.description}"\n`;
+    trioContent += `equip\n`;
+    trioContent += `point\n`;
+    trioContent += `---\n`;
+
+    // Add placeholder for points if requested
+    if (includePoints && eq.points && eq.points.length > 0) {
+      trioContent += `// Points for ${eq.name} (${eq.points.length} total)\n`;
+      trioContent += `// Point details would be added here\n\n`;
+    }
+  }
+
+  const filename = `equipment_export_${Date.now()}.trio`;
+
+  return NextResponse.json({
+    success: true,
+    data: trioContent,
+    filename,
+    contentType: 'text/plain'
+  });
+}
+
+function exportAsHaystack(
+  equipment: Equipment[], 
+  includePoints: boolean
+): NextResponse<ExportResponse> {
+  const haystackData = {
+    meta: {
+      ver: "3.0",
+      format: "json",
+      ts: new Date().toISOString(),
+      generator: "CxAlloy Equipment Mapping"
+    },
+    cols: [
+      { name: "id" },
+      { name: "dis" },
+      { name: "equip", meta: { marker: {} } },
+      { name: "equipType" },
+      { name: "vendor" },
+      { name: "model" },
+      { name: "description" }
+    ],
+    rows: equipment.map(eq => ({
+      id: `r:${eq.id}`,
+      dis: `s:${eq.name}`,
+      equip: "m:",
+      equipType: `s:${eq.type}`,
+      vendor: eq.vendor ? `s:${eq.vendor}` : null,
+      model: eq.model ? `s:${eq.model}` : null,
+      description: eq.description ? `s:${eq.description}` : null
+    }))
+  };
+
+  const jsonData = JSON.stringify(haystackData, null, 2);
+  const filename = `equipment_export_haystack_${Date.now()}.json`;
+
+  return NextResponse.json({
+    success: true,
+    data: jsonData,
+    filename,
+    contentType: 'application/json'
+  });
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const { searchParams } = new URL(request.url);
+  const format = searchParams.get('format');
+
+  return NextResponse.json({
+    message: 'Export endpoint',
+    supportedFormats: ['json', 'csv', 'trio', 'haystack'],
+    usage: 'POST with format and optional equipmentIds',
+    example: {
+      format: format || 'json',
+      equipmentIds: ['optional-array-of-ids'],
+      includePoints: true,
+      includeMetadata: true
     }
   });
 } 

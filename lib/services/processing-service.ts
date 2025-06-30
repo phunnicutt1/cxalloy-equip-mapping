@@ -1,338 +1,341 @@
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import path from 'path';
 import { TrioParser } from '../parsers/trio-parser';
 import { EquipmentClassifier } from '../classifiers/equipment-classifier';
 import { PointNormalizer } from '../normalizers/point-normalizer';
 import { HaystackTagger } from '../../../lib/taggers/haystack-tagger';
-import type { BACnetPoint } from '@/types/point';
-import { Equipment, EquipmentStatus, ConnectionState } from '@/types/equipment';
-import type { NormalizedPoint } from '@/types/normalized';
-import type { HaystackTagSet } from '@/types/haystack';
+import type { Equipment, NormalizedPoint } from '../../types/equipment';
+import { EquipmentStatus, ConnectionState, EquipmentType } from '../../types/equipment';
+import type { TrioRecord } from '../../types/trio';
 
-export interface ProcessingOptions {
-  enableNormalization?: boolean;
-  enableHaystackTagging?: boolean;
-  strictValidation?: boolean;
-  includeVendorTags?: boolean;
-  confidenceThreshold?: number;
+export interface ProcessingStatus {
+  stage: 'parsing' | 'classifying' | 'normalizing' | 'tagging' | 'completed' | 'error';
+  progress: number;
+  message: string;
+  error?: string;
 }
 
 export interface ProcessingResult {
   success: boolean;
-  fileId: string;
-  fileName: string;
-  equipment: Equipment[];
-  totalPoints: number;
-  processedPoints: number;
-  normalizedPoints: NormalizedPoint[];
-  haystackTagSets: HaystackTagSet[];
-  processingTime: number;
-  warnings: string[];
-  errors: string[];
-  metadata: {
-    parseTime: number;
-    classificationTime: number;
-    normalizationTime: number;
-    taggingTime: number;
-  };
-}
-
-export interface ProcessingStatus {
-  fileId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  progress: number;
-  currentStep: string;
-  startTime: Date;
-  endTime?: Date;
-  result?: ProcessingResult;
+  equipment?: Equipment;
+  points?: NormalizedPoint[];
   error?: string;
+  duration?: number;
 }
 
-class ProcessingService {
-  private static instance: ProcessingService;
-  private processingJobs = new Map<string, ProcessingStatus>();
-  private uploadDir = join(process.cwd(), 'uploads');
+export class ProcessingService {
+  private tagger: HaystackTagger;
 
-  private constructor() {}
-
-  static getInstance(): ProcessingService {
-    if (!ProcessingService.instance) {
-      ProcessingService.instance = new ProcessingService();
-    }
-    return ProcessingService.instance;
+  constructor() {
+    this.tagger = new HaystackTagger();
   }
 
-  /**
-   * Process uploaded trio file through all engines
-   */
   async processFile(
     fileId: string,
-    fileName: string,
-    options: ProcessingOptions = {}
+    filename: string,
+    onStatusUpdate?: (status: ProcessingStatus) => void
   ): Promise<ProcessingResult> {
     const startTime = Date.now();
-    const job: ProcessingStatus = {
-      fileId,
-      status: 'processing',
-      progress: 0,
-      currentStep: 'Reading file',
-      startTime: new Date()
-    };
-
-    this.processingJobs.set(fileId, job);
-
+    
     try {
-      // Step 1: Read file content
-      job.currentStep = 'Reading file content';
-      job.progress = 10;
-      this.processingJobs.set(fileId, { ...job });
+      // Update status: Starting parsing
+      onStatusUpdate?.({
+        stage: 'parsing',
+        progress: 10,
+        message: 'Parsing trio file...'
+      });
 
-      const filePath = join(this.uploadDir, `${fileId}_${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`);
-      const fileContent = await readFile(filePath, 'utf-8');
+      // Step 1: Parse trio file
+      const filepath = path.join(process.cwd(), 'uploads', `${fileId}_${filename}`);
+      const fileContent = await readFile(filepath, 'utf-8');
+      const parseResult = TrioParser.parseTrioFile(filename, fileContent);
 
-      // Step 2: Parse trio file
-      job.currentStep = 'Parsing trio file';
-      job.progress = 20;
-      this.processingJobs.set(fileId, { ...job });
-
-      const parseStartTime = Date.now();
-      const parseResult = TrioParser.parseTrioFile(fileName, fileContent);
-      const parseTime = Date.now() - parseStartTime;
-
-      if (!parseResult.isValid) {
-        throw new Error(`Failed to parse trio file: ${parseResult.metadata.errors.map(e => e.message).join(', ')}`);
+      if (!parseResult.isValid || !parseResult.sections || parseResult.sections.length === 0) {
+        return {
+          success: false,
+          error: parseResult.metadata.errors.map(e => e.message).join(', ') || 'Failed to parse trio file'
+        };
       }
 
-      // Step 3: Classify equipment
-      job.currentStep = 'Classifying equipment';
-      job.progress = 30;
-      this.processingJobs.set(fileId, { ...job });
+      // Update status: Classifying equipment
+      onStatusUpdate?.({
+        stage: 'classifying',
+        progress: 30,
+        message: 'Classifying equipment type...'
+      });
 
-      const classificationStartTime = Date.now();
-      const classificationResult = EquipmentClassifier.classifyFromFilename(fileName);
-      const classificationTime = Date.now() - classificationStartTime;
-
-      // Step 4: Convert trio records to BACnet points
-      job.currentStep = 'Converting to BACnet points';
-      job.progress = 40;
-      this.processingJobs.set(fileId, { ...job });
-
-      const bacnetPoints: BACnetPoint[] = [];
-      for (const section of parseResult.sections) {
-        if (section.records) {
-          for (const record of section.records) {
-            const point = TrioParser.trioRecordToBACnetPoint(record, classificationResult.equipmentName);
-            if (point) {
-              bacnetPoints.push(point);
-            }
-          }
-        }
-      }
-
-      // Step 5: Create equipment object
-      const equipment: Equipment = {
+      // Step 2: Classify equipment
+      const equipmentType = EquipmentClassifier.classifyFromFilename(filename);
+      const baseEquipment: Equipment = {
         id: fileId,
-        name: classificationResult.equipmentName,
-        displayName: classificationResult.equipmentName,
-        type: classificationResult.equipmentType,
-        filename: fileName,
+        name: this.extractEquipmentName(filename),
+        displayName: this.extractEquipmentName(filename),
+        type: equipmentType.equipmentType,
+        filename: filename,
         vendor: 'Unknown',
         modelName: 'Unknown',
-        description: `${classificationResult.equipmentType} - ${classificationResult.equipmentName}`,
+        description: `${equipmentType.equipmentType} parsed from ${filename}`,
         status: EquipmentStatus.OPERATIONAL,
         connectionState: ConnectionState.OPEN,
         connectionStatus: 'ok',
         createdAt: new Date(),
         updatedAt: new Date(),
-        points: bacnetPoints.map(point => ({
-          id: point.objectName,
-          originalName: point.dis || point.objectName,
-          normalizedName: point.dis || point.objectName,
-          description: point.description || '',
-          objectType: point.objectType || 'AI',
-          unit: point.units,
-          dataType: point.dataType || 'Number',
-          kind: point.dataType || 'Number',
-          bacnetCur: point.objectName,
-          writable: point.objectType?.includes('O') || false,
-          haystackTags: []
-        }))
+        points: []
       };
 
-      // Step 6: Normalize points (if enabled)
-      job.currentStep = 'Normalizing point names';
-      job.progress = 60;
-      this.processingJobs.set(fileId, { ...job });
+      // Update status: Normalizing points
+      onStatusUpdate?.({
+        stage: 'normalizing',
+        progress: 50,
+        message: 'Normalizing point names...'
+      });
 
+      // Step 3: Normalize points
       const normalizedPoints: NormalizedPoint[] = [];
-      let normalizationTime = 0;
-
-      if (options.enableNormalization !== false) {
-        const normalizationStartTime = Date.now();
-        
-        for (const point of bacnetPoints) {
-          const normalizationResult = PointNormalizer.normalizePointName(point, {
-            equipmentType: classificationResult.equipmentType,
-            equipmentName: classificationResult.equipmentName
+      
+      // Extract all records from all sections
+      const allRecords: any[] = [];
+      parseResult.sections.forEach(section => {
+        if (section.records) {
+          section.records.forEach(record => {
+            // Convert TrioRecord to a more usable format
+            const recordData: any = {};
+            record.tags.forEach((value, key) => {
+              recordData[key] = value.value || value.raw;
+            });
+            allRecords.push(recordData);
           });
-
-          if (normalizationResult.success && normalizationResult.normalizedPoint) {
-            normalizedPoints.push(normalizationResult.normalizedPoint);
-            
-            // Update equipment point with normalized data
-            const equipmentPoint = equipment.points?.find(p => p.id === point.objectName);
-            if (equipmentPoint) {
-              equipmentPoint.normalizedName = normalizationResult.normalizedPoint.normalizedName;
-              equipmentPoint.description = normalizationResult.normalizedPoint.expandedDescription || normalizationResult.normalizedPoint.originalDescription;
-            }
-          }
         }
+      });
+
+      for (let i = 0; i < allRecords.length; i++) {
+        const point = allRecords[i];
+        const originalName = point.dis || point.id || `Point_${i}`;
+        // Create a BACnetPoint object for normalization
+        const bacnetPoint = {
+          id: `${fileId}_point_${i}`,
+          equipmentId: fileId,
+          objectName: originalName,
+          objectType: this.extractObjectType(point.bacnetCur) as any,
+          objectInstance: this.extractObjectInstance(point.bacnetCur) || i,
+          dis: originalName,
+          displayName: originalName,
+          description: point.bacnetDesc || '',
+          dataType: point.kind as any || 'String',
+          units: point.unit,
+          category: 'unknown' as any,
+          isWritable: !!point.writable,
+          isCommand: !!point.cmd,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
         
-        normalizationTime = Date.now() - normalizationStartTime;
+        const normalizationResult = PointNormalizer.normalizePointName(
+          bacnetPoint,
+          { equipmentType: equipmentType.equipmentType }
+        );
+        
+        const normalizedName = normalizationResult.normalizedPoint?.normalizedName || originalName;
+
+        const normalizedPoint: NormalizedPoint = {
+          id: `${fileId}_point_${i}`,
+          originalName,
+          normalizedName,
+          description: point.bacnetDesc || undefined,
+          unit: point.unit || undefined,
+          dataType: point.kind || undefined,
+          kind: point.kind || undefined,
+          bacnetCur: point.bacnetCur || undefined,
+          objectType: this.extractObjectType(point.bacnetCur),
+          writable: !!point.writable,
+          haystackTags: []
+        };
+
+        normalizedPoints.push(normalizedPoint);
+
+        // Update progress during normalization
+        if (i % Math.max(1, Math.floor(allRecords.length / 10)) === 0) {
+          onStatusUpdate?.({
+            stage: 'normalizing',
+            progress: 50 + (i / allRecords.length) * 20,
+            message: `Normalizing points... (${i + 1}/${allRecords.length})`
+          });
+        }
       }
 
-      // Step 7: Generate Haystack tags (if enabled)
-      job.currentStep = 'Generating Haystack tags';
-      job.progress = 80;
-      this.processingJobs.set(fileId, { ...job });
+      // Update status: Generating Haystack tags
+      onStatusUpdate?.({
+        stage: 'tagging',
+        progress: 80,
+        message: 'Generating Haystack tags...'
+      });
 
-      const haystackTagSets: HaystackTagSet[] = [];
-      let taggingTime = 0;
-
-      if (options.enableHaystackTagging !== false && normalizedPoints.length > 0) {
-        const taggingStartTime = Date.now();
-        const tagger = new HaystackTagger({
-          enableSemanticInference: true,
-          includeVendorTags: options.includeVendorTags !== false,
-          strictValidation: options.strictValidation !== false,
-          confidenceThreshold: options.confidenceThreshold || 0.7
-        });
-
-        for (const normalizedPoint of normalizedPoints) {
-          const tagSet = await tagger.generateHaystackTags(normalizedPoint);
-          haystackTagSets.push(tagSet);
-
-          // Update equipment point with Haystack tags
-          const equipmentPoint = equipment.points?.find(p => p.id === normalizedPoint.originalPointId);
-          if (equipmentPoint) {
-            equipmentPoint.haystackTags = tagSet.tags.map(tag => tag.name);
-          }
+      // Step 4: Generate Haystack tags
+      for (let i = 0; i < normalizedPoints.length; i++) {
+        const point = normalizedPoints[i];
+        try {
+          // Generate basic Haystack tags based on point properties
+          const tags = this.generateBasicHaystackTags(point);
+          point.haystackTags = tags;
+        } catch (error) {
+          console.warn(`Failed to generate Haystack tags for point ${point.originalName}:`, error);
+          point.haystackTags = ['point']; // Fallback to basic tag
         }
 
-        taggingTime = Date.now() - taggingStartTime;
+        // Update progress during tagging
+        if (i % Math.max(1, Math.floor(normalizedPoints.length / 10)) === 0) {
+          onStatusUpdate?.({
+            stage: 'tagging',
+            progress: 80 + (i / normalizedPoints.length) * 15,
+            message: `Generating tags... (${i + 1}/${normalizedPoints.length})`
+          });
+        }
       }
 
-      // Step 8: Finalize result
-      job.currentStep = 'Finalizing results';
-      job.progress = 100;
-      job.status = 'completed';
-      job.endTime = new Date();
+      // Update equipment with points
+      baseEquipment.points = normalizedPoints;
 
-      const processingTime = Date.now() - startTime;
-      const result: ProcessingResult = {
+      // Final status update
+      onStatusUpdate?.({
+        stage: 'completed',
+        progress: 100,
+        message: `Processing completed. ${normalizedPoints.length} points processed.`
+      });
+
+      const duration = Date.now() - startTime;
+
+      return {
         success: true,
-        fileId,
-        fileName,
-        equipment: [equipment],
-        totalPoints: bacnetPoints.length,
-        processedPoints: normalizedPoints.length,
-        normalizedPoints,
-        haystackTagSets,
-        processingTime,
-        warnings: parseResult.metadata.warnings.map(w => w.message),
-        errors: parseResult.metadata.errors.map(e => e.message),
-        metadata: {
-          parseTime,
-          classificationTime,
-          normalizationTime,
-          taggingTime
-        }
+        equipment: baseEquipment,
+        points: normalizedPoints,
+        duration
       };
-
-      job.result = result;
-      this.processingJobs.set(fileId, job);
-
-      return result;
 
     } catch (error) {
-      job.status = 'failed';
-      job.endTime = new Date();
-      job.error = error instanceof Error ? error.message : 'Processing failed';
-      this.processingJobs.set(fileId, job);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown processing error';
+      
+      onStatusUpdate?.({
+        stage: 'error',
+        progress: 0,
+        message: 'Processing failed',
+        error: errorMessage
+      });
 
-      throw error;
+      return {
+        success: false,
+        error: errorMessage,
+        duration: Date.now() - startTime
+      };
     }
   }
 
-  /**
-   * Get processing status for a file
-   */
-  getProcessingStatus(fileId: string): ProcessingStatus | null {
-    return this.processingJobs.get(fileId) || null;
-  }
-
-  /**
-   * Get all processing jobs
-   */
-  getAllProcessingJobs(): ProcessingStatus[] {
-    return Array.from(this.processingJobs.values());
-  }
-
-  /**
-   * Process multiple files in batch
-   */
-  async processBatch(
-    files: Array<{ fileId: string; fileName: string }>,
-    options: ProcessingOptions = {}
-  ): Promise<ProcessingResult[]> {
-    const results: ProcessingResult[] = [];
+  private extractEquipmentName(filename: string): string {
+    // Remove file extension and clean up the name
+    const nameWithoutExt = path.basename(filename, path.extname(filename));
     
-    for (const file of files) {
-      try {
-        const result = await this.processFile(file.fileId, file.fileName, options);
-        results.push(result);
-      } catch (error) {
-        results.push({
-          success: false,
-          fileId: file.fileId,
-          fileName: file.fileName,
-          equipment: [],
-          totalPoints: 0,
-          processedPoints: 0,
-          normalizedPoints: [],
-          haystackTagSets: [],
-          processingTime: 0,
-          warnings: [],
-          errors: [error instanceof Error ? error.message : 'Processing failed'],
-          metadata: {
-            parseTime: 0,
-            classificationTime: 0,
-            normalizationTime: 0,
-            taggingTime: 0
-          }
-        });
-      }
-    }
+    // Remove common prefixes/suffixes and clean up
+    const cleaned = nameWithoutExt
+      .replace(/^(equipment_|equip_|unit_)/i, '')
+      .replace(/(_\d+)?$/, '')
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
 
-    return results;
+    return cleaned || 'Unknown Equipment';
   }
 
-  /**
-   * Clear completed jobs older than specified time
-   */
-  cleanupOldJobs(maxAgeMs: number = 24 * 60 * 60 * 1000): number {
-    const cutoffTime = new Date(Date.now() - maxAgeMs);
-    let cleaned = 0;
+  private extractObjectType(bacnetCur?: string): string | undefined {
+    if (!bacnetCur) return undefined;
+    
+    // Extract object type from BACnet current value (e.g., "AI39" -> "AI")
+    const match = bacnetCur.match(/^([A-Z]{2})/);
+    return match ? match[1] : undefined;
+  }
 
-    for (const [fileId, job] of this.processingJobs.entries()) {
-      if (job.endTime && job.endTime < cutoffTime) {
-        this.processingJobs.delete(fileId);
-        cleaned++;
+  private extractObjectInstance(bacnetCur?: string): number | undefined {
+    if (!bacnetCur) return undefined;
+    
+    // Extract object instance from BACnet current value (e.g., "AI39" -> 39)
+    const match = bacnetCur.match(/^[A-Z]{2}(\d+)/);
+    return match ? parseInt(match[1], 10) : undefined;
+  }
+
+  private generateBasicHaystackTags(point: NormalizedPoint): string[] {
+    const tags: string[] = ['point'];
+    
+    // Add object type based tags
+    if (point.objectType) {
+      const objectType = point.objectType.toLowerCase();
+      if (objectType.startsWith('a')) {
+        tags.push('sensor');
+      }
+      if (objectType.includes('i')) {
+        tags.push('input');
+      }
+      if (objectType.includes('o')) {
+        tags.push('output', 'cmd');
       }
     }
-
-    return cleaned;
+    
+    // Add unit based tags
+    if (point.unit) {
+      const unit = point.unit.toLowerCase();
+      if (unit.includes('temp') || unit.includes('°f') || unit.includes('°c')) {
+        tags.push('temp');
+      }
+      if (unit.includes('cfm') || unit.includes('flow')) {
+        tags.push('air', 'flow');
+      }
+      if (unit.includes('%') || unit.includes('pct')) {
+        tags.push('sensor');
+      }
+      if (unit.includes('psi') || unit.includes('pressure')) {
+        tags.push('pressure');
+      }
+    }
+    
+    // Add name based tags
+    if (point.normalizedName || point.originalName) {
+      const name = (point.normalizedName || point.originalName).toLowerCase();
+      if (name.includes('temp')) {
+        tags.push('temp');
+      }
+      if (name.includes('flow') || name.includes('cfm')) {
+        tags.push('air', 'flow');
+      }
+      if (name.includes('damper')) {
+        tags.push('damper');
+      }
+      if (name.includes('fan')) {
+        tags.push('fan');
+      }
+      if (name.includes('room') || name.includes('zone')) {
+        tags.push('zone');
+      }
+      if (name.includes('supply')) {
+        tags.push('supply');
+      }
+      if (name.includes('return')) {
+        tags.push('return');
+      }
+      if (name.includes('exhaust')) {
+        tags.push('exhaust');
+      }
+    }
+    
+    // Remove duplicates and return
+    return Array.from(new Set(tags));
   }
-}
 
-export const processingService = ProcessingService.getInstance(); 
+  // Method to get processing status for long-running operations
+  async getProcessingStatus(fileId: string): Promise<ProcessingStatus | null> {
+    // This would typically query a database or cache
+    // For now, return null indicating no status found
+    return null;
+  }
+
+  // Method to cancel processing (for future implementation)
+  async cancelProcessing(fileId: string): Promise<boolean> {
+    // Implementation would depend on how background processing is handled
+    return false;
+  }
+} 
