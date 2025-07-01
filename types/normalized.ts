@@ -16,34 +16,11 @@ export enum NormalizationConfidence {
  * High-level categorization of point functions
  */
 export enum PointFunction {
-  // Temperature Points
-  TEMPERATURE_SENSOR = "temperature_sensor",
-  TEMPERATURE_SETPOINT = "temperature_setpoint",
-  
-  // Airflow Points  
-  AIRFLOW_SENSOR = "airflow_sensor",
-  AIRFLOW_SETPOINT = "airflow_setpoint",
-  AIRFLOW_COMMAND = "airflow_command",
-  
-  // Pressure Points
-  PRESSURE_SENSOR = "pressure_sensor", 
-  PRESSURE_SETPOINT = "pressure_setpoint",
-  
-  // Position/Control Points
-  DAMPER_POSITION = "damper_position",
-  VALVE_POSITION = "valve_position",
-  
-  // Status Points
-  FAN_STATUS = "fan_status",
-  PUMP_STATUS = "pump_status",
-  ALARM_STATUS = "alarm_status",
-  
-  // Energy Points
-  POWER_SENSOR = "power_sensor",
-  ENERGY_METER = "energy_meter",
-  
-  // Other
-  UNKNOWN = "unknown"
+  Sensor = "sensor",
+  Setpoint = "setpoint",
+  Command = "command",
+  Status = "status",
+  Unknown = "unknown"
 }
 
 /**
@@ -58,8 +35,9 @@ export interface NormalizedPoint {
   // Original Properties
   originalName: string; // Original trio display name (e.g., "EX DIFF P 1")
   originalDescription: string; // Original BACnet description
-  objectName: string; // BACnet object reference (e.g., "AI744")
+  objectName?: string;
   objectType: BACnetObjectType;
+  objectInstance?: number;
   
   // Normalized Properties
   normalizedName: string; // Human-readable name (e.g., "Exhaust Differential Pressure 1")

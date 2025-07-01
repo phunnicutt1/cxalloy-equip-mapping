@@ -63,7 +63,7 @@ interface DebugInfo {
     connection: {
       status: 'connected' | 'failed' | 'not_configured';
       error?: string;
-      info?: any;
+      info?: Record<string, unknown>;
     };
     tables: {
       initialized: boolean;

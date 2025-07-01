@@ -1,0 +1,399 @@
+dis:Aanlog Input 1
+bacnetCur:AI0
+kind:Number
+point
+---
+dis:Aanlog Input 2
+bacnetCur:AI1
+kind:Number
+point
+---
+dis:Analog Output
+bacnetCur:AO0
+kind:Number
+point
+---
+dis:Acknowledge Warnings
+bacnetCur:AV402
+kind:Number
+point
+---
+dis:Active PArameters
+bacnetCur:AV302
+kind:Number
+point
+---
+dis:Actual Speed
+bacnetCur:AV100
+kind:Number
+point
+unit:rpm
+---
+dis:"Actual Speed in %"
+bacnetCur:AV101
+kind:Number
+point
+unit:"%"
+---
+dis:Alarms
+bacnetCur:AV400
+kind:Number
+point
+---
+dis:Alternation Interval
+bacnetCur:AV516
+kind:Number
+point
+---
+dis:BMS set Speed
+bacnetCur:AV306
+kind:Number
+point
+---
+dis:BTU per hr
+bacnetCur:AV112
+kind:Number
+point
+---
+dis:Control Mode
+bacnetCur:AV300
+kind:Number
+point
+---
+dis:Controller Run Hrs
+bacnetCur:AV278
+kind:Number
+point
+---
+dis:Flow Threshold DO1
+bacnetCur:AV514
+kind:Number
+point
+---
+dis:Flow Threshold DO2
+bacnetCur:AV515
+kind:Number
+point
+---
+dis:HOA State
+bacnetCur:AV301
+kind:Number
+point
+---
+dis:Hand Mode Speed
+bacnetCur:AV305
+kind:Number
+point
+---
+dis:Lead Pump
+bacnetCur:AV518
+kind:Number
+point
+---
+dis:MAX Sensorless Flow
+bacnetCur:AV110
+kind:Number
+point
+---
+dis:MAX Sensorless Head
+bacnetCur:AV111
+kind:Number
+point
+---
+dis:Maximum Speed Limit
+bacnetCur:AV304
+kind:Number
+point
+---
+dis:Minimum Speed Limit
+bacnetCur:AV303
+kind:Number
+point
+---
+dis:Mode 1 - Design Head
+bacnetCur:AV505
+kind:Number
+point
+---
+dis:Mode 1 - Design flow
+bacnetCur:AV506
+kind:Number
+point
+---
+dis:Mode 1 - Minimum Flow
+bacnetCur:AV507
+kind:Number
+point
+---
+dis:Mode 1 - Zero Flow Head
+bacnetCur:AV504
+kind:Number
+point
+---
+dis:Mode 2 - Design Head
+bacnetCur:AV509
+kind:Number
+point
+---
+dis:Mode 2 - Design flow
+bacnetCur:AV510
+kind:Number
+point
+---
+dis:Mode 2 - Minimum Flow
+bacnetCur:AV511
+kind:Number
+point
+---
+dis:Mode 2 - Zero Flow Head
+bacnetCur:AV508
+kind:Number
+point
+---
+dis:Most open valve position
+bacnetCur:AV307
+kind:Number
+point
+---
+dis:Motor Input Current
+bacnetCur:AV104
+kind:Number
+point
+unit:A
+---
+dis:Motor Input Voltage
+bacnetCur:AV103
+kind:Number
+point
+unit:V
+---
+dis:Motor Power
+bacnetCur:AV102
+kind:Number
+point
+---
+dis:"No. of Running Pumps"
+bacnetCur:AV109
+kind:Number
+point
+---
+dis:Reset Alarms
+bacnetCur:AV403
+kind:Number
+point
+---
+dis:Sensor 1 Setpoint
+bacnetCur:AV512
+kind:Number
+point
+---
+dis:Sensor 2 Setpoint
+bacnetCur:AV513
+kind:Number
+point
+---
+dis:Sensorless Flow
+bacnetCur:AV106
+kind:Number
+point
+unit:"gal/min"
+---
+dis:Sensorless Head
+bacnetCur:AV105
+kind:Number
+point
+---
+dis:Sleeping Time
+bacnetCur:AV519
+kind:Number
+point
+---
+dis:Standard - Design Head
+bacnetCur:AV501
+kind:Number
+point
+---
+dis:Standard - Design flow
+bacnetCur:AV502
+kind:Number
+point
+---
+dis:Standard - Minimum Flow
+bacnetCur:AV503
+kind:Number
+point
+---
+dis:Standard - Zero Flow Head
+bacnetCur:AV500
+kind:Number
+point
+---
+dis:Total BTU counter
+bacnetCur:AV281
+kind:Number
+point
+---
+dis:Total Controller Run Hrs
+bacnetCur:AV277
+kind:Number
+point
+---
+dis:Total Flow
+bacnetCur:AV107
+kind:Number
+point
+---
+dis:Total Power
+bacnetCur:AV108
+kind:Number
+point
+---
+dis:Total Pump Run Hrs
+bacnetCur:AV275
+kind:Number
+point
+unit:h
+---
+dis:Total Pump Run KWH Counter
+bacnetCur:AV279
+kind:Number
+point
+---
+dis:Trip BTU counter
+bacnetCur:AV282
+kind:Number
+point
+---
+dis:Trip Pump Run Hrs
+bacnetCur:AV276
+kind:Number
+point
+---
+dis:Trip Pump Run KWH Counter
+bacnetCur:AV280
+kind:Number
+point
+---
+dis:Unbalance For Alternation
+bacnetCur:AV517
+kind:Number
+point
+---
+dis:Warnings
+bacnetCur:AV401
+kind:Number
+point
+---
+dis:Digital input 1
+bacnetCur:BI0
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Digital input 2
+bacnetCur:BI1
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Digital Output 1
+bacnetCur:BO0
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Digital Output 2
+bacnetCur:BO1
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Available Pump
+bacnetCur:BV3
+enum:"off,on"
+kind:Bool
+point
+---
+dis:"BMS SET Start/Stop"
+bacnetCur:BV14
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Current Limit Override
+bacnetCur:BV6
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Flow Above Threshold DO1
+bacnetCur:BV8
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Flow Above Threshold DO2
+bacnetCur:BV9
+enum:"off,on"
+kind:Bool
+point
+---
+dis:High Temperature Override
+bacnetCur:BV7
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Maximum Flow Override
+bacnetCur:BV5
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Minimum Flow Override
+bacnetCur:BV4
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Not Reachable
+bacnetCur:BV11
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Not in Control
+bacnetCur:BV12
+enum:"off,on"
+kind:Bool
+point
+---
+dis:On Target
+bacnetCur:BV10
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Ramping
+bacnetCur:BV13
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Relay 1
+bacnetCur:BV0
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Relay 2
+bacnetCur:BV1
+enum:"off,on"
+kind:Bool
+point
+---
+dis:Run Status
+bacnetCur:BV2
+enum:"off,on"
+kind:Bool
+point

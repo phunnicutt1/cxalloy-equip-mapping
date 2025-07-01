@@ -1,0 +1,539 @@
+dis:Dev1 4-20 mA Remote Ctl Input
+bacnetCur:AI1011
+bacnetDesc:Dev1 4-20 mA Remote Ctl Input
+kind:Number
+point
+---
+dis:Dev1 Active CH Setpoint
+bacnetCur:AI1012
+bacnetDesc:Dev1 Active CH Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Active DHW Setpoint
+bacnetCur:AI1013
+bacnetDesc:Dev1 Active DHW Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Active LL Setpoint
+bacnetCur:AI1014
+bacnetDesc:Dev1 Active LL Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Active System Setpoint
+bacnetCur:AI1108
+bacnetDesc:Dev1 Active System Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Alarm Reason
+bacnetCur:AI1018
+bacnetDesc:Dev1 Alarm Reason
+kind:Number
+point
+---
+dis:Dev1 Annuciator Hold
+bacnetCur:AI1020
+bacnetDesc:Dev1 Annuciator Hold
+kind:Number
+point
+---
+dis:Dev1 Annunciator First Out
+bacnetCur:AI1019
+bacnetDesc:Dev1 Annunciator First Out
+kind:Number
+point
+---
+dis:Dev1 Boiler Pump Status
+bacnetCur:AI1037
+bacnetDesc:Dev1 Boiler Pump Status
+kind:Number
+point
+---
+dis:Dev1 Burner Control Status
+bacnetCur:AI1016
+bacnetDesc:Dev1 Burner Control Status
+kind:Number
+point
+---
+dis:Dev1 Burner Cycle Count
+bacnetCur:AI1089
+bacnetDesc:Dev1 Burner Cycle Count
+kind:Number
+point
+---
+dis:Dev1 Burner Run Time
+bacnetCur:AI1090
+bacnetDesc:Dev1 Burner Run Time
+kind:Number
+point
+unit:h
+---
+dis:Dev1 CH Pump Cycle Count
+bacnetCur:AI1091
+bacnetDesc:Dev1 CH Pump Cycle Count
+kind:Number
+point
+---
+dis:Dev1 CH Pump Status
+bacnetCur:AI1034
+bacnetDesc:Dev1 CH Pump Status
+kind:Number
+point
+---
+dis:Dev1 DHW Sensor
+bacnetCur:AI1008
+bacnetDesc:Dev1 DHW Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Demand Source
+bacnetCur:AI1002
+bacnetDesc:Dev1 Demand Source
+kind:Number
+point
+---
+dis:Dev1 Fan Speed
+bacnetCur:AI1005
+bacnetDesc:Dev1 Fan Speed
+kind:Number
+point
+unit:rpm
+---
+dis:Dev1 Firing Rate
+bacnetCur:AI1004
+bacnetDesc:Dev1 Firing Rate
+kind:Number
+point
+---
+dis:Dev1 Flame Signal
+bacnetCur:AI1006
+bacnetDesc:Dev1 Flame Signal
+kind:Number
+point
+---
+dis:Dev1 Inlet Sensor
+bacnetCur:AI1007
+bacnetDesc:Dev1 Inlet Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Lead Boiler Address
+bacnetCur:AI1097
+bacnetDesc:Dev1 Lead Boiler Address
+kind:Number
+point
+---
+dis:Dev1 Lockout Code
+bacnetCur:AI1017
+bacnetDesc:Dev1 Lockout Code
+kind:Number
+point
+---
+dis:Dev1 Max Firing Rate
+bacnetCur:AI1106
+bacnetDesc:Dev1 Max Firing Rate
+kind:Number
+point
+---
+dis:Dev1 Min Firing Rate
+bacnetCur:AI1107
+bacnetDesc:Dev1 Min Firing Rate
+kind:Number
+point
+---
+dis:Dev1 Modulation Output
+bacnetCur:AI1105
+bacnetDesc:Dev1 Modulation Output
+kind:Number
+point
+---
+dis:Dev1 Outdoor Temperature
+bacnetCur:AI1041
+bacnetDesc:Dev1 Outdoor Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Outlet Sensor
+bacnetCur:AI1003
+bacnetDesc:Dev1 Outlet Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 S5 Sensor
+bacnetCur:AI1009
+bacnetDesc:Dev1 S5 Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Stack Sensor
+bacnetCur:AI1010
+bacnetDesc:Dev1 Stack Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 4-20 mA Remote Ctl Input
+bacnetCur:AI2011
+bacnetDesc:Dev2 4-20 mA Remote Ctl Input
+kind:Number
+point
+---
+dis:Dev2 Active CH Setpoint
+bacnetCur:AI2012
+bacnetDesc:Dev2 Active CH Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Active DHW Setpoint
+bacnetCur:AI2013
+bacnetDesc:Dev2 Active DHW Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Active LL Setpoint
+bacnetCur:AI2014
+bacnetDesc:Dev2 Active LL Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Active System Setpoint
+bacnetCur:AI2108
+bacnetDesc:Dev2 Active System Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Alarm Reason
+bacnetCur:AI2018
+bacnetDesc:Dev2 Alarm Reason
+kind:Number
+point
+---
+dis:Dev2 Annuciator Hold
+bacnetCur:AI2020
+bacnetDesc:Dev2 Annuciator Hold
+kind:Number
+point
+---
+dis:Dev2 Annunciator First Out
+bacnetCur:AI2019
+bacnetDesc:Dev2 Annunciator First Out
+kind:Number
+point
+---
+dis:Dev2 Boiler Pump Status
+bacnetCur:AI2037
+bacnetDesc:Dev2 Boiler Pump Status
+kind:Number
+point
+---
+dis:Dev2 Burner Control Status
+bacnetCur:AI2016
+bacnetDesc:Dev2 Burner Control Status
+kind:Number
+point
+---
+dis:Dev2 Burner Cycle Count
+bacnetCur:AI2089
+bacnetDesc:Dev2 Burner Cycle Count
+kind:Number
+point
+---
+dis:Dev2 Burner Run Time
+bacnetCur:AI2090
+bacnetDesc:Dev2 Burner Run Time
+kind:Number
+point
+unit:h
+---
+dis:Dev2 CH Pump Cycle Count
+bacnetCur:AI2091
+bacnetDesc:Dev2 CH Pump Cycle Count
+kind:Number
+point
+---
+dis:Dev2 CH Pump Status
+bacnetCur:AI2034
+bacnetDesc:Dev2 CH Pump Status
+kind:Number
+point
+---
+dis:Dev2 DHW Sensor
+bacnetCur:AI2008
+bacnetDesc:Dev2 DHW Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Demand Source
+bacnetCur:AI2002
+bacnetDesc:Dev2 Demand Source
+kind:Number
+point
+---
+dis:Dev2 Fan Speed
+bacnetCur:AI2005
+bacnetDesc:Dev2 Fan Speed
+kind:Number
+point
+unit:rpm
+---
+dis:Dev2 Firing Rate
+bacnetCur:AI2004
+bacnetDesc:Dev2 Firing Rate
+kind:Number
+point
+---
+dis:Dev2 Flame Signal
+bacnetCur:AI2006
+bacnetDesc:Dev2 Flame Signal
+kind:Number
+point
+---
+dis:Dev2 Inlet Sensor
+bacnetCur:AI2007
+bacnetDesc:Dev2 Inlet Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Lead Boiler Address
+bacnetCur:AI2097
+bacnetDesc:Dev2 Lead Boiler Address
+kind:Number
+point
+---
+dis:Dev2 Lockout Code
+bacnetCur:AI2017
+bacnetDesc:Dev2 Lockout Code
+kind:Number
+point
+---
+dis:Dev2 Max Firing Rate
+bacnetCur:AI2106
+bacnetDesc:Dev2 Max Firing Rate
+kind:Number
+point
+---
+dis:Dev2 Min Firing Rate
+bacnetCur:AI2107
+bacnetDesc:Dev2 Min Firing Rate
+kind:Number
+point
+---
+dis:Dev2 Modulation Output
+bacnetCur:AI2105
+bacnetDesc:Dev2 Modulation Output
+kind:Number
+point
+---
+dis:Dev2 Outdoor Temperature
+bacnetCur:AI2041
+bacnetDesc:Dev2 Outdoor Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Outlet Sensor
+bacnetCur:AI2003
+bacnetDesc:Dev2 Outlet Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 S5 Sensor
+bacnetCur:AI2009
+bacnetDesc:Dev2 S5 Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev2 Stack Sensor
+bacnetCur:AI2010
+bacnetDesc:Dev2 Stack Sensor
+kind:Number
+point
+unit:°F
+---
+dis:Dev1 Burner Switch
+bacnetCur:AV1047
+bacnetDesc:Dev1 Burner Switch
+bacnetWrite:AV1047
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev1 CH Enable
+bacnetCur:AV1048
+bacnetDesc:Dev1 CH Enable
+bacnetWrite:AV1048
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev1 CH Setpoint
+bacnetCur:AV1049
+bacnetDesc:Dev1 CH Setpoint
+bacnetWrite:AV1049
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dev1 DHW Enable
+bacnetCur:AV1054
+bacnetDesc:Dev1 DHW Enable
+bacnetWrite:AV1054
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev1 DHW Setpoint
+bacnetCur:AV1055
+bacnetDesc:Dev1 DHW Setpoint
+bacnetWrite:AV1055
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dev1 Lead Lag Master Enable
+bacnetCur:AV1064
+bacnetDesc:Dev1 Lead Lag Master Enable
+bacnetWrite:AV1064
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev1 Lead Lag Setpoint
+bacnetCur:AV1065
+bacnetDesc:Dev1 Lead Lag Setpoint
+bacnetWrite:AV1065
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dev2 Burner Switch
+bacnetCur:AV2047
+bacnetDesc:Dev2 Burner Switch
+bacnetWrite:AV2047
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev2 CH Enable
+bacnetCur:AV2048
+bacnetDesc:Dev2 CH Enable
+bacnetWrite:AV2048
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev2 CH Setpoint
+bacnetCur:AV2049
+bacnetDesc:Dev2 CH Setpoint
+bacnetWrite:AV2049
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dev2 DHW Enable
+bacnetCur:AV2054
+bacnetDesc:Dev2 DHW Enable
+bacnetWrite:AV2054
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev2 DHW Setpoint
+bacnetCur:AV2055
+bacnetDesc:Dev2 DHW Setpoint
+bacnetWrite:AV2055
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dev2 Lead Lag Master Enable
+bacnetCur:AV2064
+bacnetDesc:Dev2 Lead Lag Master Enable
+bacnetWrite:AV2064
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Dev2 Lead Lag Setpoint
+bacnetCur:AV2065
+bacnetDesc:Dev2 Lead Lag Setpoint
+bacnetWrite:AV2065
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dev1 Lead Lag Operation Switch
+bacnetCur:BV1104
+bacnetDesc:Dev1 Lead Lag Operation Switch
+bacnetWrite:BV1104
+bacnetWriteLevel:16
+cmd
+enum:"Inactive,Active"
+kind:Bool
+point
+writable
+---
+dis:Dev2 Lead Lag Operation Switch
+bacnetCur:BV2104
+bacnetDesc:Dev2 Lead Lag Operation Switch
+bacnetWrite:BV2104
+bacnetWriteLevel:16
+cmd
+enum:"Inactive,Active"
+kind:Bool
+point
+writable

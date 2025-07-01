@@ -1,4 +1,4 @@
-import { EquipmentType, EquipmentStatus, ConnectionState } from '../../types/equipment';
+import { EquipmentType, EquipmentStatus } from '../../types/equipment';
 import { PointCategory, PointDataType } from '../../types/point';
 import { executeQuery } from './config';
 
@@ -162,39 +162,42 @@ export async function getTableInfo(): Promise<{
   sessions: { count: number; latest: Date | null };
 }> {
   try {
-    const [equipmentStats] = await executeQuery(`
+    const equipmentStatsRows = await executeQuery<{ count: number; latest: Date | null }>(`
       SELECT 
         COUNT(*) as count,
         MAX(created_at) as latest
       FROM equipment_mapping
     `, [], 'EQUIPMENT_STATS');
+    const equipmentStats = equipmentStatsRows.length > 0 ? equipmentStatsRows[0] : { count: 0, latest: null };
     
-    const [pointStats] = await executeQuery(`
+    const pointStatsRows = await executeQuery<{ count: number; latest: Date | null }>(`
       SELECT 
         COUNT(*) as count,
         MAX(created_at) as latest
       FROM point_mapping
     `, [], 'POINT_STATS');
+    const pointStats = pointStatsRows.length > 0 ? pointStatsRows[0] : { count: 0, latest: null };
     
-    const [sessionStats] = await executeQuery(`
+    const sessionStatsRows = await executeQuery<{ count: number; latest: Date | null }>(`
       SELECT 
         COUNT(*) as count,
         MAX(started_at) as latest
       FROM mapping_sessions
     `, [], 'SESSION_STATS');
+    const sessionStats = sessionStatsRows.length > 0 ? sessionStatsRows[0] : { count: 0, latest: null };
     
     return {
       equipment: {
-        count: equipmentStats?.count || 0,
-        latest: equipmentStats?.latest || null
+        count: equipmentStats.count,
+        latest: equipmentStats.latest
       },
       points: {
-        count: pointStats?.count || 0,
-        latest: pointStats?.latest || null
+        count: pointStats.count,
+        latest: pointStats.latest
       },
       sessions: {
-        count: sessionStats?.count || 0,
-        latest: sessionStats?.latest || null
+        count: sessionStats.count,
+        latest: sessionStats.latest
       }
     };
   } catch (error) {
@@ -216,26 +219,26 @@ export async function cleanupOldData(daysOld = 30): Promise<{
     console.log('[DATABASE] Cleaning up data older than:', cutoffDate.toISOString());
     
     // Delete old sessions (this will cascade to equipment/points if needed)
-    const [sessionResult] = await executeQuery(`
+    const sessionResult = await executeQuery<{ affectedRows: number }>(`
       DELETE FROM mapping_sessions 
       WHERE started_at < ? AND status IN ('completed', 'failed')
-    `, [cutoffDate], 'CLEANUP_SESSIONS');
+    `, [cutoffDate.toISOString()], 'CLEANUP_SESSIONS');
     
     // Delete orphaned equipment (not referenced by any session)
-    const [equipmentResult] = await executeQuery(`
+    const equipmentResult = await executeQuery<{ affectedRows: number }>(`
       DELETE FROM equipment_mapping 
       WHERE created_at < ?
-    `, [cutoffDate], 'CLEANUP_EQUIPMENT');
+    `, [cutoffDate.toISOString()], 'CLEANUP_EQUIPMENT');
     
     // Points will be automatically deleted via foreign key cascade
-    const [pointResult] = await executeQuery(`
+    await executeQuery(`
       SELECT COUNT(*) as count FROM point_mapping
     `, [], 'COUNT_REMAINING_POINTS');
     
     return {
-      deletedEquipment: (equipmentResult as any)?.affectedRows || 0,
+      deletedEquipment: equipmentResult.length > 0 ? equipmentResult[0].affectedRows : 0,
       deletedPoints: 0, // Cascade deleted
-      deletedSessions: (sessionResult as any)?.affectedRows || 0
+      deletedSessions: sessionResult.length > 0 ? sessionResult[0].affectedRows : 0
     };
   } catch (error) {
     console.error('[DATABASE] Failed to cleanup old data:', error);

@@ -167,7 +167,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ProcessRe
     });
 
     // Process file
-    const result = await processingService.processFile(fileId, filename, onStatusUpdate);
+    const result = await processingService.processFile(filepath, onStatusUpdate);
 
     debugLog(`Processing completed`, { 
       requestId, 

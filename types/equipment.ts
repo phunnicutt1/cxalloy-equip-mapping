@@ -114,6 +114,8 @@ export interface Equipment {
   
   // Points
   points?: NormalizedPoint[];
+  totalPoints?: number;
+  processedPoints?: number;
   
   // BACnet Properties
   bacnetDeviceId?: number;
@@ -131,6 +133,18 @@ export interface Equipment {
   createdAt: Date;
   updatedAt: Date;
   disabled?: boolean;
+  
+  // Additional metadata from CSV files
+  metadata?: {
+    deviceName?: string;
+    deviceStatus?: string;
+    bacnetVersion?: string;
+    ipAddress?: string;
+    deviceId?: string;
+    network?: string;
+    uri?: string;
+    customFields?: Record<string, string>;
+  };
 }
 
 /**

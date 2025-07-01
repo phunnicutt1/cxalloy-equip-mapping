@@ -2,7 +2,6 @@ import { nanoid } from 'nanoid';
 import { Equipment, ConnectionState, EquipmentStatus } from '../../types/equipment';
 import { NormalizedPoint, PointFunction, NormalizationConfidence } from '../../types/normalized';
 import { BACnetObjectType, PointDataType, PointCategory } from '../../types/point';
-import { HaystackTagCategory } from '../../types/haystack';
 import { executeQuery, executeTransaction } from './config';
 import { EquipmentRecord, PointRecord, MappingSessionRecord, DbConnectionState } from './models';
 
@@ -177,8 +176,38 @@ function mapDbEnumToConnectionState(dbEnum: DbConnectionState): ConnectionState 
   }
 }
 
+// Mapping function to convert TypeScript PointCategory to database ENUM values
+function mapCategoryToDbEnum(category: PointCategory | string | undefined): string {
+  switch (category) {
+    case PointCategory.SENSOR:
+    case 'SENSOR':
+      return 'SENSOR';
+    case PointCategory.COMMAND:
+    case 'COMMAND':
+      return 'COMMAND';
+    case PointCategory.STATUS:
+    case 'STATUS':
+      return 'STATUS';
+    case PointCategory.SETPOINT:
+    case 'SETPOINT':
+      return 'SETPOINT';
+    default:
+      console.warn(`[DB SERVICE] Unexpected point category value: ${category}, defaulting to PARAMETER`);
+      return 'PARAMETER'; // Fallback to PARAMETER instead of UNKNOWN
+  }
+}
+
 export class EquipmentDatabaseService {
   
+  async clearAllData(): Promise<void> {
+    console.log('[DB SERVICE] Clearing all data from equipment and point tables');
+    // It's better to use TRUNCATE for speed, but DELETE is safer if there are foreign keys without ON DELETE CASCADE
+    // We will delete from points first, then equipment to respect foreign key constraints.
+    await executeQuery('DELETE FROM point_mapping', [], 'CLEAR_POINTS');
+    await executeQuery('DELETE FROM equipment_mapping', [], 'CLEAR_EQUIPMENT');
+    console.log('[DB SERVICE] All data cleared.');
+  }
+
   // Store equipment and points in database
   async storeEquipmentWithPoints(
     fileId: string,
@@ -228,7 +257,12 @@ export class EquipmentDatabaseService {
         JSON.stringify({
           originalPoints: equipment.points?.length || 0,
           processingTimestamp: new Date().toISOString(),
-          originalEquipmentType: equipment.type // Store original for reference
+          originalEquipmentType: equipment.type, // Store original for reference
+          vendor: equipment.vendor,
+          model: equipment.modelName,
+          description: equipment.description,
+          connectionStatus: equipment.connectionStatus,
+          ...(equipment.metadata || {}) // Include any additional metadata
         })
       ]);
 
@@ -256,11 +290,11 @@ export class EquipmentDatabaseService {
             point.normalizedName || null,
             point.normalizedName || point.originalName || null,
             point.expandedDescription || point.originalDescription || '',
-            point.category || null,
+            mapCategoryToDbEnum(point.category),
             mapDataTypeToDbEnum(point.dataType || 'ANALOG'), // Convert to database ENUM value with fallback
             point.units || null,
             point.objectType || null,
-            null, // bacnet_object_instance - not available in NormalizedPoint
+            point.objectInstance || null,
             null, // vendor_name - not available in NormalizedPoint
             null, // raw_value - not available in NormalizedPoint
             JSON.stringify(point.haystackTags || {}),
@@ -290,15 +324,26 @@ export class EquipmentDatabaseService {
   async getEquipment(equipmentId: string): Promise<Equipment | null> {
     console.log('[DB SERVICE] Retrieving equipment', { equipmentId });
 
-    const equipmentRecords = await executeQuery<EquipmentRecord>(`
-      SELECT * FROM equipment_mapping WHERE id = ?
-    `, [equipmentId], 'GET_EQUIPMENT');
+    const equipmentQuery = 'SELECT * FROM equipment_mapping WHERE id = ?';
+    const equipmentRows = await executeQuery<EquipmentRecord>(equipmentQuery, [equipmentId], 'GET_EQUIPMENT');
 
-    if (equipmentRecords.length === 0) {
+    if (equipmentRows.length === 0) {
       return null;
     }
 
-    const record = equipmentRecords[0];
+    const record = equipmentRows[0];
+    
+    // Parse metadata to extract vendor and model
+    let metadata: any = {};
+    try {
+      if (typeof record.metadata === 'string') {
+        metadata = JSON.parse(record.metadata);
+      } else if (typeof record.metadata === 'object' && record.metadata !== null) {
+        metadata = record.metadata;
+      }
+    } catch (e) {
+      console.warn('[DB SERVICE] Failed to parse metadata for equipment', record.id, e);
+    }
     
     // Get points for this equipment
     const points = await this.getPointsByEquipmentId(equipmentId);
@@ -310,11 +355,11 @@ export class EquipmentDatabaseService {
       displayName: record.equipment_name,
       type: record.equipment_type,
       filename: record.original_filename,
-      vendor: 'Unknown',
-      modelName: 'Unknown',
+      vendor: metadata.vendor || 'Unknown',
+      modelName: metadata.model || 'Unknown',
       status: record.status as EquipmentStatus,
       connectionState: mapDbEnumToConnectionState(rawConnectionState),
-      connectionStatus: rawConnectionState === 'CONNECTED' ? 'ok' : 'fault',
+      connectionStatus: metadata.connectionStatus || (rawConnectionState === 'CONNECTED' ? 'ok' : 'fault'),
       points,
       createdAt: record.created_at,
       updatedAt: record.last_updated
@@ -325,13 +370,10 @@ export class EquipmentDatabaseService {
   async getPointsByEquipmentId(equipmentId: string): Promise<NormalizedPoint[]> {
     console.log('[DB SERVICE] Retrieving points for equipment', { equipmentId });
 
-    const pointRecords = await executeQuery<PointRecord>(`
-      SELECT * FROM point_mapping 
-      WHERE equipment_id = ? 
-      ORDER BY normalized_name
-    `, [equipmentId], 'GET_POINTS');
+    const query = 'SELECT * FROM point_mapping WHERE equipment_id = ? ORDER BY original_name ASC';
+    const pointRows = await executeQuery<PointRecord>(query, [equipmentId], 'GET_POINTS_BY_EQUIPMENT');
 
-    return pointRecords.map(record => {
+    return pointRows.map(record => {
       const metadata = JSON.parse(record.normalization_metadata || '{}');
       const haystackTagsData = JSON.parse(record.haystack_tags || '[]');
       
@@ -341,7 +383,7 @@ export class EquipmentDatabaseService {
               ? { 
                   name: tag, 
                   value: undefined, 
-                  category: HaystackTagCategory.CUSTOM, 
+                  category: 'CUSTOM', 
                   isMarker: true, 
                   isValid: true, 
                   source: 'inferred' as const, 
@@ -365,7 +407,7 @@ export class EquipmentDatabaseService {
           expandedDescription: record.description || record.normalized_name || record.original_name,
           
           // Classification
-          pointFunction: PointFunction.UNKNOWN,
+          pointFunction: PointFunction.Unknown,
           category: record.category,
           dataType: mapDbEnumToDataType(record.data_type), // Convert from database ENUM
           units: record.units || undefined,
@@ -402,96 +444,78 @@ export class EquipmentDatabaseService {
       searchTerm?: string;
     }
   ): Promise<{ equipment: Equipment[]; total: number }> {
-    console.log('[DB SERVICE] Retrieving all equipment', { limit, offset, filters });
+    const { equipmentType, status, searchTerm } = filters || {};
+    const params: (string | number)[] = [];
+    
+    let whereClause = 'WHERE 1=1';
 
-    let whereClause = '';
-    const params: any[] = [];
-
-    if (filters) {
-      const conditions: string[] = [];
-      
-      if (filters.equipmentType) {
-        conditions.push('equipment_type = ?');
-        params.push(filters.equipmentType);
-      }
-      
-      if (filters.status) {
-        conditions.push('status = ?');
-        params.push(filters.status);
-      }
-      
-      if (filters.searchTerm) {
-        conditions.push('(equipment_name LIKE ? OR original_filename LIKE ?)');
-        params.push(`%${filters.searchTerm}%`, `%${filters.searchTerm}%`);
-      }
-      
-      if (conditions.length > 0) {
-        whereClause = `WHERE ${conditions.join(' AND ')}`;
-      }
+    if (equipmentType) {
+      whereClause += ' AND equipment_type = ?';
+      params.push(mapEquipmentTypeToDbEnum(equipmentType));
+    }
+    if (status) {
+      whereClause += ' AND status = ?';
+      params.push(mapEquipmentStatusToDbEnum(status));
+    }
+    if (searchTerm) {
+      whereClause += ' AND (equipment_name LIKE ? OR original_filename LIKE ?)';
+      params.push(`%${searchTerm}%`, `%${searchTerm}%`);
     }
 
-    // Get total count
-    const [countResult] = await executeQuery<{ total: number }>(`
-      SELECT COUNT(*) as total FROM equipment_mapping ${whereClause}
-    `, params, 'COUNT_EQUIPMENT');
+    const countQuery = `SELECT COUNT(*) as total FROM equipment_mapping ${whereClause}`;
+    const totalResult = await executeQuery<{ total: number }>(countQuery, params, 'GET_EQUIPMENT_COUNT');
+    const total = totalResult[0]?.total || 0;
 
-    const total = countResult?.total || 0;
+    const query = `
+      SELECT 
+        id, original_filename, equipment_name, equipment_type, status, connection_state,
+        total_points, processed_points, last_updated, created_at, metadata
+      FROM equipment_mapping
+      ${whereClause}
+      ORDER BY last_updated DESC
+      LIMIT ${Number(limit)} OFFSET ${Number(offset)}
+    `;
 
-    // Get equipment records
-    const equipmentRecords = await executeQuery<EquipmentRecord>(`
-      SELECT * FROM equipment_mapping ${whereClause}
-      ORDER BY created_at DESC
-      LIMIT ${parseInt(limit.toString())} OFFSET ${parseInt(offset.toString())}
-    `, params, 'GET_ALL_EQUIPMENT');
-
-    // Convert to Equipment objects (with point count for UI display)
-    const equipment: Equipment[] = equipmentRecords.map(record => {
-      const rawConnectionState = record.connection_state;
-      const pointCount = record.total_points || 0;
-      
-      // Create placeholder points array with correct length for UI display
-      // This allows the UI to show correct point counts without loading all point data
-      const placeholderPoints: NormalizedPoint[] = Array(pointCount).fill(null).map((_, index) => ({
-        // Minimal placeholder data - just enough to represent count
-        originalPointId: `placeholder-${index}`,
-        equipmentId: record.id,
-        originalName: `Point ${index + 1}`,
-        originalDescription: '',
-        objectName: `placeholder-${index}`,
-        objectType: 'ANALOG_INPUT' as any,
-        normalizedName: `Point ${index + 1}`,
-        expandedDescription: `Point ${index + 1}`,
-        pointFunction: 'UNKNOWN' as any,
-        category: 'Unknown',
-        dataType: 'ANALOG' as any,
-        units: '',
-        haystackTags: [],
-        confidence: 'UNKNOWN' as any,
-        confidenceScore: 0,
-        normalizationMethod: 'placeholder',
-        normalizationRules: [],
-        hasAcronymExpansion: false,
-        hasUnitNormalization: false,
-        hasContextInference: false,
-        requiresManualReview: false,
-        normalizedAt: new Date(),
-        isPlaceholder: true // Flag to indicate this is just for count display
-      }));
+    const rows = await executeQuery<EquipmentRecord>(query, params, 'GET_ALL_EQUIPMENT');
+    
+    console.log(`[DB SERVICE] Retrieved ${rows.length} equipment records`);
+    if (rows.length > 0) {
+      console.log(`[DB SERVICE] Sample row metadata:`, {
+        equipment_name: rows[0].equipment_name,
+        metadata: rows[0].metadata,
+        metadata_type: typeof rows[0].metadata
+      });
+    }
+    
+    const equipment: Equipment[] = rows.map(row => {
+      // Parse metadata to extract vendor and model
+      let metadata: any = {};
+      try {
+        if (typeof row.metadata === 'string') {
+          metadata = JSON.parse(row.metadata);
+        } else if (typeof row.metadata === 'object' && row.metadata !== null) {
+          metadata = row.metadata;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse metadata for equipment', row.id, e);
+      }
       
       return {
-        id: record.id,
-        name: record.equipment_name,
-        displayName: record.equipment_name,
-        type: record.equipment_type,
-        filename: record.original_filename,
-        vendor: 'Unknown',
-        modelName: 'Unknown',
-        status: record.status as EquipmentStatus,
-        connectionState: mapDbEnumToConnectionState(rawConnectionState),
-        connectionStatus: rawConnectionState === 'CONNECTED' ? 'ok' : 'fault',
-        points: placeholderPoints, // Points with correct count for UI
-        createdAt: record.created_at,
-        updatedAt: record.last_updated
+        id: row.id,
+        name: row.equipment_name,
+        displayName: row.equipment_name,
+        type: row.equipment_type,
+        filename: row.original_filename,
+        vendor: metadata.vendor || 'Unknown',
+        modelName: metadata.model || 'Unknown',
+        status: row.status as EquipmentStatus,
+        connectionState: mapDbEnumToConnectionState(row.connection_state),
+        connectionStatus: metadata.connectionStatus || 'ok',
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.last_updated),
+        points: [], // Points are not loaded in this high-level view
+        totalPoints: row.total_points,
+        processedPoints: row.processed_points
       };
     });
 
@@ -522,48 +546,43 @@ export class EquipmentDatabaseService {
       status?: 'processing' | 'completed' | 'failed';
     }
   ): Promise<void> {
-    const setClause: string[] = [];
-    const params: any[] = [];
+    const setClauses: string[] = [];
+    const params: (string | number)[] = [];
 
     if (updates.processedFiles !== undefined) {
-      setClause.push('processed_files = ?');
+      setClauses.push('processed_files = ?');
       params.push(updates.processedFiles);
     }
     if (updates.totalEquipment !== undefined) {
-      setClause.push('total_equipment = ?');
+      setClauses.push('total_equipment = ?');
       params.push(updates.totalEquipment);
     }
     if (updates.totalPoints !== undefined) {
-      setClause.push('total_points = ?');
+      setClauses.push('total_points = ?');
       params.push(updates.totalPoints);
     }
     if (updates.status) {
-      setClause.push('status = ?');
+      setClauses.push('status = ?');
       params.push(updates.status);
-      
-      if (updates.status === 'completed' || updates.status === 'failed') {
-        setClause.push('completed_at = CURRENT_TIMESTAMP');
-      }
     }
 
-    if (setClause.length > 0) {
-      params.push(sessionId);
-      
-      await executeQuery(`
-        UPDATE mapping_sessions 
-        SET ${setClause.join(', ')}
-        WHERE id = ?
-      `, params, 'UPDATE_SESSION');
-    }
+    if (setClauses.length === 0) return;
+
+    params.push(sessionId);
+    const query = `
+      UPDATE mapping_sessions 
+      SET ${setClauses.join(', ')}, last_updated = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `;
+
+    await executeQuery(query, params, 'UPDATE_SESSION');
   }
 
   // Get session info
   async getMappingSession(sessionId: string): Promise<MappingSessionRecord | null> {
-    const sessions = await executeQuery<MappingSessionRecord>(`
-      SELECT * FROM mapping_sessions WHERE id = ?
-    `, [sessionId], 'GET_SESSION');
-
-    return sessions[0] || null;
+    const query = 'SELECT * FROM mapping_sessions WHERE id = ?';
+    const rows = await executeQuery<MappingSessionRecord>(query, [sessionId], 'GET_SESSION');
+    return rows[0] || null;
   }
 
   // Delete equipment and associated points
@@ -577,6 +596,34 @@ export class EquipmentDatabaseService {
     // Points will be automatically deleted via CASCADE
   }
 
+  async findEquipmentByName(equipmentName: string): Promise<Equipment | null> {
+    const query = 'SELECT * FROM equipment_mapping WHERE equipment_name = ? LIMIT 1';
+    const rows = await executeQuery<EquipmentRecord>(query, [equipmentName], 'FIND_EQUIPMENT_BY_NAME');
+
+    if (rows.length === 0) {
+      return null;
+    }
+    
+    const record = rows[0];
+    const rawConnectionState = record.connection_state;
+
+    return {
+      id: record.id,
+      name: record.equipment_name,
+      displayName: record.equipment_name,
+      type: record.equipment_type,
+      filename: record.original_filename,
+      vendor: 'Unknown', // This should be populated from a metadata field in a future step
+      modelName: 'Unknown',
+      status: record.status as EquipmentStatus,
+      connectionState: mapDbEnumToConnectionState(rawConnectionState),
+      connectionStatus: rawConnectionState === 'CONNECTED' ? 'ok' : 'fault',
+      points: [], // Points are not loaded in this lookup
+      createdAt: record.created_at,
+      updatedAt: record.last_updated
+    };
+  }
+
   // Get database statistics
   async getStatistics(): Promise<{
     totalEquipment: number;
@@ -587,53 +634,63 @@ export class EquipmentDatabaseService {
   }> {
     console.log('[DB SERVICE] Retrieving database statistics');
 
-    const [totalStats] = await executeQuery(`
-      SELECT 
+    const statsQuery = `
+      SELECT
         (SELECT COUNT(*) FROM equipment_mapping) as totalEquipment,
         (SELECT COUNT(*) FROM point_mapping) as totalPoints
-    `, [], 'TOTAL_STATS');
-
-    const equipmentByType = await executeQuery(`
+    `;
+    const statsResult = await executeQuery<{ totalEquipment: number; totalPoints: number }>(statsQuery, [], 'GET_STATS');
+    const { totalEquipment, totalPoints } = statsResult[0] || { totalEquipment: 0, totalPoints: 0 };
+    
+    const equipmentByTypeQuery = `
       SELECT equipment_type, COUNT(*) as count 
       FROM equipment_mapping 
       GROUP BY equipment_type
-    `, [], 'EQUIPMENT_BY_TYPE');
+    `;
+    const equipmentByTypeResult = await executeQuery<{ equipment_type: string; count: number }>(equipmentByTypeQuery, [], 'GET_EQUIP_BY_TYPE');
+    const equipmentByType = equipmentByTypeResult.reduce((acc, row) => {
+      acc[row.equipment_type] = row.count;
+      return acc;
+    }, {} as { [key: string]: number });
 
-    const pointsByCategory = await executeQuery(`
+    const pointsByCategoryQuery = `
       SELECT category, COUNT(*) as count 
       FROM point_mapping 
       GROUP BY category
-    `, [], 'POINTS_BY_CATEGORY');
-
-    const recentActivity = await executeQuery(`
+    `;
+    const pointsByCategoryResult = await executeQuery<{ category: string; count: number }>(pointsByCategoryQuery, [], 'GET_POINTS_BY_CAT');
+    const pointsByCategory = pointsByCategoryResult.reduce((acc, row) => {
+      acc[row.category] = row.count;
+      return acc;
+    }, {} as { [key: string]: number });
+    
+    const recentActivityQuery = `
       SELECT 
         DATE(created_at) as date,
-        COUNT(*) as equipment,
-        SUM(total_points) as points
-      FROM equipment_mapping 
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        COUNT(CASE WHEN table_name = 'equipment_mapping' THEN 1 END) as equipment,
+        COUNT(CASE WHEN table_name = 'point_mapping' THEN 1 END) as points
+      FROM (
+        SELECT created_at, 'equipment_mapping' as table_name FROM equipment_mapping
+        UNION ALL
+        SELECT created_at, 'point_mapping' as table_name FROM point_mapping
+      ) combined
       GROUP BY DATE(created_at)
       ORDER BY date DESC
-      LIMIT 30
-    `, [], 'RECENT_ACTIVITY');
-
+      LIMIT 7
+    `;
+    const recentActivityResult = await executeQuery<{ date: string; equipment: number; points: number }>(recentActivityQuery, [], 'GET_RECENT_ACTIVITY');
+    const recentActivity = recentActivityResult.map(row => ({
+      date: row.date,
+      equipment: row.equipment,
+      points: row.points
+    }));
+    
     return {
-      totalEquipment: totalStats?.totalEquipment || 0,
-      totalPoints: totalStats?.totalPoints || 0,
-      equipmentByType: Object.fromEntries(
-        equipmentByType.map((row: any) => [row.equipment_type, row.count])
-      ),
-      pointsByCategory: Object.fromEntries(
-        pointsByCategory.map((row: any) => [row.category, row.count])
-      ),
-      recentActivity: recentActivity.map((row: any) => ({
-        date: row.date,
-        equipment: row.equipment,
-        points: row.points
-      }))
+      totalEquipment,
+      totalPoints,
+      equipmentByType,
+      pointsByCategory,
+      recentActivity
     };
   }
 }
-
-// Singleton instance
-export const equipmentDbService = new EquipmentDatabaseService(); 

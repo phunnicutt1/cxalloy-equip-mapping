@@ -73,7 +73,7 @@ export class HaystackTagger {
     const tags = new Set<string>();
     let confidence = 0.5;
     const warnings: string[] = [];
-    const metadata: Record<string, any> = {};
+    const metadata: Record<string, unknown> = {};
 
     try {
       // Step 1: Add base markers
@@ -509,7 +509,8 @@ export function generateHaystackTags(
 export function batchGenerateHaystackTags(
   points: Array<{ normalized: NormalizedPoint; original: BACnetPoint; context?: HaystackTaggingContext }>
 ): HaystackTaggingResult[] {
-  return points.map(({ normalized, original, context }) => 
-    generateHaystackTags(normalized, original, context)
-  );
+  const tagger = new HaystackTagger();
+  return points.map(({ normalized, original, context }) => {
+    return generateHaystackTags(normalized, original, context);
+  });
 } 

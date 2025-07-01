@@ -16,9 +16,12 @@ const customJestConfig = {
     '**/__tests__/**/*.{js,jsx,ts,tsx}',
     '**/*.{test,spec}.{js,jsx,ts,tsx}',
   ],
+  transformIgnorePatterns: [
+    '/node_modules/(?!(nanoid)/)',
+  ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
+    '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
       useESM: true,
     }],
   },

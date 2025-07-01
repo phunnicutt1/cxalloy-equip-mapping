@@ -47,6 +47,9 @@ interface AppState {
   setSelectedTemplate: (templateId: string | null) => void;
   setLoading: (loading: boolean) => void;
   
+  // Data Fetching
+  fetchEquipment: (page: number, filters: Record<string, string>) => Promise<void>;
+  
   // Panel Actions
   setPanelWidth: (panel: 'left' | 'right', width: number) => void;
   toggleMobilePanel: (panel: 'left' | 'right') => void;
@@ -97,6 +100,26 @@ export const useAppStore = create<AppState>()(
       setSearchTerm: (term) => set({ searchTerm: term }),
       setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),
       setLoading: (loading) => set({ isLoading: loading }),
+      
+      fetchEquipment: async (page, filters) => {
+        set({ isLoading: true });
+        try {
+          const params = new URLSearchParams({
+            page: page.toString(),
+            ...filters,
+          });
+          const response = await fetch(`/api/equipment?${params.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            set({ equipment: data.equipment, isLoading: false });
+          } else {
+            throw new Error(data.error || 'Failed to fetch equipment');
+          }
+        } catch (error) {
+          console.error('Failed to fetch equipment:', error);
+          set({ isLoading: false });
+        }
+      },
       
       setViewMode: (panel, mode) => 
         set((state) => ({

@@ -1,0 +1,149 @@
+dis:ComSensor 1 Temp
+bacnetCur:AI5001
+kind:Number
+point
+unit:°F
+---
+dis:Discharge Air Temp
+bacnetCur:AI1
+kind:Number
+point
+unit:°F
+---
+dis:Hardware Input 6
+bacnetCur:AI6
+kind:Number
+point
+unit:°F
+---
+dis:Return Air Temp
+bacnetCur:AI4
+kind:Number
+point
+unit:°F
+---
+dis:Analog Value 4
+bacnetCur:AV4
+bacnetWrite:AV4
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Analog Value 5
+bacnetCur:AV5
+bacnetWrite:AV5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Zone Temp Cooling Setpoint
+bacnetCur:AV1
+bacnetWrite:AV1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Zone Temp Deadband
+bacnetCur:AV2
+bacnetWrite:AV2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Zone Temp Heating Setpoint
+bacnetCur:AV3
+bacnetWrite:AV3
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:Dirty Filter Alarm
+bacnetCur:BI3
+enum:"FALSE,TRUE"
+kind:Bool
+point
+---
+dis:Hardware Input 5
+bacnetCur:BI5
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:Supply Fan Status
+bacnetCur:BI2
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:"Cooling Stage 1 Start/Stop"
+bacnetCur:BO2
+bacnetWrite:BO2
+bacnetWriteLevel:16
+cmd
+enum:"STOP,START"
+kind:Bool
+point
+writable
+---
+dis:"Heat Stage 1 Start/Stop"
+bacnetCur:BO3
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"STOP,START"
+kind:Bool
+point
+writable
+---
+dis:"Supply Fan Start/Stop"
+bacnetCur:BO1
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"STOP,START"
+kind:Bool
+point
+writable
+---
+dis:AHU_3_Enable
+bacnetCur:BV1
+bacnetWrite:BV1
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Binary Value 3
+bacnetCur:BV3
+bacnetWrite:BV3
+bacnetWriteLevel:16
+cmd
+enum:"FALSE,TRUE"
+kind:Bool
+point
+writable
+---
+dis:Supply Fan Alarm
+bacnetCur:BV2
+bacnetWrite:BV2
+bacnetWriteLevel:16
+cmd
+enum:"FALSE,TRUE"
+kind:Bool
+point
+writable

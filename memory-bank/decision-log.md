@@ -92,3 +92,18 @@
   - ✅ Allows for future expansion without breaking changes
   - ✅ Clean separation between CxAlloy core data and mapping data
   - ⚠️ Requires careful maintenance of ENUM mappings between systems
+
+## Enhanced Point Normalization Configuration
+- **Date:** 2025-07-01 1:33:48 AM
+- **Author:** Unknown User
+- **Context:** During implementation of the enhanced point normalization system, we discovered that the new features (adding "Sensor" suffixes and enhanced confidence levels) would break existing tests while providing more accurate results.
+- **Decision:** Implemented configurable enhancement options in NormalizationContext interface with backward compatibility flags: `addFunctionSuffix` and `useEnhancedConfidence`. New processing pipeline uses enhanced mode by default, while existing code can maintain legacy behavior.
+- **Alternatives Considered:** 
+  - Completely replace old system (breaking changes)
+  - Create separate enhanced normalizer class
+  - Make enhancements optional through global config
+- **Consequences:** 
+  - Maintains backward compatibility with existing codebase
+  - Allows gradual migration to enhanced features
+  - Enables A/B testing of normalization approaches
+  - Adds slight complexity to configuration interface

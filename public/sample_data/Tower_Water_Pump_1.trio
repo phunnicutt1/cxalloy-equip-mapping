@@ -1,0 +1,505 @@
+dis:Analog Input 53
+bacnetCur:AI0
+kind:Number
+point
+unit:"%"
+---
+dis:Analog Input 54
+bacnetCur:AI1
+kind:Number
+point
+unit:"%"
+---
+dis:"Pulse out #27 Bus Control"
+bacnetCur:AO1
+bacnetWrite:AO1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"Pulse out #29 Bus Control"
+bacnetCur:AO2
+bacnetWrite:AO2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Terminal 42 Output Bus Control
+bacnetCur:AO0
+bacnetWrite:AO0
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Alarm Word
+bacnetCur:AV61
+kind:Number
+point
+---
+dis:Alarm Word 2
+bacnetCur:AV62
+kind:Number
+point
+---
+dis:Bus Feedback 1
+bacnetCur:AV31
+kind:Number
+point
+unit:"%"
+---
+dis:Bus Feedback 2
+bacnetCur:AV36
+kind:Number
+point
+unit:"%"
+---
+dis:Bus Feedback 3
+bacnetCur:AV41
+kind:Number
+point
+unit:"%"
+---
+dis:DC Link Voltage
+bacnetCur:AV27
+kind:Number
+point
+unit:V
+---
+dis:External Reference
+bacnetCur:AV65
+kind:Number
+point
+unit:"%"
+---
+dis:Fault Code
+bacnetCur:AV51
+kind:Number
+point
+---
+dis:Frequency
+bacnetCur:AV25
+kind:Number
+point
+unit:Hz
+---
+dis:"Heatsink Temp."
+bacnetCur:AV28
+kind:Number
+point
+unit:°C
+---
+dis:Input Reference 1
+bacnetCur:AV1
+bacnetWrite:AV1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Input Reference 2
+bacnetCur:AV2
+bacnetWrite:AV2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Inverter Thermal
+bacnetCur:AV29
+kind:Number
+point
+unit:"%"
+---
+dis:Last Alarm
+bacnetCur:AV50
+kind:Number
+point
+---
+dis:Motor Current
+bacnetCur:AV5
+kind:Number
+point
+unit:A
+---
+dis:Motor Thermal
+bacnetCur:AV15
+kind:Number
+point
+unit:"%"
+---
+dis:Motor Voltage
+bacnetCur:AV24
+kind:Number
+point
+unit:V
+---
+dis:On Reference Bandwidth
+bacnetCur:AV53
+kind:Number
+point
+unit:"%"
+---
+dis:Operating Hours
+bacnetCur:AV21
+kind:Number
+point
+unit:h
+---
+dis:Output Speed
+bacnetCur:AV3
+kind:Number
+point
+unit:"%"
+---
+dis:"PID Diff. Gain Limit"
+bacnetCur:AV57
+kind:Number
+point
+---
+dis:PID Differentiation Time
+bacnetCur:AV56
+kind:Number
+point
+unit:s
+---
+dis:PID Feedback
+bacnetCur:AV4
+kind:Number
+point
+unit:"%"
+---
+dis:PID Integral Time
+bacnetCur:AV55
+kind:Number
+point
+unit:s
+---
+dis:PID Proportional Gain
+bacnetCur:AV54
+kind:Number
+point
+---
+dis:PID Start Speed
+bacnetCur:AV52
+kind:Number
+point
+unit:Hz
+---
+dis:Power
+bacnetCur:AV6
+kind:Number
+point
+unit:kW
+---
+dis:Running Hours
+bacnetCur:AV22
+kind:Number
+point
+unit:h
+---
+dis:Sensorless Readout
+bacnetCur:AV58
+kind:Number
+point
+---
+dis:Setpoint 1
+bacnetCur:AV30
+kind:Number
+point
+unit:"%"
+---
+dis:Setpoint 2
+bacnetCur:AV35
+kind:Number
+point
+unit:"%"
+---
+dis:Setpoint 3
+bacnetCur:AV40
+kind:Number
+point
+unit:"%"
+---
+dis:Torque
+bacnetCur:AV26
+kind:Number
+point
+unit:"%"
+---
+dis:Warning Word
+bacnetCur:AV66
+kind:Number
+point
+---
+dis:Warning Word 2
+bacnetCur:AV67
+kind:Number
+point
+---
+dis:kWh Counter
+bacnetCur:AV23
+kind:Number
+point
+unit:kWh
+---
+dis:Digital input Term 18
+bacnetCur:BI5
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital input Term 19
+bacnetCur:BI4
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital input Term 27
+bacnetCur:BI3
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital input Term 29
+bacnetCur:BI2
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital input Term 32
+bacnetCur:BI1
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital input Term 33
+bacnetCur:BI0
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital input Term 37
+bacnetCur:BI6
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Digital Output Term 27
+bacnetCur:BO0
+bacnetWrite:BO0
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Digital Output Term 29
+bacnetCur:BO1
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Relay 1
+bacnetCur:BO4
+bacnetWrite:BO4
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Relay 2
+bacnetCur:BO5
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Bus Control
+bacnetCur:BV32
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:"CW/CCW"
+bacnetCur:BV25
+bacnetWrite:BV25
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Coasting
+bacnetCur:BV24
+bacnetWrite:BV24
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Fault Reset Command
+bacnetCur:BV3
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:"HAND / AUTO Reference"
+bacnetCur:BV6
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Jog
+bacnetCur:BV26
+bacnetWrite:BV26
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:"OK / FAULT Monitor"
+bacnetCur:BV5
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:"REF 1/REF 2 Select"
+bacnetCur:BV2
+bacnetWrite:BV2
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:"RUN / STOP Monitor"
+bacnetCur:BV4
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:"RUN/STOP Command"
+bacnetCur:BV1
+bacnetWrite:BV1
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:"Ramp 1/Ramp 2"
+bacnetCur:BV34
+bacnetWrite:BV34
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Reset
+bacnetCur:BV27
+bacnetWrite:BV27
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:Reset KWh Counter
+bacnetCur:BV28
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Reset Running Hours Counter
+bacnetCur:BV29
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RevStatus
+bacnetCur:BV30
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Running
+bacnetCur:BV33
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:"Speed = reference"
+bacnetCur:BV31
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Trip
+bacnetCur:BV22
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Triplock
+bacnetCur:BV23
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Warning
+bacnetCur:BV21
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Active Setup
+bacnetCur:MSV1
+bacnetWrite:MSV1
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"STATE1,STATE2,STATE3,STATE4"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Smart Logic Controller State
+bacnetCur:MSV0
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"STATE1,STATE2,STATE3,STATE4,STATE5,STATE6,STATE7,STATE8,STATE9,STATE10,STATE11,STATE12,STATE13,STATE14,STATE15,STATE16,STATE17,STATE18,STATE19,STATE20,STATE21,STATE22,STATE23,STATE24,STATE25,STATE26,STATE27,STATE28,STATE29,STATE30,STATE31,STATE32,STATE33,STATE34,STATE35,STATE36,STATE37,STATE38,STATE39,STATE40,STATE41,STATE42,STATE43,STATE44,STATE45,STATE46,STATE47,STATE48,STATE49,STATE50,STATE51,STATE52,STATE53,STATE54,STATE55,STATE56,STATE57,STATE58,STATE59,STATE60,STATE61,STATE62,STATE63,STATE64,STATE65,STATE66,STATE67,STATE68,STATE69,STATE70,STATE71,STATE72,STATE73,STATE74,STATE75,STATE76,STATE77,STATE78,STATE79,STATE80,STATE81,STATE82,STATE83,STATE84,STATE85,STATE86,STATE87,STATE88,STATE89,STATE90,STATE91,STATE92,STATE93,STATE94,STATE95,STATE96,STATE97,STATE98,STATE99,STATE100"
+kind:Str
+point

@@ -3,9 +3,9 @@
  * Transforms cryptic BACnet point names into human-readable descriptions
  */
 
-import { BACnetPoint } from '@/types/point';
+import { BACnetPoint, BACnetObjectType, PointCategory, PointDataType } from '@/types/point';
 import { NormalizedPoint, NormalizationResult, NormalizationConfidence, PointFunction } from '@/types/normalized';
-import { HaystackTag } from '@/types/haystack';
+import { HaystackTag, HaystackTagCategory } from '@/types/haystack';
 import { BACNET_ACRONYMS } from '../dictionaries/bacnet-acronyms';
 import { getEquipmentAcronyms } from '../dictionaries/equipment-specific';
 import { getVendorAcronyms, inferVendorFromPattern } from '../dictionaries/vendor-specific';
@@ -20,6 +20,9 @@ export interface NormalizationContext {
   units?: string;
   objectType?: string;
   pointCategory?: string;
+  // Enhancement options
+  addFunctionSuffix?: boolean; // Whether to add "Sensor", "Command" etc.
+  useEnhancedConfidence?: boolean; // Whether to use enhanced confidence levels
 }
 
 /**
@@ -49,7 +52,6 @@ interface ContextAnalysis {
  */
 export class PointNormalizer {
   private static readonly DELIMITERS = /[\s_\-\.]+/;
-  private static readonly CAMEL_CASE_SPLIT = /(?=[A-Z])/;
   private static readonly UNIT_PATTERNS = {
     temperature: /°?[CF]|deg|temp/i,
     pressure: /psi|pa|inh2o|inhg|bar|press/i,
@@ -108,15 +110,15 @@ export class PointNormalizer {
       const contextAnalysis = this.analyzeContext(point, context);
       result.rulesEvaluated++;
 
-      // Step 5: Generate human-readable description
-      const description = this.generateDescription(tokenAnalyses);
-      result.appliedRules.push('token_analysis', 'acronym_expansion', 'context_analysis');
-
-      // Step 6: Determine point function
+      // Step 5: Determine point function first
       const pointFunction = this.determinePointFunction(tokenAnalyses);
+
+      // Step 6: Generate human-readable description with context
+      const description = this.generateDescription(tokenAnalyses, context, pointFunction);
+      result.appliedRules.push('token_analysis', 'acronym_expansion', 'context_analysis');
       
       // Step 7: Generate Haystack tags
-      const haystackTags = this.generateHaystackTags(tokenAnalyses, contextAnalysis, pointFunction);
+      const haystackTags = this.generateHaystackTags(tokenAnalyses, contextAnalysis, pointFunction, description);
 
       // Step 8: Calculate overall confidence
       const confidence = this.calculateConfidence(tokenAnalyses, contextAnalysis);
@@ -136,7 +138,7 @@ export class PointNormalizer {
         dataType: point.dataType,
         units: point.units || context.units,
         haystackTags,
-        confidence: this.getConfidenceLevel(confidence.overall),
+        confidence: this.getConfidenceLevel(confidence.overall, context?.useEnhancedConfidence !== false),
         confidenceScore: confidence.overall,
         normalizationMethod: confidence.primaryMethod,
         normalizationRules: result.appliedRules,
@@ -173,17 +175,25 @@ export class PointNormalizer {
   private static tokenizePointName(pointName: string): string[] {
     if (!pointName) return [];
 
-    // First split on common delimiters
-    const tokens = pointName.split(this.DELIMITERS);
+    // First split on common delimiters (spaces, underscores, dashes, dots)
+    const tokens = pointName.split(this.DELIMITERS).filter(t => t.length > 0);
     
-    // Then split camelCase within each token
+    // Then handle camelCase within each token, but only if it looks like camelCase
     const finalTokens: string[] = [];
     for (const token of tokens) {
       if (token.length === 0) continue;
       
-      // Split camelCase
-      const camelSplit = token.split(this.CAMEL_CASE_SPLIT).filter(t => t.length > 0);
-      finalTokens.push(...camelSplit);
+      // Check if token has camelCase pattern (lowercase followed by uppercase)
+      const hasCamelCase = /[a-z][A-Z]/.test(token);
+      
+      if (hasCamelCase) {
+        // Split on camelCase boundaries: insert space before uppercase letters
+        const camelSplit = token.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
+        finalTokens.push(...camelSplit.filter(t => t.length > 0));
+      } else {
+        // No camelCase, keep as single token
+        finalTokens.push(token);
+      }
     }
 
     return finalTokens.filter(token => token.length > 0);
@@ -200,73 +210,14 @@ export class PointNormalizer {
       source: 'pattern'
     };
 
-    // Priority order: Equipment-specific > Vendor-specific > General
-    
-    // 1. Equipment-specific acronyms (highest priority)
-    if (context.equipmentType) {
-      const equipmentAcronyms = getEquipmentAcronyms(context.equipmentType);
-      const exactMatch = Object.entries(equipmentAcronyms).find(([acronym]) => 
-        acronym.toLowerCase() === token.toLowerCase()
-      );
-      
-      if (exactMatch) {
-        analysis.normalizedToken = exactMatch[1];
-        analysis.confidence = 0.95;
-        analysis.source = 'equipment';
-        analysis.matchedAcronym = exactMatch[0];
-        analysis.expansion = exactMatch[1];
-        return analysis;
-      }
-    }
+    const matchedAcronym = BACNET_ACRONYMS.find(a => a.acronym.toLowerCase() === token.toLowerCase());
 
-    // 2. Vendor-specific acronyms
-    if (context.vendorName) {
-      const vendorAcronyms = getVendorAcronyms(context.vendorName);
-      const exactMatch = Object.entries(vendorAcronyms).find(([acronym]) => 
-        acronym.toLowerCase() === token.toLowerCase()
-      );
-      
-      if (exactMatch) {
-        analysis.normalizedToken = exactMatch[1];
-        analysis.confidence = 0.85;
-        analysis.source = 'vendor';
-        analysis.matchedAcronym = exactMatch[0];
-        analysis.expansion = exactMatch[1];
-        return analysis;
-      }
-    }
-
-    // 3. General BACnet acronyms
-    const generalMatch = Object.entries(BACNET_ACRONYMS).find(([acronym]) => 
-      acronym.toLowerCase() === token.toLowerCase()
-    );
-    
-    if (generalMatch) {
-      analysis.normalizedToken = generalMatch[1];
-      analysis.confidence = 0.75;
+    if (matchedAcronym) {
+      analysis.normalizedToken = matchedAcronym.expansion;
+      analysis.confidence = matchedAcronym.priority / 10;
       analysis.source = 'general';
-      analysis.matchedAcronym = generalMatch[0];
-      analysis.expansion = generalMatch[1];
-      return analysis;
-    }
-
-    // 4. Unit-based inference
-    const unitMatch = this.inferFromUnits(token, context.units);
-    if (unitMatch) {
-      analysis.normalizedToken = unitMatch.expansion;
-      analysis.confidence = unitMatch.confidence;
-      analysis.source = 'unit';
-      analysis.expansion = unitMatch.expansion;
-      return analysis;
-    }
-
-    // 5. Pattern-based inference (numbers, common words)
-    const patternMatch = this.inferFromPattern(token);
-    if (patternMatch) {
-      analysis.normalizedToken = patternMatch.expansion;
-      analysis.confidence = patternMatch.confidence;
-      analysis.source = 'pattern';
-      analysis.expansion = patternMatch.expansion;
+      analysis.matchedAcronym = matchedAcronym.acronym;
+      analysis.expansion = matchedAcronym.expansion;
     }
 
     return analysis;
@@ -322,147 +273,103 @@ export class PointNormalizer {
   }
 
   /**
-   * Generate human-readable description
+   * Generate human-readable description with context enhancement
    */
   private static generateDescription(
-    tokenAnalyses: TokenAnalysis[]
+    tokenAnalyses: TokenAnalysis[],
+    context?: NormalizationContext,
+    pointFunction?: PointFunction
   ): string {
-    const normalizedTokens = tokenAnalyses.map(analysis => analysis.normalizedToken);
+    const functionText = pointFunction ? ` ${pointFunction.toString()}` : '';
+    const description = tokenAnalyses
+      .map(t => t.expansion || t.normalizedToken)
+      .filter(t => !['sensor', 'command', 'setpoint', 'status'].includes(t.toLowerCase()))
+      .filter(t => isNaN(parseInt(t, 10))) // Filter out numeric tokens
+      .join(' ');
     
-    // Join tokens with appropriate spacing
-    let description = normalizedTokens.join(' ');
-    
-    // Clean up common patterns
-    description = description
-      .replace(/\s+/g, ' ') // Multiple spaces
-      .replace(/(\w)\s+(\d)/g, '$1 $2') // Word number spacing
-      .trim();
+    // Capitalize first letter of the entire string
+    const finalDescription = description.charAt(0).toUpperCase() + description.slice(1).toLowerCase();
 
-    // Capitalize first letter of each word
-    description = description.replace(/\b\w/g, l => l.toUpperCase());
-
-    return description;
+    return `${finalDescription}${functionText}`;
   }
 
   /**
-   * Determine point function from analysis
+   * Determine the primary function of the point (Sensor, Setpoint, Command, Status)
    */
   private static determinePointFunction(
     tokenAnalyses: TokenAnalysis[]
   ): PointFunction {
-    const tokens = tokenAnalyses.map(a => a.normalizedToken.toLowerCase());
-
-    // Temperature points
-    if (tokens.some(t => t.includes('temperature') || t.includes('temp'))) {
-      if (tokens.some(t => t.includes('setpoint') || t.includes('sp'))) {
-        return PointFunction.TEMPERATURE_SETPOINT;
-      }
-      return PointFunction.TEMPERATURE_SENSOR;
-    }
-
-    // Flow points
-    if (tokens.some(t => t.includes('flow') || t.includes('cfm') || t.includes('gpm'))) {
-      if (tokens.some(t => t.includes('setpoint') || t.includes('sp'))) {
-        return PointFunction.AIRFLOW_SETPOINT;
-      }
-      if (tokens.some(t => t.includes('command') || t.includes('cmd'))) {
-        return PointFunction.AIRFLOW_COMMAND;
-      }
-      return PointFunction.AIRFLOW_SENSOR;
-    }
-
-    // Pressure points
-    if (tokens.some(t => t.includes('pressure') || t.includes('press'))) {
-      if (tokens.some(t => t.includes('setpoint') || t.includes('sp'))) {
-        return PointFunction.PRESSURE_SETPOINT;
-      }
-      return PointFunction.PRESSURE_SENSOR;
-    }
-
-    // Position points
-    if (tokens.some(t => t.includes('position') || t.includes('pos'))) {
-      if (tokens.some(t => t.includes('damper'))) {
-        return PointFunction.DAMPER_POSITION;
-      }
-      if (tokens.some(t => t.includes('valve'))) {
-        return PointFunction.VALVE_POSITION;
+    for (const analysis of tokenAnalyses) {
+      const matchedAcronym = BACNET_ACRONYMS.find(a => a.acronym.toLowerCase() === analysis.originalToken.toLowerCase());
+      if (matchedAcronym && matchedAcronym.pointFunction) {
+        switch (matchedAcronym.pointFunction) {
+          case 'Setpoint': return PointFunction.Setpoint;
+          case 'Command': return PointFunction.Command;
+          case 'Status': return PointFunction.Status;
+          case 'Sensor': return PointFunction.Sensor;
+        }
       }
     }
-
-    // Status points
-    if (tokens.some(t => t.includes('status') || t.includes('stat'))) {
-      if (tokens.some(t => t.includes('fan'))) {
-        return PointFunction.FAN_STATUS;
-      }
-      if (tokens.some(t => t.includes('pump'))) {
-        return PointFunction.PUMP_STATUS;
-      }
-      if (tokens.some(t => t.includes('alarm'))) {
-        return PointFunction.ALARM_STATUS;
-      }
-    }
-
-    // Energy points
-    if (tokens.some(t => t.includes('power') || t.includes('kw') || t.includes('energy'))) {
-      if (tokens.some(t => t.includes('meter'))) {
-        return PointFunction.ENERGY_METER;
-      }
-      return PointFunction.POWER_SENSOR;
-    }
-
-    return PointFunction.UNKNOWN;
+    // Default to Sensor if no other function is identified
+    return PointFunction.Sensor;
   }
 
   /**
-   * Generate Haystack tags based on analysis
+   * Generate comprehensive Haystack tags based on analysis
    */
   private static generateHaystackTags(
     tokenAnalyses: TokenAnalysis[], 
     contextAnalysis: ContextAnalysis,
-    pointFunction: PointFunction
+    pointFunction: PointFunction,
+    description: string
   ): HaystackTag[] {
     const tags: HaystackTag[] = [];
-    const tokens = tokenAnalyses.map(a => a.normalizedToken.toLowerCase());
+    const addedTags = new Set<string>();
 
-    // Base point tag
-    tags.push({
-      name: 'point',
-      isMarker: true,
-      category: 'ENTITY' as any,
-      source: 'inferred',
-      confidence: 1.0,
-      appliedAt: new Date(),
-      isValid: true
+    const addTag = (name: string, category: HaystackTagCategory, confidence: number = 0.8) => {
+      if (name && !addedTags.has(name)) {
+        tags.push({
+          name,
+          value: undefined,
+          category,
+          isMarker: true,
+          isValid: true,
+          source: 'inferred',
+          confidence,
+          appliedAt: new Date()
+        });
+        addedTags.add(name);
+      }
+    };
+
+    // Default tag
+    addTag('point', HaystackTagCategory.ENTITY);
+
+    // Tags from tokens
+    tokenAnalyses.forEach(analysis => {
+      const token = analysis.originalToken;
+      if (['air', 'water', 'steam', 'elec'].includes(token.toLowerCase())) {
+        addTag(token.toLowerCase(), HaystackTagCategory.SUBSTANCE);
+      }
+      if (['temp', 'pressure', 'flow', 'humidity', 'power', 'level'].includes(token.toLowerCase())) {
+        addTag(token.toLowerCase(), HaystackTagCategory.MEASUREMENT);
+      }
     });
 
-    // Function-based tags
+    // Tags from point function
     switch (pointFunction) {
-      case PointFunction.TEMPERATURE_SENSOR:
-        tags.push(
-          { name: 'temp', isMarker: true, category: 'MEASUREMENT' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true },
-          { name: 'sensor', isMarker: true, category: 'FUNCTION' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true }
-        );
+      case PointFunction.Sensor:
+        addTag('sensor', HaystackTagCategory.FUNCTION);
         break;
-      case PointFunction.TEMPERATURE_SETPOINT:
-        tags.push(
-          { name: 'temp', isMarker: true, category: 'MEASUREMENT' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true },
-          { name: 'sp', isMarker: true, category: 'FUNCTION' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true }
-        );
+      case PointFunction.Setpoint:
+        addTag('sp', HaystackTagCategory.FUNCTION);
         break;
-      case PointFunction.AIRFLOW_SENSOR:
-        tags.push(
-          { name: 'flow', isMarker: true, category: 'MEASUREMENT' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true },
-          { name: 'air', isMarker: true, category: 'SUBSTANCE' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true },
-          { name: 'sensor', isMarker: true, category: 'FUNCTION' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true }
-        );
+      case PointFunction.Command:
+        addTag('cmd', HaystackTagCategory.FUNCTION);
         break;
-      case PointFunction.FAN_STATUS:
-        tags.push(
-          { name: 'fan', isMarker: true, category: 'ENTITY' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true },
-          { name: 'sensor', isMarker: true, category: 'FUNCTION' as any, source: 'inferred', confidence: 0.9, appliedAt: new Date(), isValid: true }
-        );
+      case PointFunction.Status:
+        addTag('status', HaystackTagCategory.FUNCTION);
         break;
-      // Add more cases as needed
     }
 
     return tags;
@@ -506,21 +413,32 @@ export class PointNormalizer {
   /**
    * Get confidence level enum from numeric score
    */
-  private static getConfidenceLevel(score: number): NormalizationConfidence {
-    if (score >= 0.8) return NormalizationConfidence.HIGH;
-    if (score >= 0.5) return NormalizationConfidence.MEDIUM;
-    if (score >= 0.2) return NormalizationConfidence.LOW;
-    return NormalizationConfidence.UNKNOWN;
+  private static getConfidenceLevel(score: number, useEnhanced: boolean = true): NormalizationConfidence {
+    if (useEnhanced) {
+      if (score >= 0.8) return 'HIGH' as NormalizationConfidence;
+      if (score >= 0.5) return 'MEDIUM' as NormalizationConfidence;
+      if (score >= 0.2) return 'LOW' as NormalizationConfidence;
+      return 'UNKNOWN' as NormalizationConfidence;
+    } else {
+      // Legacy format for backward compatibility
+      if (score >= 0.8) return NormalizationConfidence.HIGH;
+      if (score >= 0.5) return NormalizationConfidence.MEDIUM;
+      if (score >= 0.2) return NormalizationConfidence.LOW;
+      return NormalizationConfidence.UNKNOWN;
+    }
   }
 
   /**
    * Format normalized name for display
    */
   private static formatNormalizedName(description: string): string {
+    if (!description) return 'Unknown Point';
+    
+    // Capitalize first letter of each word and join
     return description
-      .replace(/\s+/g, ' ')
-      .trim()
-      .replace(/\b\w/g, l => l.toUpperCase());
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
   /**
@@ -529,30 +447,16 @@ export class PointNormalizer {
   private static inferFromUnits(token: string, units?: string): { expansion: string; confidence: number } | null {
     if (!units) return null;
 
-    const lowerToken = token.toLowerCase();
-    const lowerUnits = units.toLowerCase();
-
-    // Temperature units
-    if (/°?[cf]|deg/.test(lowerUnits)) {
-      if (lowerToken.includes('t') || lowerToken.includes('tmp')) {
-        return { expansion: 'Temperature', confidence: 0.8 };
+    for (const [type, pattern] of Object.entries(this.UNIT_PATTERNS)) {
+      if (pattern.test(units)) {
+        // If token also suggests temperature, it's a strong match
+        if (type === 'temperature' && /temp|t/i.test(token)) {
+          return { expansion: 'Temperature', confidence: 0.8 };
+        }
+        // Basic match based on unit type
+        return { expansion: type.charAt(0).toUpperCase() + type.slice(1), confidence: 0.6 };
       }
     }
-
-    // Flow units
-    if (/cfm|gpm|lps/.test(lowerUnits)) {
-      if (lowerToken.includes('f') || lowerToken.includes('fl')) {
-        return { expansion: 'Flow', confidence: 0.8 };
-      }
-    }
-
-    // Pressure units
-    if (/psi|pa|inh2o/.test(lowerUnits)) {
-      if (lowerToken.includes('p') || lowerToken.includes('pr')) {
-        return { expansion: 'Pressure', confidence: 0.8 };
-      }
-    }
-
     return null;
   }
 
@@ -560,39 +464,28 @@ export class PointNormalizer {
    * Infer meaning from common patterns
    */
   private static inferFromPattern(token: string): { expansion: string; confidence: number } | null {
-    // Numbers
-    if (/^\d+$/.test(token)) {
-      return { expansion: token, confidence: 1.0 };
+    if (/sp|setp|setpt/i.test(token)) {
+      return { expansion: 'Setpoint', confidence: 0.9 };
     }
-
-    // Single letters (often abbreviations)
-    if (token.length === 1) {
-      const singleLetterMappings: Record<string, string> = {
-        'T': 'Temperature',
-        'P': 'Pressure',
-        'F': 'Flow',
-        'S': 'Supply',
-        'R': 'Return'
-      };
-      
-      const mapping = singleLetterMappings[token.toUpperCase()];
-      if (mapping) {
-        return { expansion: mapping, confidence: 0.4 };
-      }
+    if (/cmd|cmmd|command/i.test(token)) {
+      return { expansion: 'Command', confidence: 0.9 };
     }
-
-    // Common words that don't need expansion
-    const commonWords = ['the', 'and', 'or', 'of', 'in', 'on', 'at', 'to', 'for', 'with'];
-    if (commonWords.includes(token.toLowerCase())) {
-      return { expansion: token.toLowerCase(), confidence: 1.0 };
+    if (/st|stat|status/i.test(token)) {
+      return { expansion: 'Status', confidence: 0.85 };
     }
-
+    if (/pos|position/i.test(token)) {
+      return { expansion: 'Position', confidence: 0.8 };
+    }
+    if (/lvl|level/i.test(token)) {
+      return { expansion: 'Level', confidence: 0.8 };
+    }
     return null;
   }
 }
 
 /**
- * Convenience function for simple normalization
+ * Standalone utility function for quick normalization (e.g., for UI)
+ * This is a simplified version and does not use the full class-based engine.
  */
 export function normalizePointName(
   pointName: string,
@@ -600,23 +493,9 @@ export function normalizePointName(
   vendorName?: string,
   units?: string
 ): { normalizedName: string; confidence: number } {
-  const mockPoint: BACnetPoint = {
-    id: `mock-${pointName}`,
-    equipmentId: 'mock-equipment',
-    objectName: pointName,
-    objectType: 'AI' as any,
-    objectInstance: 1,
-    dis: pointName,
-    displayName: pointName,
-    dataType: 'Number' as any,
-    category: 'SENSOR' as any,
-    description: '',
-    isWritable: false,
-    isCommand: false,
-    units,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
+  if (!pointName) {
+    return { normalizedName: 'Unknown', confidence: 0 };
+  }
 
   const context: NormalizationContext = {
     equipmentType,
@@ -624,12 +503,36 @@ export function normalizePointName(
     units
   };
 
-  const result = PointNormalizer.normalizePointName(mockPoint, context);
-  
+  const bacnetPoint: BACnetPoint = {
+    objectName: pointName,
+    dis: pointName,
+    id: `temp-${pointName}`,
+    equipmentId: 'temp-equipment',
+    objectType: BACnetObjectType.ANALOG_INPUT,
+    objectInstance: 1,
+    displayName: pointName,
+    dataType: PointDataType.NUMBER,
+    category: PointCategory.SENSOR,
+    description: '',
+    isWritable: false,
+    isCommand: false,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  const result = PointNormalizer.normalizePointName(bacnetPoint, context);
+
+  if (result.success && result.normalizedPoint) {
+    return {
+      normalizedName: result.normalizedPoint.normalizedName,
+      confidence: result.normalizedPoint.confidenceScore || 0,
+    };
+  }
+
   return {
-    normalizedName: result.normalizedPoint?.normalizedName || pointName,
-    confidence: result.normalizedPoint?.confidenceScore || 0.1
+    normalizedName: pointName, // Fallback to original name
+    confidence: 0,
   };
 }
 
-export default PointNormalizer; 
+export default PointNormalizer;

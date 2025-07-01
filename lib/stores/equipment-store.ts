@@ -1,6 +1,6 @@
 import { Equipment } from '../../types/equipment';
 import { NormalizedPoint } from '../../types/normalized';
-import { equipmentDbService } from '../database/equipment-db-service';
+import { EquipmentDatabaseService } from '../database/equipment-db-service';
 
 // Legacy in-memory store for backward compatibility and temporary processing
 const processingResults = new Map<string, { equipment: Equipment; points: NormalizedPoint[] }>();
@@ -22,7 +22,8 @@ export async function storeProcessingResult(
 
   try {
     // Store in database
-    await equipmentDbService.storeEquipmentWithPoints(fileId, equipment, points);
+    const dbService = new EquipmentDatabaseService();
+    await dbService.storeEquipmentWithPoints(fileId, equipment, points);
     
     // Also store in memory for immediate access during processing
     processingResults.set(fileId, { equipment, points });
@@ -46,7 +47,8 @@ export async function getEquipment(equipmentId: string): Promise<Equipment | nul
   console.log('[EQUIPMENT STORE] Retrieving equipment from database', { equipmentId });
   
   try {
-    return await equipmentDbService.getEquipment(equipmentId);
+    const dbService = new EquipmentDatabaseService();
+    return await dbService.getEquipment(equipmentId);
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to retrieve equipment:', error);
     return null;
@@ -68,7 +70,8 @@ export async function getAllEquipment(
   console.log('[EQUIPMENT STORE] Retrieving all equipment from database', { limit, offset, filters });
   
   try {
-    return await equipmentDbService.getAllEquipment(limit, offset, filters);
+    const dbService = new EquipmentDatabaseService();
+    return await dbService.getAllEquipment(limit, offset, filters);
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to retrieve equipment list:', error);
     return { equipment: [], total: 0 };
@@ -82,7 +85,8 @@ export async function getEquipmentPoints(equipmentId: string): Promise<Normalize
   console.log('[EQUIPMENT STORE] Retrieving points for equipment', { equipmentId });
   
   try {
-    return await equipmentDbService.getPointsByEquipmentId(equipmentId);
+    const dbService = new EquipmentDatabaseService();
+    return await dbService.getPointsByEquipmentId(equipmentId);
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to retrieve equipment points:', error);
     return [];
@@ -96,7 +100,8 @@ export async function deleteEquipment(equipmentId: string): Promise<void> {
   console.log('[EQUIPMENT STORE] Deleting equipment from database', { equipmentId });
   
   try {
-    await equipmentDbService.deleteEquipment(equipmentId);
+    const dbService = new EquipmentDatabaseService();
+    await dbService.deleteEquipment(equipmentId);
     
     // Also remove from in-memory cache if exists
     for (const [fileId, result] of processingResults.entries()) {
@@ -127,11 +132,12 @@ export async function getProcessingResult(fileId: string): Promise<{ equipment: 
   
   // Search database for equipment by file ID
   try {
-    const { equipment } = await equipmentDbService.getAllEquipment(1, 0, { searchTerm: fileId });
+    const dbService = new EquipmentDatabaseService();
+    const { equipment } = await dbService.getAllEquipment(1, 0, { searchTerm: fileId });
     
     if (equipment.length > 0) {
       const equipmentItem = equipment[0];
-      const points = await equipmentDbService.getPointsByEquipmentId(equipmentItem.id);
+      const points = await dbService.getPointsByEquipmentId(equipmentItem.id);
       
       console.log('[EQUIPMENT STORE] Found result in database');
       return { equipment: equipmentItem, points };
@@ -158,7 +164,8 @@ export async function getStorageStatistics(): Promise<{
   console.log('[EQUIPMENT STORE] Getting storage statistics');
   
   try {
-    return await equipmentDbService.getStatistics();
+    const dbService = new EquipmentDatabaseService();
+    return await dbService.getStatistics();
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to get statistics:', error);
     return {
@@ -178,7 +185,8 @@ export async function createMappingSession(sessionName: string): Promise<string>
   console.log('[EQUIPMENT STORE] Creating mapping session', { sessionName });
   
   try {
-    return await equipmentDbService.createMappingSession(sessionName);
+    const dbService = new EquipmentDatabaseService();
+    return await dbService.createMappingSession(sessionName);
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to create mapping session:', error);
     throw error;
@@ -200,7 +208,8 @@ export async function updateMappingSession(
   console.log('[EQUIPMENT STORE] Updating mapping session', { sessionId, updates });
   
   try {
-    await equipmentDbService.updateMappingSession(sessionId, updates);
+    const dbService = new EquipmentDatabaseService();
+    await dbService.updateMappingSession(sessionId, updates);
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to update mapping session:', error);
     throw error;
@@ -226,7 +235,8 @@ export async function updateEquipment(equipmentId: string, updates: Partial<Equi
   
   try {
     // Get current equipment
-    const current = await equipmentDbService.getEquipment(equipmentId);
+    const dbService = new EquipmentDatabaseService();
+    const current = await dbService.getEquipment(equipmentId);
     if (!current) {
       throw new Error(`Equipment ${equipmentId} not found`);
     }
@@ -235,8 +245,8 @@ export async function updateEquipment(equipmentId: string, updates: Partial<Equi
     const updated = { ...current, ...updates };
     
     // Store updated equipment (this will update existing record)
-    const points = await equipmentDbService.getPointsByEquipmentId(equipmentId);
-    await equipmentDbService.storeEquipmentWithPoints(equipmentId, updated, points);
+    const points = await dbService.getPointsByEquipmentId(equipmentId);
+    await dbService.storeEquipmentWithPoints(equipmentId, updated, points);
     
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to update equipment:', error);
@@ -251,7 +261,8 @@ export async function equipmentExists(equipmentId: string): Promise<boolean> {
   console.log('[EQUIPMENT STORE] Checking if equipment exists', { equipmentId });
   
   try {
-    const equipment = await equipmentDbService.getEquipment(equipmentId);
+    const dbService = new EquipmentDatabaseService();
+    const equipment = await dbService.getEquipment(equipmentId);
     return equipment !== null;
   } catch (error) {
     console.error('[EQUIPMENT STORE] Failed to check equipment existence:', error);
@@ -270,4 +281,89 @@ export function getCacheStatus(): {
     inMemoryItems: processingResults.size,
     fileIds: Array.from(processingResults.keys())
   };
+}
+
+class EquipmentStore {
+  private dbService: EquipmentDatabaseService;
+  private equipment: Equipment[];
+  private total: number;
+  private currentPage: number;
+  private pageSize: number;
+  private filters: { equipmentType?: string; status?: string; searchTerm?: string };
+  private isLoading: boolean;
+  private error: string | null;
+
+  constructor() {
+    this.dbService = new EquipmentDatabaseService();
+    this.equipment = [];
+    this.total = 0;
+    this.currentPage = 1;
+    this.pageSize = 10;
+    this.filters = {};
+    this.isLoading = false;
+    this.error = null;
+  }
+
+  async loadEquipment(page: number = 1): Promise<void> {
+    this.isLoading = true;
+    this.error = null;
+    this.currentPage = page;
+    
+    try {
+      const offset = (page - 1) * this.pageSize;
+      const result = await this.dbService.getAllEquipment(this.pageSize, offset, this.filters);
+      this.equipment = result.equipment;
+      this.total = result.total;
+    } catch (err) {
+      this.error = err instanceof Error ? err.message : 'Failed to load equipment';
+      this.equipment = [];
+      this.total = 0;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async getEquipmentDetails(equipmentId: string): Promise<Equipment | null> {
+    this.isLoading = true;
+    this.error = null;
+    
+    try {
+      const equipment = await this.dbService.getEquipment(equipmentId);
+      return equipment;
+    } catch (err) {
+      this.error = err instanceof Error ? err.message : 'Failed to load equipment details';
+      return null;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async deleteEquipment(equipmentId: string): Promise<boolean> {
+    this.isLoading = true;
+    this.error = null;
+    
+    try {
+      await this.dbService.deleteEquipment(equipmentId);
+      await this.loadEquipment(this.currentPage); // Refresh the list
+      return true;
+    } catch (err) {
+      this.error = err instanceof Error ? err.message : 'Failed to delete equipment';
+      return false;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async storeEquipment(fileId: string, equipment: Equipment, points: NormalizedPoint[]): Promise<void> {
+    try {
+      // Store in database
+      await this.dbService.storeEquipmentWithPoints(fileId, equipment, points);
+      
+      // Also store in memory for immediate access during processing
+      processingResults.set(fileId, { equipment, points });
+    } catch (error) {
+      console.error('[EQUIPMENT STORE] Error storing equipment:', error);
+      throw error;
+    }
+  }
 } 

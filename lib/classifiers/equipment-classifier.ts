@@ -1,14 +1,11 @@
-import { 
-  EquipmentType, 
-  EquipmentConfig 
-} from '@/types/equipment';
+import { connectorService } from '../services/connector-service';
 
 /**
  * Equipment classification patterns based on filename analysis
  */
 export interface ClassificationPattern {
   pattern: RegExp;
-  equipmentType: EquipmentType;
+  equipmentType: string;
   confidence: number;
   description: string;
   examples: string[];
@@ -18,431 +15,250 @@ export interface ClassificationPattern {
  * Equipment classification result
  */
 export interface ClassificationResult {
-  equipmentType: EquipmentType;
-  equipmentName: string;
-  originalFileName: string;
+  equipmentType: string;
   confidence: number;
-  matchedPattern: string;
-  alternatives: Array<{
-    equipmentType: EquipmentType;
-    confidence: number;
-    reason: string;
-  }>;
-  metadata: {
-    normalized: boolean;
-    ambiguous: boolean;
-    warnings: string[];
-  };
+  equipmentName: string;
+  matchedPattern?: string;
+  alternatives: Array<{ type: string; confidence: number }>;
 }
 
 /**
  * Comprehensive equipment classifier for building automation systems
  */
 export class EquipmentClassifier {
-  private static readonly CLASSIFICATION_PATTERNS: ClassificationPattern[] = [
-    // Lab Air Valves - Various configurations
-    {
-      pattern: /^L-(\d+)$/i,
-      equipmentType: EquipmentType.LAB_AIR_VALVE,
-      confidence: 0.95,
-      description: 'Single Lab Air Valve',
-      examples: ['L-5', 'L-20', 'L-3']
+  // Vendor-specific model patterns for equipment classification
+  private static readonly VENDOR_MODEL_PATTERNS: Record<string, Record<string, string>> = {
+    'ABB': {
+      'ACH580': 'VFD', // Variable Frequency Drive
     },
-    {
-      pattern: /^L-(\d+)_L-(\d+)$/i,
-      equipmentType: EquipmentType.LAB_AIR_VALVE,
-      confidence: 0.95,
-      description: 'Supply+Exhaust Lab Air Valve',
-      examples: ['L-1_L-2', 'L-9_L-11', 'L-10_L-12']
+    'Climate Master': {
+      'ClimateMaster MPC': 'WSHP', // Water Source Heat Pump
     },
-    
-    // VAV Controllers - Multiple naming patterns
-    {
-      pattern: /^VVR[_-](\d+)\.(\d+)$/i,
-      equipmentType: EquipmentType.VAV_CONTROLLER,
-      confidence: 0.98,
-      description: 'VAV Controller (VVR series)',
-      examples: ['VVR_2.1', 'VVR_2.10', 'VVR-2.17']
+    'Distech Controls, Inc.': {
+      'ECB_600': 'CONTROLLER',
+      'ECB_300': 'CONTROLLER',
+      'ECB_203': 'CONTROLLER',
     },
-    {
-      pattern: /^VVR[_-]E(\d+)$/i,
-      equipmentType: EquipmentType.VAV_CONTROLLER,
-      confidence: 0.98,
-      description: 'VAV Controller (VVR-E series)',
-      examples: ['VVR_E5', 'VVR_E21', 'VVR-E22']
+    'Danfoss Drives A/S': {
+      'FC-102': 'VFD', // Variable Frequency Drive
     },
-    {
-      pattern: /^VV[_-](\d+)[_-]R(\d+)$/i,
-      equipmentType: EquipmentType.VAV_CONTROLLER,
-      confidence: 0.95,
-      description: 'VAV Controller (Return type)',
-      examples: ['VV-1-R8', 'VV_5_R3', 'VV-2-R5']
+    'ARMSTRONG': {
+      'DEPC': 'PUMP_CONTROLLER',
     },
-    
-    // RTU Controllers
-    {
-      pattern: /^RTU[_-](\d+)$/i,
-      equipmentType: EquipmentType.RTU_CONTROLLER,
-      confidence: 0.98,
-      description: 'Rooftop Unit Controller',
-      examples: ['RTU_2', 'RTU_15', 'RTU-01']
+    'Sierra Monitor Corporation': {
+      'ProtoCessor': 'GATEWAY',
+      'ProtoCessor FFP485': 'GATEWAY',
     },
-    
-    // Air Handler Units
-    {
-      pattern: /^AHU[_-](\d+)$/i,
-      equipmentType: EquipmentType.AIR_HANDLER_UNIT,
-      confidence: 0.98,
-      description: 'Air Handler Unit',
-      examples: ['AHU-1', 'AHU_2', 'AHU_C1']
-    },
-    {
-      pattern: /^AHU[_-](\d+)[_-]([A-Z]\d+)$/i,
-      equipmentType: EquipmentType.AIR_HANDLER_UNIT,
-      confidence: 0.95,
-      description: 'Air Handler Unit with zone designation',
-      examples: ['AHU-1-AHU_C1', 'AHU_2_B1']
-    },
-    
-    // Exhaust Fans
-    {
-      pattern: /^MISC(\d+)[_-]EF$/i,
-      equipmentType: EquipmentType.EXHAUST_FAN,
-      confidence: 0.95,
-      description: 'Miscellaneous Exhaust Fan Controller',
-      examples: ['MISC1_EF', 'MISC2_EF']
-    },
-    {
-      pattern: /^EF[_-](\d+)$/i,
-      equipmentType: EquipmentType.EXHAUST_FAN,
-      confidence: 0.90,
-      description: 'Exhaust Fan',
-      examples: ['EF_10A', 'EF-12B']
-    },
-    
-    // Chillers and Chilled Water Systems
-    {
-      pattern: /^CHW[_-](.+)[_-](Chiller|ChwP\d+|ChwSys)$/i,
-      equipmentType: EquipmentType.CHILLER,
-      confidence: 0.95,
-      description: 'Chilled Water System Component',
-      examples: ['CHW-System-Chiller', 'CHW-System-ChwP1']
-    },
-    
-    // Hot Water Systems
-    {
-      pattern: /^HHW[_-](.+)[_-](Boilers?|HwP\d+|HwSys)$/i,
-      equipmentType: EquipmentType.BOILER,
-      confidence: 0.95,
-      description: 'Hot Water System Component',
-      examples: ['HHW-System-Boilers', 'HHW-System-HwP1']
-    },
-    
-    // Unit Heaters
-    {
-      pattern: /^UH[_-](\d+)$/i,
-      equipmentType: EquipmentType.UNIT_HEATER,
-      confidence: 0.90,
-      description: 'Unit Heater',
-      examples: ['UH_1322', 'UH_1604']
-    },
-    
-    // Generic patterns with lower confidence
-    {
-      pattern: /^([A-Z]+)[_-](\d+)$/i,
-      equipmentType: EquipmentType.UNKNOWN,
-      confidence: 0.50,
-      description: 'Generic equipment pattern',
-      examples: ['TCP-1', 'VAV-1']
+    'Automated Logic Corporation': {
+      'I/O Pro': 'CONTROLLER',
+      'I/O Pro 812u': 'CONTROLLER',
     }
+  };
+
+  // Equipment name patterns (fallback when vendor/model not available)
+  private static readonly EQUIPMENT_PATTERNS = [
+    // HVAC Equipment
+    { pattern: /^AHU[-_]?\d*$/i, type: 'AHU', confidence: 0.9 },
+    { pattern: /air.*handl/i, type: 'AHU', confidence: 0.85 },
+    { pattern: /^RTU[-_]?\d*$/i, type: 'RTU', confidence: 0.9 },
+    { pattern: /rooftop/i, type: 'RTU', confidence: 0.85 },
+    { pattern: /^VAV[-_]?\d*$/i, type: 'VAV', confidence: 0.9 },
+    { pattern: /variable.*air.*volume/i, type: 'VAV', confidence: 0.85 },
+    { pattern: /^FCU[-_]?\d*$/i, type: 'FCU', confidence: 0.9 },
+    { pattern: /fan.*coil/i, type: 'FCU', confidence: 0.85 },
+    
+    // Heat Pumps
+    { pattern: /^WSHP[-_]?/i, type: 'WSHP', confidence: 0.95 },
+    { pattern: /water.*source.*heat.*pump/i, type: 'WSHP', confidence: 0.9 },
+    { pattern: /^ASHP[-_]?\d*$/i, type: 'ASHP', confidence: 0.9 },
+    { pattern: /air.*source.*heat.*pump/i, type: 'ASHP', confidence: 0.85 },
+    { pattern: /^HP[-_]?\d*$/i, type: 'HEAT_PUMP', confidence: 0.7 },
+    
+    // Fans
+    { pattern: /^EF[-_]?\d+[A-Z]?$/i, type: 'EXHAUST_FAN', confidence: 0.95 },
+    { pattern: /exhaust.*fan/i, type: 'EXHAUST_FAN', confidence: 0.9 },
+    { pattern: /^SF[-_]?\d*$/i, type: 'SUPPLY_FAN', confidence: 0.9 },
+    { pattern: /supply.*fan/i, type: 'SUPPLY_FAN', confidence: 0.85 },
+    { pattern: /^RF[-_]?\d*$/i, type: 'RETURN_FAN', confidence: 0.9 },
+    { pattern: /return.*fan/i, type: 'RETURN_FAN', confidence: 0.85 },
+    { pattern: /^CTF[-_]?\d*$/i, type: 'COOLING_TOWER_FAN', confidence: 0.95 },
+    { pattern: /cooling.*tower.*fan/i, type: 'COOLING_TOWER_FAN', confidence: 0.9 },
+    
+    // Pumps
+    { pattern: /^CWP[-_]?\d*$/i, type: 'CHILLED_WATER_PUMP', confidence: 0.9 },
+    { pattern: /chill.*water.*pump/i, type: 'CHILLED_WATER_PUMP', confidence: 0.85 },
+    { pattern: /^HWP[-_]?\d*$/i, type: 'HOT_WATER_PUMP', confidence: 0.9 },
+    { pattern: /hot.*water.*pump/i, type: 'HOT_WATER_PUMP', confidence: 0.85 },
+    { pattern: /loop.*water.*pump/i, type: 'LOOP_WATER_PUMP', confidence: 0.95 },
+    { pattern: /tower.*water.*pump/i, type: 'TOWER_WATER_PUMP', confidence: 0.95 },
+    { pattern: /condenser.*water.*pump/i, type: 'CONDENSER_WATER_PUMP', confidence: 0.9 },
+    
+    // Chillers and Boilers
+    { pattern: /^CH[-_]?\d*$/i, type: 'CHILLER', confidence: 0.9 },
+    { pattern: /chiller/i, type: 'CHILLER', confidence: 0.95 },
+    { pattern: /^BLR[-_]?\d*$/i, type: 'BOILER', confidence: 0.9 },
+    { pattern: /boiler/i, type: 'BOILER', confidence: 0.95 },
+    { pattern: /master.*boiler.*controller/i, type: 'BOILER_CONTROLLER', confidence: 0.95 },
+    
+    // Cooling Towers
+    { pattern: /^CT[-_]?\d*$/i, type: 'COOLING_TOWER', confidence: 0.9 },
+    { pattern: /cooling.*tower/i, type: 'COOLING_TOWER', confidence: 0.95 },
+    
+    // Terminal Units
+    { pattern: /^FPB[-_]?\d*$/i, type: 'FAN_POWERED_BOX', confidence: 0.9 },
+    { pattern: /fan.*power.*box/i, type: 'FAN_POWERED_BOX', confidence: 0.85 },
+    { pattern: /^FPTU[-_]?\d*$/i, type: 'FAN_POWERED_TERMINAL', confidence: 0.9 },
+    { pattern: /^CAV[-_]?\d*$/i, type: 'CONSTANT_AIR_VOLUME', confidence: 0.9 },
+    
+    // Heat Recovery
+    { pattern: /^ERV[-_]?\d*$/i, type: 'ENERGY_RECOVERY_VENTILATOR', confidence: 0.9 },
+    { pattern: /energy.*recovery/i, type: 'ERV', confidence: 0.85 },
+    { pattern: /^HRV[-_]?\d*$/i, type: 'HEAT_RECOVERY_VENTILATOR', confidence: 0.9 },
+    { pattern: /heat.*recovery/i, type: 'HRV', confidence: 0.85 },
+    
+    // Outdoor Air Units
+    { pattern: /^DOAS[-_]?\d*$/i, type: 'DOAS', confidence: 0.95 },
+    { pattern: /^DOAU[-_]?\d*$/i, type: 'DOAU', confidence: 0.95 },
+    { pattern: /dedicated.*outdoor/i, type: 'DOAS', confidence: 0.9 },
+    { pattern: /^MAU[-_]?\d*$/i, type: 'MAKEUP_AIR_UNIT', confidence: 0.9 },
+    { pattern: /makeup.*air/i, type: 'MAU', confidence: 0.85 },
+    
+    // Controllers
+    { pattern: /controller/i, type: 'CONTROLLER', confidence: 0.8 },
+    { pattern: /^ECB[-_]?\d*/i, type: 'CONTROLLER', confidence: 0.85 },
+    { pattern: /loop.*controller/i, type: 'LOOP_CONTROLLER', confidence: 0.9 },
+    
+    // VFDs
+    { pattern: /^VFD[-_]?\d*$/i, type: 'VFD', confidence: 0.9 },
+    { pattern: /variable.*frequency/i, type: 'VFD', confidence: 0.85 },
+    { pattern: /ac.*drive/i, type: 'VFD', confidence: 0.8 },
+    
+    // Generic patterns (lower confidence)
+    { pattern: /unit/i, type: 'UNIT', confidence: 0.3 },
+    { pattern: /system/i, type: 'SYSTEM', confidence: 0.3 }
   ];
 
   /**
-   * Classify equipment from filename
+   * Classify equipment based on filename and metadata from connector service
    */
-  static classifyFromFilename(fileName: string): ClassificationResult {
-    // Extract base filename without extension
-    const baseName = fileName.replace(/\.(trio|csv|txt)$/i, '');
+  public static classifyFromFilename(filename: string): ClassificationResult {
+    // Remove file extension
+    const baseName = filename.replace(/\.(trio|csv|json)$/i, '');
     
-    let bestMatch: ClassificationPattern | null = null;
-    let bestConfidence = 0;
-    const alternatives: ClassificationResult['alternatives'] = [];
-
-    // Test all patterns
-    for (const pattern of this.CLASSIFICATION_PATTERNS) {
-      const match = baseName.match(pattern.pattern);
-      
-      if (match) {
-        if (pattern.confidence > bestConfidence) {
-          // Store previous best as alternative
-          if (bestMatch) {
-            alternatives.push({
-              equipmentType: bestMatch.equipmentType,
-              confidence: bestMatch.confidence,
-              reason: `Matched pattern: ${bestMatch.pattern.source}`
-            });
+    // Get metadata from connector service
+    const metadata = connectorService.getEquipmentMetadata(baseName);
+    
+    // First, try to classify based on vendor and model
+    if (metadata.vendor && metadata.model) {
+      const vendorPatterns = this.VENDOR_MODEL_PATTERNS[metadata.vendor];
+      if (vendorPatterns) {
+        for (const [modelPattern, equipmentType] of Object.entries(vendorPatterns)) {
+          if (metadata.model.includes(modelPattern)) {
+            console.log(`[CLASSIFIER] Matched by vendor/model: ${metadata.vendor}/${metadata.model} -> ${equipmentType}`);
+            return {
+              equipmentType,
+              confidence: 0.95,
+              equipmentName: baseName,
+              matchedPattern: `Vendor: ${metadata.vendor}, Model: ${metadata.model}`,
+              alternatives: []
+            };
           }
-          
-          bestMatch = pattern;
-          bestConfidence = pattern.confidence;
-        } else {
-          // Add as alternative
-          alternatives.push({
-            equipmentType: pattern.equipmentType,
-            confidence: pattern.confidence,
-            reason: `Matched pattern: ${pattern.pattern.source}`
-          });
         }
       }
     }
-
-    // Build result
-    const result: ClassificationResult = {
-      equipmentType: bestMatch?.equipmentType || EquipmentType.UNKNOWN,
-      equipmentName: this.extractEquipmentName(baseName),
-      originalFileName: fileName,
-      confidence: bestConfidence,
-      matchedPattern: bestMatch?.pattern.source || 'none',
-      alternatives: alternatives.slice(0, 3), // Top 3 alternatives
-      metadata: {
-        normalized: false,
-        ambiguous: alternatives.length > 0,
-        warnings: []
+    
+    // If vendor/model didn't match, try pattern matching on the name
+    const matches: Array<{ type: string; confidence: number; pattern: string }> = [];
+    
+    for (const { pattern, type, confidence } of this.EQUIPMENT_PATTERNS) {
+      if (pattern.test(baseName)) {
+        matches.push({ 
+          type, 
+          confidence,
+          pattern: pattern.toString()
+        });
       }
-    };
-
-    // Add warnings for ambiguous cases
-    if (alternatives.length > 2) {
-      result.metadata.warnings.push('Multiple equipment patterns matched');
     }
     
-    if (bestConfidence < 0.7) {
-      result.metadata.warnings.push('Low confidence classification');
-    }
-
-    return result;
-  }
-
-  /**
-   * Extract clean equipment name from filename
-   */
-  static extractEquipmentName(fileName: string): string {
-    // Remove file extension
-    let name = fileName.replace(/\.(trio|csv|txt)$/i, '');
+    // Sort by confidence
+    matches.sort((a, b) => b.confidence - a.confidence);
     
-    // Normalize common separators
-    name = name.replace(/[_-]/g, '-');
-    
-    // Handle special cases
-    if (name.match(/^L-\d+$/)) {
-      return `Lab Air Valve ${name}`;
-    }
-    
-    if (name.match(/^VVR/)) {
-      return `VAV Controller ${name}`;
+    if (matches.length > 0) {
+      const bestMatch = matches[0];
+      const alternatives = matches.slice(1).map(m => ({ 
+        type: m.type, 
+        confidence: m.confidence 
+      }));
+      
+      console.log(`[CLASSIFIER] Matched by pattern: ${baseName} -> ${bestMatch.type} (confidence: ${bestMatch.confidence})`);
+      
+      return {
+        equipmentType: bestMatch.type,
+        confidence: bestMatch.confidence,
+        equipmentName: baseName,
+        matchedPattern: bestMatch.pattern,
+        alternatives
+      };
     }
     
-    if (name.match(/^RTU/)) {
-      return `RTU Controller ${name}`;
-    }
-    
-    if (name.match(/^AHU/)) {
-      return `Air Handler ${name}`;
-    }
-    
-    if (name.includes('EF')) {
-      return `Exhaust Fan ${name}`;
-    }
-
-    return name;
-  }
-
-  /**
-   * Get equipment type from classification result
-   */
-  static getEquipmentType(result: ClassificationResult): EquipmentType {
-    return result.equipmentType;
-  }
-
-  /**
-   * Get all supported equipment patterns
-   */
-  static getSupportedPatterns(): ClassificationPattern[] {
-    return [...this.CLASSIFICATION_PATTERNS];
-  }
-
-  /**
-   * Validate filename against known patterns
-   */
-  static validateFileName(fileName: string): {
-    isValid: boolean;
-    suggestedNames: string[];
-    issues: string[];
-  } {
-    const baseName = fileName.replace(/\.(trio|csv|txt)$/i, '');
-    const issues: string[] = [];
-    const suggestedNames: string[] = [];
-
-    // Check for common issues
-    if (baseName.includes(' ')) {
-      issues.push('Filename contains spaces');
-      suggestedNames.push(baseName.replace(/\s+/g, '_'));
-    }
-
-    if (baseName.includes('..')) {
-      issues.push('Filename contains double dots');
-    }
-
-    if (!/^[A-Za-z0-9_.-]+$/.test(baseName)) {
-      issues.push('Filename contains invalid characters');
-    }
-
-    // Check if it matches any known pattern
-    const classification = this.classifyFromFilename(fileName);
-    const isValid = classification.confidence > 0.5 && issues.length === 0;
-
+    // No match found
+    console.log(`[CLASSIFIER] No match found for: ${baseName}`);
     return {
-      isValid,
-      suggestedNames,
-      issues
+      equipmentType: 'Unknown',
+      confidence: 0,
+      equipmentName: baseName,
+      alternatives: []
     };
   }
 
   /**
-   * Batch classify multiple filenames
+   * Get human-readable equipment type name
    */
-  static batchClassify(fileNames: string[]): ClassificationResult[] {
-    return fileNames.map(fileName => this.classifyFromFilename(fileName));
-  }
-
-  /**
-   * Get equipment configuration for type
-   */
-  static getEquipmentConfig(equipmentType: EquipmentType): EquipmentConfig | null {
-    const configs: Record<EquipmentType, EquipmentConfig> = {
-      [EquipmentType.VAV_CONTROLLER]: {
-        displayName: 'VAV Controller',
-        description: 'Variable Air Volume Terminal Unit Controller',
-        typicalPoints: ['Temperature', 'Airflow', 'Damper Position', 'Setpoint'],
-        vendor: 'Various',
-        category: 'HVAC Terminal',
-        tags: ['vav', 'controller', 'hvac']
-      },
-      [EquipmentType.LAB_AIR_VALVE]: {
-        displayName: 'Lab Air Valve',
-        description: 'Laboratory Air Control Valve',
-        typicalPoints: ['Position', 'Airflow', 'Pressure'],
-        vendor: 'Various',
-        category: 'Lab Equipment',
-        tags: ['lab', 'valve', 'airflow']
-      },
-      [EquipmentType.RTU_CONTROLLER]: {
-        displayName: 'RTU Controller',
-        description: 'Rooftop Unit Controller',
-        typicalPoints: ['Supply Air Temp', 'Return Air Temp', 'Fan Status', 'Heating/Cooling'],
-        vendor: 'Various',
-        category: 'HVAC Primary',
-        tags: ['rtu', 'rooftop', 'controller']
-      },
-      [EquipmentType.AIR_HANDLER_UNIT]: {
-        displayName: 'Air Handler Unit',
-        description: 'Central Air Handling Unit',
-        typicalPoints: ['Supply Fan', 'Return Fan', 'Heating Coil', 'Cooling Coil'],
-        vendor: 'Various',
-        category: 'HVAC Primary',
-        tags: ['ahu', 'air-handler', 'central']
-      },
-      [EquipmentType.EXHAUST_FAN]: {
-        displayName: 'Exhaust Fan',
-        description: 'Exhaust Fan Controller',
-        typicalPoints: ['Fan Status', 'Fan Speed', 'Pressure'],
-        vendor: 'Various',
-        category: 'HVAC Auxiliary',
-        tags: ['exhaust', 'fan', 'ventilation']
-      },
-      [EquipmentType.CHILLER]: {
-        displayName: 'Chiller',
-        description: 'Chilled Water Plant Equipment',
-        typicalPoints: ['Chilled Water Supply Temp', 'Chilled Water Return Temp', 'Status'],
-        vendor: 'Various',
-        category: 'Central Plant',
-        tags: ['chiller', 'cooling', 'central-plant']
-      },
-      [EquipmentType.BOILER]: {
-        displayName: 'Boiler',
-        description: 'Hot Water Plant Equipment',
-        typicalPoints: ['Hot Water Supply Temp', 'Hot Water Return Temp', 'Status'],
-        vendor: 'Various',
-        category: 'Central Plant',
-        tags: ['boiler', 'heating', 'central-plant']
-      },
-      [EquipmentType.UNIT_HEATER]: {
-        displayName: 'Unit Heater',
-        description: 'Hydronic Unit Heater',
-        typicalPoints: ['Space Temperature', 'Valve Position', 'Fan Status'],
-        vendor: 'Various',
-        category: 'HVAC Terminal',
-        tags: ['unit-heater', 'terminal', 'heating']
-      },
-      [EquipmentType.UNKNOWN]: {
-        displayName: 'Unknown Equipment',
-        description: 'Equipment type not determined',
-        typicalPoints: [],
-        vendor: 'Unknown',
-        category: 'Uncategorized',
-        tags: ['unknown']
-      },
-      [EquipmentType.HUMIDIFIER]: {
-        displayName: 'Humidifier',
-        description: 'Humidification System',
-        typicalPoints: ['Steam Command', 'Humidity', 'Status'],
-        vendor: 'Various',
-        category: 'HVAC Auxiliary',
-        tags: ['humidifier', 'humidity', 'steam']
-      },
-      [EquipmentType.RETURN_VAV]: {
-        displayName: 'Return VAV',
-        description: 'Return Air VAV Terminal Unit',
-        typicalPoints: ['Airflow', 'Damper Position', 'Status'],
-        vendor: 'Various',
-        category: 'HVAC Terminal',
-        tags: ['return', 'vav', 'damper']
-      },
-      [EquipmentType.AHU_CONTROLLER]: {
-        displayName: 'AHU Controller',
-        description: 'Air Handler Unit Controller',
-        typicalPoints: ['Supply Fan', 'Return Fan', 'Heating Coil', 'Cooling Coil'],
-        vendor: 'Various',
-        category: 'HVAC Primary',
-        tags: ['ahu', 'air-handler', 'controller']
-      },
-      [EquipmentType.CHILLER_SYSTEM]: {
-        displayName: 'Chiller System',
-        description: 'Chilled Water Plant System',
-        typicalPoints: ['Chilled Water Supply Temp', 'Chilled Water Return Temp', 'Chiller Status'],
-        vendor: 'Various',
-        category: 'Central Plant',
-        tags: ['chiller', 'cooling', 'system']
-      },
-      [EquipmentType.BOILER_SYSTEM]: {
-        displayName: 'Boiler System',
-        description: 'Hot Water Plant System',
-        typicalPoints: ['Hot Water Supply Temp', 'Hot Water Return Temp', 'Boiler Status'],
-        vendor: 'Various',
-        category: 'Central Plant',
-        tags: ['boiler', 'heating', 'system']
-      },
-      [EquipmentType.PUMP_CONTROLLER]: {
-        displayName: 'Pump Controller',
-        description: 'Water Pump Controller',
-        typicalPoints: ['Pump Status', 'Pump Speed', 'Flow Rate', 'Pressure'],
-        vendor: 'Various',
-        category: 'Central Plant',
-        tags: ['pump', 'controller', 'water']
-      }
+  public static getEquipmentTypeDisplayName(type: string): string {
+    const displayNames: Record<string, string> = {
+      'AHU': 'Air Handling Unit',
+      'RTU': 'Rooftop Unit',
+      'VAV': 'Variable Air Volume Box',
+      'FCU': 'Fan Coil Unit',
+      'WSHP': 'Water Source Heat Pump',
+      'ASHP': 'Air Source Heat Pump',
+      'HEAT_PUMP': 'Heat Pump',
+      'EXHAUST_FAN': 'Exhaust Fan',
+      'SUPPLY_FAN': 'Supply Fan',
+      'RETURN_FAN': 'Return Fan',
+      'COOLING_TOWER_FAN': 'Cooling Tower Fan',
+      'CHILLED_WATER_PUMP': 'Chilled Water Pump',
+      'HOT_WATER_PUMP': 'Hot Water Pump',
+      'LOOP_WATER_PUMP': 'Loop Water Pump',
+      'TOWER_WATER_PUMP': 'Tower Water Pump',
+      'CONDENSER_WATER_PUMP': 'Condenser Water Pump',
+      'CHILLER': 'Chiller',
+      'BOILER': 'Boiler',
+      'BOILER_CONTROLLER': 'Boiler Controller',
+      'COOLING_TOWER': 'Cooling Tower',
+      'FAN_POWERED_BOX': 'Fan Powered Box',
+      'FAN_POWERED_TERMINAL': 'Fan Powered Terminal Unit',
+      'CONSTANT_AIR_VOLUME': 'Constant Air Volume Box',
+      'ENERGY_RECOVERY_VENTILATOR': 'Energy Recovery Ventilator',
+      'ERV': 'Energy Recovery Ventilator',
+      'HEAT_RECOVERY_VENTILATOR': 'Heat Recovery Ventilator',
+      'HRV': 'Heat Recovery Ventilator',
+      'DOAS': 'Dedicated Outdoor Air System',
+      'DOAU': 'Dedicated Outdoor Air Unit',
+      'MAKEUP_AIR_UNIT': 'Makeup Air Unit',
+      'MAU': 'Makeup Air Unit',
+      'CONTROLLER': 'Controller',
+      'LOOP_CONTROLLER': 'Loop Controller',
+      'VFD': 'Variable Frequency Drive',
+      'PUMP_CONTROLLER': 'Pump Controller',
+      'GATEWAY': 'Protocol Gateway',
+      'UNIT': 'Generic Unit',
+      'SYSTEM': 'System',
+      'Unknown': 'Unknown Equipment',
+      'UNKNOWN': 'Unknown Equipment'
     };
-
-    return configs[equipmentType] || null;
+    
+    return displayNames[type] || type;
   }
 }
 
@@ -453,11 +269,12 @@ export function classifyEquipment(fileName: string): ClassificationResult {
   return EquipmentClassifier.classifyFromFilename(fileName);
 }
 
-export function getEquipmentType(fileName: string): EquipmentType {
+export function getEquipmentType(fileName: string): string {
   const result = EquipmentClassifier.classifyFromFilename(fileName);
   return result.equipmentType;
 }
 
 export function extractEquipmentName(fileName: string): string {
-  return EquipmentClassifier.extractEquipmentName(fileName);
+  const result = EquipmentClassifier.classifyFromFilename(fileName);
+  return result.equipmentName;
 } 

@@ -4,6 +4,7 @@ import { TrioParser } from '../parsers/trio-parser';
 import { EquipmentClassifier } from '../classifiers/equipment-classifier';
 import { PointNormalizer } from '../normalizers/point-normalizer';
 import { HaystackTagger } from '../taggers/haystack-tagger';
+import { EquipmentDatabaseService } from '../database/equipment-db-service';
 import type { Equipment } from '../../types/equipment';
 import type { NormalizedPoint } from '../../types/normalized';
 import { PointFunction, NormalizationConfidence } from '../../types/normalized';
@@ -11,6 +12,8 @@ import { BACnetObjectType, PointCategory, PointDataType } from '../../types/poin
 import { HaystackTagCategory } from '../../types/haystack';
 import { EquipmentStatus, ConnectionState, EquipmentType } from '../../types/equipment';
 import type { TrioRecord } from '../../types/trio';
+import { connectorService } from './connector-service';
+import { nanoid } from 'nanoid';
 
 export interface ProcessingStatus {
   stage: 'parsing' | 'classifying' | 'normalizing' | 'tagging' | 'completed' | 'error';
@@ -37,7 +40,7 @@ export interface ProcessingResult {
 }
 
 // Debug logging function
-function debugLog(processingId: string, stage: string, message: string, data?: any) {
+function debugLog(processingId: string, stage: string, message: string, data?: Record<string, unknown> | string) {
   const timestamp = new Date().toISOString();
   console.log(`[PROCESSING DEBUG ${timestamp}] [${processingId}] [${stage}] ${message}`, 
     data ? JSON.stringify(data, null, 2) : '');
@@ -45,19 +48,52 @@ function debugLog(processingId: string, stage: string, message: string, data?: a
 
 export class ProcessingService {
   private tagger: HaystackTagger;
+  private hasDataBeenCleared: boolean = false;
+  private equipmentDbService: EquipmentDatabaseService;
 
   constructor() {
     this.tagger = new HaystackTagger();
+    this.equipmentDbService = new EquipmentDatabaseService();
+  }
+
+  // Clear all existing data before processing new files
+  async clearExistingData(processingId: string): Promise<void> {
+    if (this.hasDataBeenCleared) {
+      debugLog(processingId, 'DATA_CLEAR', 'Data already cleared in this session, skipping');
+      return;
+    }
+
+    debugLog(processingId, 'DATA_CLEAR', 'Clearing all existing data');
+    
+    try {
+      await this.equipmentDbService.clearAllData();
+      this.hasDataBeenCleared = true;
+      debugLog(processingId, 'DATA_CLEAR', 'Data cleared successfully');
+    } catch (error) {
+      debugLog(processingId, 'DATA_CLEAR', 'Failed to clear data', { error: error instanceof Error ? error.message : error });
+      throw new Error('Failed to clear existing data: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  }
+
+  // Reset the data cleared flag for new processing sessions
+  resetSession(): void {
+    this.hasDataBeenCleared = false;
   }
 
   async processFile(
-    fileId: string,
-    filename: string,
+    filepath: string,
     onStatusUpdate?: (status: ProcessingStatus) => void
   ): Promise<ProcessingResult> {
     const startTime = Date.now();
-    const processingId = `${fileId.substring(0, 8)}_${Date.now()}`;
+    const filename = path.basename(filepath);
+    const equipmentName = path.basename(filename, '.trio');
+    const processingId = `${equipmentName.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
+    const fileId = nanoid();
     
+    // Try to find existing equipment first
+    const existingEquipment = await this.equipmentDbService.findEquipmentByName(equipmentName);
+    const equipmentId = existingEquipment ? existingEquipment.id : `${fileId}-${equipmentName}`;
+
     const debugInfo = {
       processingId,
       stages: {
@@ -71,6 +107,7 @@ export class ProcessingService {
     debugLog(processingId, 'INIT', 'Starting file processing', {
       fileId,
       filename,
+      equipmentId,
       startTime: new Date(startTime).toISOString()
     });
     
@@ -86,8 +123,6 @@ export class ProcessingService {
       debugLog(processingId, 'PARSING', 'Starting trio file parsing', { filename });
 
       // Step 1: Parse trio file
-      const filepath = path.join(process.cwd(), 'uploads', `${fileId}_${filename}`);
-      
       debugLog(processingId, 'PARSING', 'Reading file', { filepath });
       
       const fileContent = await readFile(filepath, 'utf-8');
@@ -138,35 +173,54 @@ export class ProcessingService {
       debugLog(processingId, 'CLASSIFYING', 'Starting equipment classification', { filename });
 
       // Step 2: Classify equipment
-      const equipmentType = EquipmentClassifier.classifyFromFilename(filename);
+      const metadata = connectorService.getEquipmentMetadata(equipmentName);
+      
+      debugLog(processingId, 'METADATA', 'Equipment metadata from connector service', {
+        equipmentName,
+        metadata: metadata,
+        hasVendor: !!metadata.vendor,
+        hasModel: !!metadata.model
+      });
+      
+      const classificationResult = EquipmentClassifier.classifyFromFilename(equipmentName);
       
       debugInfo.stages.classifying.duration = Date.now() - classifyingStartTime;
-      debugInfo.stages.classifying.equipmentType = equipmentType.equipmentType;
-      debugInfo.stages.classifying.confidence = equipmentType.confidence;
+      debugInfo.stages.classifying.equipmentType = classificationResult.equipmentType;
+      debugInfo.stages.classifying.confidence = classificationResult.confidence;
       
       debugLog(processingId, 'CLASSIFYING', 'Classification completed', {
-        equipmentType: equipmentType.equipmentType,
-        confidence: equipmentType.confidence,
-        matchedPattern: equipmentType.matchedPattern,
-        alternatives: equipmentType.alternatives,
+        equipmentType: classificationResult.equipmentType,
+        confidence: classificationResult.confidence,
+        matchedPattern: classificationResult.matchedPattern,
+        alternatives: classificationResult.alternatives,
         duration: debugInfo.stages.classifying.duration
       });
 
       const baseEquipment: Equipment = {
-        id: fileId,
-        name: this.extractEquipmentName(filename),
-        displayName: this.extractEquipmentName(filename),
-        type: equipmentType.equipmentType,
+        id: equipmentId,
+        name: metadata.name || classificationResult.equipmentName,
+        displayName: metadata.description || metadata.name || classificationResult.equipmentName,
+        type: classificationResult.equipmentType,
         filename: filename,
-        vendor: 'Unknown',
-        modelName: 'Unknown',
-        description: `${equipmentType.equipmentType} parsed from ${filename}`,
-        status: EquipmentStatus.OPERATIONAL,
-        connectionState: ConnectionState.OPEN,
-        connectionStatus: 'ok',
-        createdAt: new Date(),
+        vendor: metadata.vendor || 'Unknown',
+        modelName: metadata.model || 'Unknown',
+        description: metadata.deviceName || `${classificationResult.equipmentType} - ${metadata.vendor || 'Unknown'} ${metadata.model || ''}`.trim(),
+        status: metadata.deviceStatus === 'OPERATIONAL' ? EquipmentStatus.OPERATIONAL : EquipmentStatus.UNKNOWN,
+        connectionState: metadata.connState === 'open' ? ConnectionState.OPEN : ConnectionState.CLOSED,
+        connectionStatus: metadata.connStatus || 'unknown',
+        createdAt: existingEquipment ? existingEquipment.createdAt : new Date(),
         updatedAt: new Date(),
-        points: []
+        points: [],
+        metadata: {
+          deviceName: metadata.deviceName,
+          deviceStatus: metadata.deviceStatus,
+          bacnetVersion: metadata.bacnetVersion,
+          ipAddress: metadata.ipAddress,
+          deviceId: metadata.deviceId,
+          network: metadata.network,
+          uri: metadata.uri,
+          customFields: metadata.customFields
+        }
       };
 
       debugLog(processingId, 'CLASSIFYING', 'Base equipment created', {
@@ -189,14 +243,14 @@ export class ProcessingService {
       const normalizedPoints: NormalizedPoint[] = [];
       
       // Extract all records from all sections
-      const allRecords: any[] = [];
+      const allRecords: Record<string, unknown>[] = [];
       parseResult.sections.forEach(section => {
         if (section.records) {
           section.records.forEach(record => {
             // Convert TrioRecord to a more usable format
-            const recordData: any = {};
+            const recordData: Record<string, unknown> = {};
             record.tags.forEach((value, key) => {
-              recordData[key] = value.value || value.raw;
+              recordData[key] = value.value ?? value.raw;
             });
             allRecords.push(recordData);
           });
@@ -210,92 +264,77 @@ export class ProcessingService {
 
       let normalizedSuccessCount = 0;
 
-      for (let i = 0; i < allRecords.length; i++) {
-        const point = allRecords[i];
-        const originalName = point.dis || point.id || `Point_${i}`;
+      for (const [index, record] of allRecords.entries()) {
+        const pointName = (record.dis as string) || (record.id as string) || `Point_${index + 1}`;
         
-        debugLog(processingId, 'NORMALIZING', `Processing point ${i + 1}/${allRecords.length}`, {
-          originalName,
-          pointData: point
+        debugLog(processingId, 'NORMALIZING', `Processing point ${index + 1}/${allRecords.length}`, {
+          originalName: pointName,
+          pointData: record as Record<string, unknown>
         });
-        
-        try {
-          // Create a BACnetPoint object for normalization
-          const bacnetPoint = {
-            id: `${fileId}_point_${i}`,
-            equipmentId: fileId,
-            objectName: originalName,
-            objectType: this.extractObjectType(point.bacnetCur) as any,
-            objectInstance: this.extractObjectInstance(point.bacnetCur) || i,
-            dis: originalName,
-            displayName: originalName,
-            description: point.bacnetDesc || '',
-            dataType: point.kind as any || 'String',
-            units: point.unit,
-            category: 'unknown' as any,
-            isWritable: !!point.writable,
-            isCommand: !!point.cmd,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
-          
-          const normalizationResult = PointNormalizer.normalizePointName(
-            bacnetPoint,
-            { equipmentType: equipmentType.equipmentType }
-          );
-          
-          const normalizedName = normalizationResult.normalizedPoint?.normalizedName || originalName;
 
-          const normalizedPoint: NormalizedPoint = {
-            originalPointId: `${fileId}_point_${i}`,
-            equipmentId: baseEquipment.id,
-            originalName,
-            originalDescription: point.bacnetDesc || '',
-            objectName: originalName,
-            normalizedName,
-            expandedDescription: normalizedName || originalName,
-            pointFunction: PointFunction.UNKNOWN,
-            category: PointCategory.SENSOR, // Default category
-            dataType: point.kind || 'string',
-            units: point.unit,
-            objectType: this.extractObjectType(point.bacnetCur) as BACnetObjectType || BACnetObjectType.ANALOG_INPUT,
-            haystackTags: [],
-            confidence: NormalizationConfidence.MEDIUM,
-            confidenceScore: 0.7,
-            normalizationMethod: 'file-processing',
-            normalizationRules: [],
-            hasAcronymExpansion: false,
-            hasUnitNormalization: !!point.unit,
-            hasContextInference: false,
-            requiresManualReview: false,
-            normalizedAt: new Date(),
-            normalizedBy: 'system'
-          };
+        const bacnetCur = record.bacnetCur as string | undefined;
+
+        const bacnetPoint = {
+          id: `${equipmentId}-${pointName}`,
+          equipmentId: equipmentId,
+          objectName: pointName,
+          dis: pointName,
+          objectType: (this.extractObjectType(bacnetCur) as BACnetObjectType) || BACnetObjectType.ANALOG_INPUT,
+          objectInstance: this.extractObjectInstance(bacnetCur) || index,
+          displayName: pointName,
+          dataType: this.determineDataType(record),
+          units: record.unit as string | undefined,
+          description: record.description as string || '',
+          category: PointCategory.UNKNOWN,
+          isWritable: !!record.writable,
+          isCommand: !!record.cmd,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+
+        const normalizationResult = PointNormalizer.normalizePointName(
+          bacnetPoint,
+          {
+            equipmentType: baseEquipment.type,
+            equipmentName: baseEquipment.name,
+            vendorName: baseEquipment.vendor,
+            units: bacnetPoint.units,
+            objectType: bacnetPoint.objectType
+          }
+        );
+
+        if (normalizationResult.success && normalizationResult.normalizedPoint) {
+          // Use the normalized point from the result
+          const normalizedPoint = normalizationResult.normalizedPoint;
+          
+          // Ensure category is valid
+          if (!normalizedPoint.category || normalizedPoint.category === PointCategory.UNKNOWN) {
+            // Determine category based on point properties
+            if (bacnetPoint.isCommand) {
+              normalizedPoint.category = PointCategory.COMMAND;
+            } else if (bacnetPoint.isWritable) {
+              normalizedPoint.category = PointCategory.SETPOINT;
+            } else if (normalizedPoint.pointFunction === PointFunction.Status) {
+              normalizedPoint.category = PointCategory.STATUS;
+            } else {
+              normalizedPoint.category = PointCategory.SENSOR;
+            }
+          }
 
           normalizedPoints.push(normalizedPoint);
           normalizedSuccessCount++;
-
-          debugLog(processingId, 'NORMALIZING', `Point normalized successfully`, {
-            index: i,
-            originalName,
-            normalizedName,
+          
+          debugLog(processingId, 'NORMALIZING', 'Point normalized successfully', {
+            index,
+            originalName: pointName,
+            normalizedName: normalizedPoint.normalizedName,
             objectType: normalizedPoint.objectType
           });
-
-        } catch (error) {
-          debugLog(processingId, 'NORMALIZING', `Point normalization failed`, {
-            index: i,
-            originalName,
-            error: error instanceof Error ? error.message : error
-          });
-        }
-
-        // Update progress during normalization
-        if (i % Math.max(1, Math.floor(allRecords.length / 10)) === 0) {
-          onStatusUpdate?.({
-            stage: 'normalizing',
-            progress: 50 + (i / allRecords.length) * 20,
-            message: `Normalizing points... (${i + 1}/${allRecords.length})`
+        } else {
+          debugLog(processingId, 'NORMALIZING', 'Point normalization failed', {
+            index,
+            originalName: pointName,
+            errors: normalizationResult.errors
           });
         }
       }
@@ -397,6 +436,20 @@ export class ProcessingService {
       // Update equipment with points
       baseEquipment.points = normalizedPoints;
 
+      // Persist equipment and points to the database
+      try {
+        await this.equipmentDbService.storeEquipmentWithPoints(fileId, baseEquipment, normalizedPoints);
+        debugLog(processingId, 'DATABASE', 'Equipment and points stored in database', {
+          equipmentId: baseEquipment.id,
+          pointCount: normalizedPoints.length
+        });
+      } catch (dbError) {
+        debugLog(processingId, 'DATABASE', 'Failed to store equipment and points', {
+          error: dbError instanceof Error ? dbError.message : dbError
+        });
+        throw dbError;
+      }
+
       // Final status update
       onStatusUpdate?.({
         stage: 'completed',
@@ -447,25 +500,9 @@ export class ProcessingService {
     }
   }
 
-  private extractEquipmentName(filename: string): string {
-    // Remove file extension and clean up the name
-    const nameWithoutExt = path.basename(filename, path.extname(filename));
-    
-    // Remove common prefixes/suffixes and clean up
-    const cleaned = nameWithoutExt
-      .replace(/^(equipment_|equip_|unit_)/i, '')
-      .replace(/(_\d+)?$/, '')
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
-
-    return cleaned || 'Unknown Equipment';
-  }
-
   private extractObjectType(bacnetCur?: string): string | undefined {
     if (!bacnetCur) return undefined;
-    
-    // Extract object type from BACnet current value (e.g., "AI39" -> "AI")
-    const match = bacnetCur.match(/^([A-Z]{2})/);
+    const match = bacnetCur.match(/^([a-zA-Z_]+)/);
     return match ? match[1] : undefined;
   }
 
@@ -477,71 +514,62 @@ export class ProcessingService {
     return match ? parseInt(match[1], 10) : undefined;
   }
 
+  private determineDataType(record: Record<string, unknown>): PointDataType {
+    const kind = record.kind as string;
+    const objectType = this.extractObjectType(record.bacnetCur as string | undefined);
+
+    if (kind?.toLowerCase() === 'bool') return PointDataType.BOOLEAN;
+    if (kind?.toLowerCase() === 'number') return PointDataType.NUMBER;
+    if (kind?.toLowerCase() === 'str') return PointDataType.STRING;
+
+    if (objectType) {
+      if (objectType.startsWith('BI') || objectType.startsWith('BO') || objectType.startsWith('BV')) {
+        return PointDataType.BOOLEAN;
+      }
+      if (objectType.startsWith('AI') || objectType.startsWith('AO') || objectType.startsWith('AV')) {
+        return PointDataType.NUMBER;
+      }
+      if (objectType.startsWith('MSI') || objectType.startsWith('MSO') || objectType.startsWith('MSV')) {
+        return PointDataType.ENUMERATED;
+      }
+    }
+
+    if (record.enum) return PointDataType.ENUMERATED;
+
+    return PointDataType.STRING;
+  }
+
+  /**
+   * Generates a basic set of Haystack tags based on the normalized point data.
+   */
   private generateBasicHaystackTags(point: NormalizedPoint): string[] {
     const tags: string[] = ['point'];
-    
-    // Add object type based tags
-    if (point.objectType) {
-      const objectType = point.objectType.toLowerCase();
-      if (objectType.startsWith('a')) {
-        tags.push('sensor');
-      }
-      if (objectType.includes('i')) {
-        tags.push('input');
-      }
-      if (objectType.includes('o')) {
-        tags.push('output', 'cmd');
-      }
+
+    if (point.pointFunction === PointFunction.Sensor) {
+      tags.push('sensor');
     }
-    
-    // Add unit based tags
+    if (point.pointFunction === PointFunction.Command) {
+      tags.push('cmd');
+    }
+    if (point.pointFunction === PointFunction.Setpoint) {
+      tags.push('sp');
+    }
+
+    if (point.objectType?.startsWith('AI') || point.objectType?.startsWith('BI')) {
+      tags.push('input');
+    } else if (point.objectType?.startsWith('AO') || point.objectType?.startsWith('BO')) {
+      tags.push('output');
+    }
+
     if (point.units) {
-      const unit = point.units.toLowerCase();
-      if (unit.includes('temp') || unit.includes('°f') || unit.includes('°c')) {
-        tags.push('temp');
-      }
-      if (unit.includes('cfm') || unit.includes('flow')) {
-        tags.push('air', 'flow');
-      }
-      if (unit.includes('%') || unit.includes('pct')) {
-        tags.push('sensor');
-      }
-      if (unit.includes('psi') || unit.includes('pressure')) {
-        tags.push('pressure');
-      }
+      if (/%/.test(point.units)) tags.push('percentage');
+      if (/°[CF]/.test(point.units)) tags.push('temp');
+      if (/pa|psi|bar/i.test(point.units)) tags.push('pressure');
+      if (/cfm|gpm|lps/i.test(point.units)) tags.push('flow');
+      if (/kw|wh/i.test(point.units)) tags.push('power');
     }
-    
-    // Add name based tags
-    if (point.normalizedName || point.originalName) {
-      const name = (point.normalizedName || point.originalName).toLowerCase();
-      if (name.includes('temp')) {
-        tags.push('temp');
-      }
-      if (name.includes('flow') || name.includes('cfm')) {
-        tags.push('air', 'flow');
-      }
-      if (name.includes('damper')) {
-        tags.push('damper');
-      }
-      if (name.includes('fan')) {
-        tags.push('fan');
-      }
-      if (name.includes('room') || name.includes('zone')) {
-        tags.push('zone');
-      }
-      if (name.includes('supply')) {
-        tags.push('supply');
-      }
-      if (name.includes('return')) {
-        tags.push('return');
-      }
-      if (name.includes('exhaust')) {
-        tags.push('exhaust');
-      }
-    }
-    
-    // Remove duplicates and return
-    return Array.from(new Set(tags));
+
+    return tags;
   }
 
   // Method to get processing status for long-running operations
@@ -556,4 +584,6 @@ export class ProcessingService {
     // Implementation would depend on how background processing is handled
     return false;
   }
-} 
+}
+
+export const processingService = new ProcessingService();

@@ -1,7 +1,7 @@
 # CxAlloy Equipment Mapping System - Product Context
 
 ## Project Overview
-A Next.js-based web application for mapping building automation equipment and points to CxAlloy-compatible Haystack tags. The system processes TRIO files, classifies equipment, normalizes point data, and generates semantic tags for integration with CxAlloy's building automation platform.
+A Next.js-based web application for mapping BACnet building automation equipment and their points to CxAlloy project equipment. The system processes TRIO files, classifies equipment, normalizes point data, and generates semantic  Haystack tags. This enables an integration with CxAlloy allowing live connection to a customers building automation platform.
 
 ## Current Status: ✅ PRODUCTION READY
 - **Build Status**: TypeScript compilation successful (exit code 0)

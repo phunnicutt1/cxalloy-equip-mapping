@@ -1,4 +1,4 @@
-import mysql from 'mysql2/promise';
+import mysql, { RowDataPacket } from 'mysql2/promise';
 
 export interface DatabaseConfig {
   host: string;
@@ -58,7 +58,7 @@ export function getConnectionPool(): mysql.Pool {
 }
 
 // Test database connection
-export async function testConnection(): Promise<{ success: boolean; error?: string; info?: any }> {
+export async function testConnection(): Promise<{ success: boolean; error?: string; info?: Record<string, unknown> }> {
   try {
     const pool = getConnectionPool();
     const connection = await pool.getConnection();
@@ -66,10 +66,10 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
     console.log('[DATABASE] Testing connection...');
     
     // Test basic connectivity
-    const [rows] = await connection.execute('SELECT 1 as test');
+    await connection.execute('SELECT 1 as test');
     
     // Get database info
-    const [dbInfo] = await connection.execute(`
+    const [rows] = await connection.execute<RowDataPacket[]>(`
       SELECT 
         DATABASE() as current_database,
         VERSION() as mysql_version,
@@ -78,11 +78,13 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
     
     connection.release();
     
+    const dbInfo = rows.length > 0 ? rows[0] : undefined;
+
     console.log('[DATABASE] Connection test successful', dbInfo);
     
     return {
       success: true,
-      info: dbInfo
+      info: dbInfo,
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
@@ -105,9 +107,9 @@ export async function closeConnectionPool(): Promise<void> {
 }
 
 // Database query helper with debugging
-export async function executeQuery<T = any>(
+export async function executeQuery<T>(
   query: string, 
-  params: any[] = [],
+  params: (string | number | boolean | null)[] = [],
   debugName = 'QUERY'
 ): Promise<T[]> {
   const startTime = Date.now();

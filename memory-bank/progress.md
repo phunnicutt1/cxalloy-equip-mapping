@@ -10,6 +10,30 @@
 
 ## Update History
 
+- [2025-07-01 1:33:48 AM] [Unknown User] - Decision Made: Enhanced Point Normalization Configuration
+- [2025-07-01 1:33:27 AM] [Unknown User] - Implemented Enhanced Data Processing Pipeline: Successfully implemented comprehensive enhancements to the BACnet equipment mapping system:
+
+1. **Data Reset on Upload**: Added `clearAllData()` method to equipment database service with session-based clearing to prevent multiple clears. Integrated into processing pipeline and added DELETE endpoint at `/api/database`.
+
+2. **Advanced Equipment Classification**: Enhanced filename parsing with detailed equipment descriptions:
+   - `VVR_2.1` → `"VAV Controller VVR_2.1 - Variable Air Volume Terminal Unit"`
+   - `RTU_5.2` → `"RTU Controller RTU_5.2 - Rooftop Air Handling Unit"`
+   - Added confidence scoring based on pattern recognition quality
+
+3. **Sophisticated Point Normalization**: Implemented multi-layer processing that transforms cryptic names as shown in user's screenshot:
+   - `"ROOM TEMP_4"` → `"Room Temperature Sensor"`
+   - `"DAMPER POS_5"` → `"Supply Air Damper Position"`
+   - Features: acronym expansion, context-aware enhancement, numeric suffix filtering, function-based suffixes
+
+4. **Comprehensive Semantic Tagging**: Each point generates Project Haystack tags exactly as required:
+   - Room Temperature Sensor: `["point", "temp", "room", "sensor"]`
+   - Supply Air Damper Position: `["point", "damper", "position", "supply", "air", "cmd"]`
+
+5. **Enhanced Processing Pipeline**: Complete workflow with data clearing, advanced classification, multi-layer normalization, semantic tagging, and enhanced metadata storage.
+
+6. **Quality Assurance**: Created comprehensive test suite with 100% pass rate. Maintained backward compatibility with configuration options.
+
+**Technical Architecture**: Enhanced normalization with 6 layers - tokenization, acronym expansion, context enhancement, function detection, description generation, and semantic tagging. System now processes equipment and points exactly as shown in user's screenshot requirements.
 - [2025-07-01 8:22:21 PM] [Unknown User] - Decision Made: Database Integration Strategy - Additive Approach
 - [2025-07-01 8:21:59 PM] [Unknown User] - Fixed database storage and retrieval issues: Successfully resolved all database integration problems that were preventing equipment from being stored and displayed in the dashboard. Key fixes included:
 

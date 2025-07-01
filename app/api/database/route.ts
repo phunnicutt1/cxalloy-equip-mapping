@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { nanoid } from 'nanoid';
 import { testConnection, closeConnectionPool } from '../../../lib/database/config';
 import { initializeTables, getTableInfo, cleanupOldData } from '../../../lib/database/models';
-import { equipmentDbService } from '../../../lib/database/equipment-db-service';
+import { EquipmentDatabaseService } from '../../../lib/database/equipment-db-service';
+import { connectorService } from '../../../lib/services/connector-service';
+import { EquipmentClassifier } from '../../../lib/classifiers/equipment-classifier';
+import { Equipment, ConnectionState, EquipmentStatus } from '../../../types/equipment';
 
 interface DatabaseStatusResponse {
   success: boolean;
   connection: {
     status: 'connected' | 'failed';
-    info?: any;
+    info?: Record<string, unknown>;
     error?: string;
   };
   tables: {
@@ -26,7 +30,7 @@ interface DatabaseStatusResponse {
 }
 
 interface DatabaseActionRequest {
-  action: 'initialize' | 'cleanup' | 'test' | 'reset';
+  action: 'initialize' | 'cleanup' | 'test' | 'reset' | 'clear' | 'populate-from-csv';
   options?: {
     cleanupDays?: number;
     force?: boolean;
@@ -38,6 +42,9 @@ export async function GET(): Promise<NextResponse<DatabaseStatusResponse>> {
   console.log('[DATABASE API] Getting database status');
   
   try {
+    // Instantiate the service
+    const dbService = new EquipmentDatabaseService();
+
     // Test connection
     const connectionResult = await testConnection();
     
@@ -66,7 +73,7 @@ export async function GET(): Promise<NextResponse<DatabaseStatusResponse>> {
         };
 
         // Get statistics if tables exist
-        const statistics = await equipmentDbService.getStatistics();
+        const statistics = await dbService.getStatistics();
         response.statistics = statistics;
 
       } catch (error) {
@@ -106,7 +113,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     console.log('[DATABASE API] Action requested:', { action, options });
 
+    // Instantiate the service
+    const dbService = new EquipmentDatabaseService();
+
     switch (action) {
+      case 'populate-from-csv':
+        {
+          console.log('[DATABASE API] Populating equipment from CSV data');
+          const equipmentNames = connectorService.getAllEquipmentNames();
+          let count = 0;
+          for (const name of equipmentNames) {
+            const metadata = connectorService.getEquipmentMetadata(name);
+            const equipmentType = EquipmentClassifier.classifyFromFilename(name).equipmentType;
+
+            const equipment: Equipment = {
+              id: nanoid(),
+              name: metadata.name || name,
+              displayName: metadata.name || name,
+              type: equipmentType,
+              filename: name,
+              status: EquipmentStatus.UNKNOWN,
+              connectionState: ConnectionState.CLOSED,
+              connectionStatus: 'unknown',
+              vendor: metadata.vendor || 'Unknown',
+              modelName: metadata.model || 'Unknown',
+              points: [],
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            
+            await dbService.storeEquipmentWithPoints(name, equipment, []);
+            count++;
+          }
+          return NextResponse.json({
+            success: true,
+            message: `Successfully populated ${count} equipment records from CSV.`,
+          });
+        }
       case 'test':
         {
           const result = await testConnection();
@@ -177,6 +220,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           });
         }
 
+      case 'clear':
+        {
+          console.log('[DATABASE API] Clearing all data');
+          
+          await dbService.clearAllData();
+          
+          console.log('[DATABASE API] All data cleared successfully');
+          
+          return NextResponse.json({
+            success: true,
+            message: 'All equipment and points data cleared successfully'
+          });
+        }
+
       default:
         return NextResponse.json({
           success: false,
@@ -215,4 +272,6 @@ export async function DELETE(): Promise<NextResponse> {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-} 
+}
+
+ 

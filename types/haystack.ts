@@ -4,6 +4,33 @@
  */
 
 /**
+ * Defines a single Haystack tag
+ */
+export interface HaystackTag {
+  name: string; // Tag name (e.g., "site", "equip", "point", "temp", "sensor")
+  value?: any; // Tag value (marker tags have no value)
+  
+  // Metadata
+  description?: string;
+  category: HaystackTagCategory;
+  isMarker: boolean; // True for marker tags (no value)
+  
+  // Haystack v5 Features
+  xetoType?: string; // Xeto schema type
+  inheritance?: string[]; // Inherited tag types
+  composition?: string[]; // Composed tag types
+  
+  // Validation
+  isValid: boolean;
+  validationErrors?: string[];
+  
+  // Source Tracking
+  source: "manual" | "inferred" | "template" | "ml";
+  confidence: number; // 0-1 confidence score
+  appliedAt: Date;
+}
+
+/**
  * Haystack Tag Value Types
  * Represents the data types supported in Haystack tags
  */
@@ -48,7 +75,8 @@ export interface HaystackNumber {
  * Core Haystack Tag
  * Represents a single semantic tag in the Haystack taxonomy
  */
-export interface HaystackTag {
+/*
+export interface HaystackTagComplex {
   name: string; // Tag name (e.g., "site", "equip", "point", "temp", "sensor")
   value?: HaystackValue; // Tag value (marker tags have no value)
   
@@ -71,6 +99,7 @@ export interface HaystackTag {
   confidence: number; // 0-1 confidence score
   appliedAt: Date;
 }
+*/
 
 /**
  * Haystack Tag Categories
@@ -375,4 +404,4 @@ export interface HaystackComplianceReport {
   };
   recommendations: string[];
   generatedAt: Date;
-} 
+}
