@@ -12,11 +12,13 @@ import {
   Upload, 
   Settings, 
   Download,
-  RefreshCw
+  RefreshCw,
+  TestTube
 } from 'lucide-react';
+import Link from 'next/link';
 import { EquipmentStatus, ConnectionState } from '../../types/equipment';
 
-function DashboardHeader() {
+function DashboardHeader({ onRefresh }: { onRefresh: () => void }) {
   const { isLoading, setLoading } = useAppStore();
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
@@ -30,14 +32,17 @@ function DashboardHeader() {
     // For now, we'll just close the dialog and show a success message
     setUploadDialogOpen(false);
     
-    // Optional: trigger a refresh to show the new data
-    handleRefresh();
+    // Optional: trigger a refresh to show the new data after a short delay
+    // This prevents rapid API calls immediately after upload
+    setTimeout(() => {
+      if (!isLoading) { // Only refresh if not already loading
+        onRefresh();
+      }
+    }, 1000); // 1 second delay
   };
 
   const handleRefresh = () => {
-    setLoading(true);
-    // Simulate refresh
-    setTimeout(() => setLoading(false), 1000);
+    onRefresh();
   };
 
   const handleExport = () => {
@@ -58,6 +63,18 @@ function DashboardHeader() {
         </div>
         
         <div className="flex items-center gap-2">
+          <Link href="/test">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              title="Test Dashboard"
+            >
+              <TestTube className="h-4 w-4" />
+              Tests
+            </Button>
+          </Link>
+          
           <Button
             variant="outline"
             size="sm"
@@ -108,151 +125,66 @@ function DashboardHeader() {
 }
 
 export default function DashboardPage() {
-  const { setEquipment, setCxAlloyEquipment } = useAppStore();
+  const { setEquipment, setCxAlloyEquipment, setLoading, isLoading } = useAppStore();
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Initialize with mock data on component mount
+  // Load equipment data on component mount with request deduplication
   React.useEffect(() => {
-    // Mock BACnet equipment data
-    const mockEquipment = [
-      {
-        id: 'vav-1',
-        name: 'VVR_2.1',
-        displayName: 'VAV Controller Room 2.1',
-        type: 'VAV Controller',
-        filename: 'VVR_2.1.trio',
-        vendor: 'Johnson Controls',
-        modelName: 'VMA1400',
-        model: 'VMA1400',
-        description: 'Variable Air Volume Controller Room 2.1',
-        status: EquipmentStatus.OPERATIONAL,
-        connectionState: ConnectionState.OPEN,
-        connectionStatus: 'ok',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        points: [
-          {
-            id: 'point-1',
-            originalName: 'ROOM TEMP 4',
-            normalizedName: 'Room Temperature Sensor',
-            description: 'Room temperature measurement',
-            objectType: 'AI',
-            unit: '°F',
-            dataType: 'Number',
-            kind: 'Number',
-            bacnetCur: 'AI39',
-            haystackTags: ['sensor', 'temp', 'room', 'zone']
-          },
-          {
-            id: 'point-2',
-            originalName: 'DAMPER POS 5',
-            normalizedName: 'Supply Air Damper Position',
-            description: 'Supply air VAV damper position command',
-            objectType: 'AO',
-            unit: '%',
-            dataType: 'Number',
-            kind: 'Number',
-            bacnetCur: 'AO0',
-            writable: true,
-            haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
-          }
-        ]
-      },
-      {
-        id: 'lab-1',
-        name: 'L_5',
-        displayName: 'Lab Air Valve 5',
-        type: 'Lab Air Valve',
-        filename: 'L_5.trio',
-        vendor: 'Belimo',
-        modelName: 'LRX24-3',
-        model: 'LRX24-3',
-        description: 'Laboratory Exhaust Air Valve Controller',
-        status: EquipmentStatus.OPERATIONAL,
-        connectionState: ConnectionState.OPEN,
-        connectionStatus: 'ok',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        points: [
-          {
-            id: 'point-3',
-            originalName: 'EX DIFF P 1',
-            normalizedName: 'Extract Air Differential Pressure',
-            description: 'Extract air VAV differential pressure sensor',
-            objectType: 'AI',
-            unit: 'inH₂O',
-            dataType: 'Number',
-            kind: 'Number',
-            bacnetCur: 'AI744',
-            haystackTags: ['sensor', 'pressure', 'diff', 'extract', 'air']
-          }
-        ]
-      },
-      {
-        id: 'rtu-1',
-        name: 'RTU_2',
-        displayName: 'Rooftop Unit 2',
-        type: 'RTU Controller',
-        filename: 'RTU_2.trio',
-        vendor: 'Carrier',
-        modelName: 'CCN7000',
-        model: 'CCN7000',
-        description: 'Rooftop Unit Controller',
-        status: EquipmentStatus.OPERATIONAL,
-        connectionState: ConnectionState.OPEN,
-        connectionStatus: 'ok',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        points: []
-      }
-    ];
+    // Prevent multiple simultaneous requests
+    if (hasInitialized || isLoading) {
+      return;
+    }
 
-    // Mock CxAlloy equipment data
-    const mockCxAlloyEquipment = [
-      {
-        id: 'cx-vav-101',
-        name: 'VAV-101',
-        type: 'VAV Terminal',
-        description: 'Variable Air Volume Terminal Unit',
-        location: 'Floor 2, Room 101',
-        zone: 'Zone A',
-        system: 'AHU-1'
-      },
-      {
-        id: 'cx-vav-102',
-        name: 'VAV-102',
-        type: 'VAV Terminal',
-        description: 'Variable Air Volume Terminal Unit',
-        location: 'Floor 2, Room 102',
-        zone: 'Zone A',
-        system: 'AHU-1'
-      },
-      {
-        id: 'cx-lab-201',
-        name: 'LAB-201',
-        type: 'Laboratory Equipment',
-        description: 'Laboratory Fume Hood Controller',
-        location: 'Floor 2, Lab 201',
-        zone: 'Lab Zone',
-        system: 'Exhaust-1'
-      },
-      {
-        id: 'cx-rtu-roof1',
-        name: 'RTU-ROOF1',
-        type: 'Rooftop Unit',
-        description: 'Rooftop Air Handling Unit',
-        location: 'Roof, Section 1',
-        zone: 'Mechanical',
-        system: 'Primary HVAC'
+    const fetchEquipment = async () => {
+      setHasInitialized(true);
+      setLoading(true);
+      
+      try {
+        const response = await fetch('/api/equipment?limit=100');
+        
+        if (!response.ok) {
+          if (response.status === 429) {
+            console.warn('Rate limit exceeded, retrying in 2 seconds...');
+            // Retry after a delay for rate limiting
+            setTimeout(() => {
+              setHasInitialized(false);
+              setLoading(false);
+            }, 2000);
+            return;
+          }
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.equipment) {
+          setEquipment(data.equipment);
+        } else {
+          console.error('Failed to load equipment data:', data.error);
+          setEquipment([]);
+        }
+      } catch (error) {
+        console.error('Error fetching equipment:', error);
+        setEquipment([]);
+        // Reset initialization flag on error so user can retry
+        setHasInitialized(false);
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-    setEquipment(mockEquipment);
-    setCxAlloyEquipment(mockCxAlloyEquipment);
-  }, [setEquipment, setCxAlloyEquipment]);
+    fetchEquipment();
+  }, [setEquipment, setLoading, hasInitialized, isLoading]);
+
+  // Create a refresh function for the header
+  const handleRefresh = React.useCallback(() => {
+    // Reset initialization flag to allow fresh data fetch
+    setHasInitialized(false);
+  }, []);
 
   return (
     <ThreePanelLayout
-      header={<DashboardHeader />}
+      header={<DashboardHeader onRefresh={handleRefresh} />}
       leftPanel={<EquipmentBrowser />}
       middlePanel={<PointDetails />}
       rightPanel={<CxAlloyPanel />}

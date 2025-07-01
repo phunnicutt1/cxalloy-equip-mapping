@@ -92,6 +92,7 @@ export interface NormalizedPoint {
   normalizedBy?: string; // User ID if manually normalized
   reviewedAt?: Date;
   reviewedBy?: string;
+  isPlaceholder?: boolean; // Flag to indicate this is a placeholder for count display
 }
 
 /**

@@ -2,11 +2,11 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { 
   Equipment, 
-  NormalizedPoint, 
   EquipmentTemplate,
   CxAlloyEquipment,
   EquipmentMapping 
 } from '../types/equipment';
+import type { NormalizedPoint } from '../types/normalized';
 
 interface ViewMode {
   left: 'equipment' | 'templates';

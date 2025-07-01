@@ -29,11 +29,14 @@ import type {
   EquipmentClassification,
   EquipmentType,
   EquipmentStatus,
-  NormalizedPoint,
   EquipmentTemplate,
   CxAlloyEquipment,
   EquipmentMapping
 } from "./equipment";
+
+import type {
+  NormalizedPoint
+} from "./normalized";
 
 import type {
   BACnetPoint

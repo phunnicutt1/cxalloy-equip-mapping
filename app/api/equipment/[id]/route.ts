@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { Equipment, NormalizedPoint } from '../../../../types/equipment';
+import type { Equipment } from '../../../../types/equipment';
+import type { NormalizedPoint } from '../../../../types/normalized';
 import { 
   getEquipment, 
   getEquipmentPoints, 
@@ -37,7 +38,7 @@ export async function GET(
       );
     }
 
-    const equipment = getEquipment(id);
+    const equipment = await getEquipment(id);
     
     if (!equipment) {
       return NextResponse.json(
@@ -46,7 +47,7 @@ export async function GET(
       );
     }
 
-    const points = getEquipmentPoints(id);
+    const points = await getEquipmentPoints(id);
 
     return NextResponse.json({
       success: true,
@@ -78,7 +79,7 @@ export async function PUT(
       );
     }
 
-    const existingEquipment = getEquipment(id);
+    const existingEquipment = await getEquipment(id);
     
     if (!existingEquipment) {
       return NextResponse.json(
@@ -87,16 +88,19 @@ export async function PUT(
       );
     }
 
-    // Update equipment with provided fields
-    const updatedEquipment: Equipment = {
-      ...existingEquipment,
-      ...updates,
-      id // Ensure ID cannot be changed
-    };
+    // Update equipment with provided fields (id cannot be changed)
+    await updateEquipment(id, updates);
 
-    updateEquipment(id, updatedEquipment);
+    // Get updated equipment and points
+    const updatedEquipment = await getEquipment(id);
+    const points = await getEquipmentPoints(id);
 
-    const points = getEquipmentPoints(id);
+    if (!updatedEquipment) {
+      return NextResponse.json(
+        { success: false, error: 'Equipment not found after update' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -127,7 +131,7 @@ export async function DELETE(
       );
     }
 
-    if (!equipmentExists(id)) {
+    if (!(await equipmentExists(id))) {
       return NextResponse.json(
         { success: false, error: 'Equipment not found' },
         { status: 404 }
@@ -135,7 +139,7 @@ export async function DELETE(
     }
 
     // Delete equipment and associated points
-    deleteEquipment(id);
+    await deleteEquipment(id);
 
     return NextResponse.json({
       success: true

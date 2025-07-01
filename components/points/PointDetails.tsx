@@ -3,7 +3,8 @@
 import React from 'react';
 import { useAppStore } from '../../store/app-store';
 import { cn } from '../../lib/utils';
-import { NormalizedPoint } from '../../types/equipment';
+import { NormalizedPoint } from '../../types/normalized';
+import { PointCategory } from '../../types/point';
 import { 
   Select,
   SelectContent,
@@ -60,43 +61,37 @@ function PointRow({ point, index }: PointRowProps) {
         index % 2 === 0 ? "bg-background" : "bg-muted/10"
       )}
     >
-      {/* Compact Row Layout */}
-      <div className="flex items-center gap-4">
-        {/* Left: Icon and Point Name */}
-        <div className="flex items-center gap-2 min-w-0 flex-shrink-0 pr-6" style={{ minWidth: '200px', maxWidth: '300px' }}>
-          {getPointIcon(point.objectType)}
-          <div className="min-w-0">
-            <div className="font-medium text-sm text-foreground truncate">
-              {point.normalizedName || point.originalName}
-            </div>
-            {point.normalizedName && point.originalName !== point.normalizedName && (
-              <div className="text-xs text-muted-foreground font-mono truncate">
-                Original: {point.originalName}
+      {/* Two-Level Layout */}
+      <div className="space-y-2">
+        {/* Top Level: Point Name + Metadata + Unit/Object Type */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Icon and Point Name */}
+          <div className="flex items-center gap-2 min-w-0 flex-shrink-0" style={{ minWidth: '200px', maxWidth: '300px' }}>
+            {getPointIcon(point.objectType)}
+            <div className="min-w-0">
+              <div className="font-medium text-sm text-foreground truncate">
+                {point.normalizedName || point.originalName}
               </div>
-            )}
+              {point.normalizedName && point.originalName !== point.normalizedName && (
+                <div className="text-xs text-muted-foreground font-mono truncate">
+                  Original: {point.originalName}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Middle: Metadata and Tags - Flexible width */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          {/* Point Metadata - Single line, no wrap */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
+          {/* Center: Point Metadata */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground whitespace-nowrap flex-1">
             {point.dataType && (
               <span>Type: {point.dataType}</span>
             )}
-            {point.kind && (
+            {point.objectName && (
               <>
                 <span>•</span>
-                <span>Kind: {point.kind}</span>
+                <span>BACnet: {point.objectName}</span>
               </>
             )}
-            {point.bacnetCur && (
-              <>
-                <span>•</span>
-                <span>BACnet: {point.bacnetCur}</span>
-              </>
-            )}
-            {point.writable && (
+            {point.category === PointCategory.COMMAND && (
               <>
                 <span>•</span>
                 <span className="text-orange-600">Writable</span>
@@ -104,38 +99,41 @@ function PointRow({ point, index }: PointRowProps) {
             )}
           </div>
 
-          {/* Haystack Tags */}
-          {point.haystackTags && point.haystackTags.length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {point.haystackTags.map((tag: string, idx: number) => (
-                <span 
-                  key={idx}
-                  className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 whitespace-nowrap"
-                >
-                  {tag}
-                </span>
-              ))}
+          {/* Right: Unit and Object Type */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {point.units && getUnitDisplay(point.units)}
+            {point.objectType && (
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-mono">
+                {point.objectType}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Level: Description + Haystack Tags */}
+        {(point.expandedDescription || (point.haystackTags && point.haystackTags.length > 0)) && (
+          <div className="flex items-start justify-between gap-4 pl-6">
+            {/* Left: Description */}
+            <div className="text-xs text-muted-foreground flex-1 min-w-0">
+              {point.expandedDescription || point.originalDescription}
             </div>
-          )}
-        </div>
 
-        {/* Right: Unit and Object Type */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {point.unit && getUnitDisplay(point.unit)}
-          {point.objectType && (
-            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-mono">
-              {point.objectType}
-            </span>
-          )}
-        </div>
+            {/* Right: Haystack Tags */}
+            {point.haystackTags && point.haystackTags.length > 0 && (
+              <div className="flex items-center gap-1 flex-wrap justify-end flex-shrink-0">
+                {point.haystackTags.map((tag, idx: number) => (
+                  <span 
+                    key={idx}
+                    className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 whitespace-nowrap"
+                  >
+                    {typeof tag === 'string' ? tag : tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* Description (only if exists and not too long) */}
-      {point.description && (
-        <div className="text-xs text-muted-foreground mt-1 pl-6">
-          {point.description}
-        </div>
-      )}
     </div>
   );
 }
@@ -259,7 +257,7 @@ export function PointDetails() {
           <div>
             {points.map((point, index) => (
               <PointRow 
-                key={point.id || `${point.originalName}-${index}`} 
+                key={point.originalPointId || `${point.originalName}-${index}`} 
                 point={point} 
                 index={index}
               />

@@ -242,6 +242,84 @@ npm run test:coverage      # Coverage report
 node test-api.js           # Test all API endpoints
 ```
 
+## 🧪 Test Dashboard
+
+The application includes a comprehensive test dashboard for validating functionality and debugging upload issues.
+
+### **Accessing the Test Dashboard**
+
+*   Click the **test tube icon** (🧪) in the main dashboard header
+*   Navigate directly to `/test` route
+*   Available in both development and production modes
+
+### **Test Dashboard Features**
+
+The test dashboard provides **5 comprehensive test suites** covering all critical functionality:
+
+#### **1. Upload & Processing Pipeline**
+*   **File Upload Validation** - Test file upload mechanics and validation
+*   **Trio File Parsing** - Validate trio file format parsing and structure extraction
+*   **Processing Workflow** - End-to-end processing pipeline validation
+*   **Equipment Creation** - Verify equipment objects are created correctly
+
+#### **2. Point Data Normalization**
+*   **Point Name Normalization** - Transform cryptic BACnet identifiers to readable names
+*   **Data Type Inference** - Validate automatic data type detection
+*   **Unit Standardization** - Test unit mapping and standardization
+*   **BACnet Mapping** - Verify BACnet acronym dictionary mappings
+
+#### **3. Equipment Classification**
+*   **Filename Classification** - Test equipment type detection from filenames
+*   **Point Pattern Analysis** - Validate equipment classification from point patterns
+*   **Vendor Detection** - Test vendor-specific equipment identification
+*   **Confidence Scoring** - Verify classification confidence algorithms
+
+#### **4. Haystack Tag Generation**
+*   **Semantic Inference** - Test intelligent point classification
+*   **Equipment Tags** - Validate equipment-level Haystack tag generation
+*   **Point Tags** - Test point-level Haystack tag assignment
+*   **Tag Validation** - Verify Project Haystack 5.0 compliance
+
+#### **5. Data Integration**
+*   **Equipment Store Integration** - Test data persistence and retrieval
+*   **UI State Updates** - Validate real-time UI updates during processing
+*   **Point Count Validation** - Verify accurate point counting and statistics
+*   **Error Handling** - Test error recovery and user feedback
+
+### **Interactive Testing Interface**
+
+*   **Individual Test Execution** - Run specific test suites independently
+*   **Run All Tests** - Execute complete test battery with single click
+*   **Real-time Progress** - Visual progress indicators for each test phase
+*   **Expandable Results** - Detailed test results with pass/fail/warning status
+*   **Statistics Dashboard** - Comprehensive test statistics and timing information
+
+### **Test Results & Debugging**
+
+*   **Detailed Logging** - Step-by-step execution logs for debugging
+*   **Error Diagnostics** - Specific error messages and failure points
+*   **Performance Metrics** - Execution timing for performance analysis
+*   **Data Validation** - Verify data integrity throughout processing pipeline
+
+### **Using the Test Dashboard**
+
+1.  **Navigate** to the test dashboard via the 🧪 icon
+2.  **Select Tests** - Choose individual suites or run all tests
+3.  **Upload Test Files** - Use sample files from `uploads/` directory
+4.  **Monitor Progress** - Watch real-time test execution
+5.  **Review Results** - Expand sections for detailed information
+6.  **Debug Issues** - Use detailed logs to identify problems
+
+### **Troubleshooting with Tests**
+
+The test dashboard is particularly useful for:
+
+*   **Upload Failures** - Diagnose file upload and processing issues
+*   **Rate Limiting** - Test rate limiting behavior and retry logic
+*   **Processing Errors** - Identify specific pipeline failure points
+*   **Data Quality** - Validate normalization and tagging accuracy
+*   **Performance Issues** - Monitor processing times and bottlenecks
+
 ## 🛠️ Technology Stack
 
 ### **Frontend**

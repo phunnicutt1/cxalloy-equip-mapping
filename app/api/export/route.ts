@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllEquipment } from '../../../lib/stores/equipment-store';
-import type { Equipment, NormalizedPoint } from '../../../types/equipment';
+import type { Equipment } from '../../../types/equipment';
+import type { NormalizedPoint } from '../../../types/normalized';
 
 interface ExportRequest {
   equipmentIds?: string[];
@@ -30,7 +31,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ExportRes
     }
 
     // Get equipment data
-    const allEquipment = getAllEquipment();
+    const allEquipmentResult = await getAllEquipment();
+    const allEquipment = allEquipmentResult.equipment;
     const equipment = equipmentIds 
       ? allEquipment.filter(eq => equipmentIds.includes(eq.id))
       : allEquipment;

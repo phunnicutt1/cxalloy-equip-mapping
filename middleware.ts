@@ -15,7 +15,7 @@ const defaultRateLimit: RateLimitConfig = {
 
 const apiRateLimit: RateLimitConfig = {
   windowMs: 5 * 60 * 1000, // 5 minutes
-  maxRequests: 20 // requests per window for API routes
+  maxRequests: 200 // requests per window for API routes
 };
 
 function getRateLimitKey(request: NextRequest): string {

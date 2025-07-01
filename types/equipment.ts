@@ -41,27 +41,8 @@ export enum ConnectionState {
   ERROR = "error"
 }
 
-/**
- * Normalized Point Interface
- */
-export interface NormalizedPoint {
-  id: string;
-  originalName: string;
-  originalPointId?: string;
-  normalizedName?: string;
-  expandedDescription?: string;
-  description?: string;
-  objectType?: string;
-  unit?: string;
-  units?: string; // Alternative units property
-  dataType?: string;
-  kind?: string;
-  bacnetCur?: string;
-  writable?: boolean;
-  haystackTags?: string[];
-  vendor?: string;
-  equipmentType?: string;
-}
+// Import NormalizedPoint from the normalized types
+import type { NormalizedPoint } from './normalized';
 
 /**
  * Equipment Template Interface
