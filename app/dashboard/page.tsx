@@ -21,7 +21,7 @@ function DashboardHeader({ onRefresh, loading }: { onRefresh: () => void; loadin
       <div className="flex items-center space-x-2">
         <Button onClick={onRefresh} disabled={loading} className="font-bold">
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          {loading ? 'Refreshing...' : 'Refresh Data'}
+          {loading ? 'Processing...' : 'Process Sample Data'}
         </Button>
         <Button variant="outline">
           <Download className="w-4 h-4 mr-2" />
@@ -43,13 +43,31 @@ export default function DashboardPage() {
   const handleRefresh = useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch('/api/refresh');
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to refresh data');
+      // First try to auto-process sample files
+      console.log('[Dashboard] Starting auto-process of sample files...');
+      const autoProcessRes = await fetch('/api/auto-process', { method: 'POST' });
+      
+      if (autoProcessRes.ok) {
+        const autoProcessData = await autoProcessRes.json();
+        console.log('[Dashboard] Auto-process completed:', {
+          files: autoProcessData.summary?.totalFiles || 0,
+          equipment: autoProcessData.summary?.totalEquipment || 0,
+          points: autoProcessData.summary?.totalPoints || 0,
+          enhanced: autoProcessData.csvEnhancement?.enabled || false
+        });
+      } else {
+        // If auto-process fails, fall back to regular refresh
+        console.log('[Dashboard] Auto-process not available, using regular refresh...');
+        const refreshRes = await fetch('/api/refresh');
+        if (!refreshRes.ok) {
+          const data = await refreshRes.json();
+          throw new Error(data.error || 'Failed to refresh data');
+        }
       }
-      // Re-fetch equipment data after refresh
+      
+      // Re-fetch equipment data after processing
       await fetchEquipment(1, {});
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     }

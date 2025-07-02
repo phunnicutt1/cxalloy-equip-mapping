@@ -1,0 +1,5 @@
+equipment_id,equipment_name,equipment_type,location,system,zone,floor,room,description
+VAV-101,VAV-101,VAV Terminal,Floor 2,AHU-1,Zone A,2,101,Variable Air Volume Terminal Unit
+VAV-102,VAV-102,VAV Terminal,Floor 2,AHU-1,Zone A,2,102,Variable Air Volume Terminal Unit  
+LAB-201,LAB-201,Laboratory Equipment,Floor 2,Exhaust-1,Lab Zone,2,201,Laboratory Fume Hood Controller
+RTU-ROOF1,RTU-ROOF1,Rooftop Unit,Roof,RTU-1,Building Wide,R,N/A,Rooftop Air Handling Unit

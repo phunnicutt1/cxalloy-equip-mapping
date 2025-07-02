@@ -1,0 +1,17 @@
+dis:"LAB EXHAUST_1"
+bacnetCur:BI0
+bacnetDesc:"Laboratory exhaust fan status"
+kind:Bool
+point
+sensor
+---
+dis:"VALVE POS_1"
+bacnetCur:AO1
+bacnetDesc:"Laboratory exhaust valve position"
+bacnetWrite:AO1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:%
+writable

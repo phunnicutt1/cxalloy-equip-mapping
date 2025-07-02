@@ -63,6 +63,7 @@ export class EquipmentClassifier {
     { pattern: /^RTU[-_]?\d*$/i, type: 'RTU', confidence: 0.9 },
     { pattern: /rooftop/i, type: 'RTU', confidence: 0.85 },
     { pattern: /^VAV[-_]?\d*$/i, type: 'VAV', confidence: 0.9 },
+    { pattern: /^VVR[-_]?\d*\.?\d*$/i, type: 'VAV_CONTROLLER', confidence: 0.95 },
     { pattern: /variable.*air.*volume/i, type: 'VAV', confidence: 0.85 },
     { pattern: /^FCU[-_]?\d*$/i, type: 'FCU', confidence: 0.9 },
     { pattern: /fan.*coil/i, type: 'FCU', confidence: 0.85 },
@@ -83,6 +84,11 @@ export class EquipmentClassifier {
     { pattern: /return.*fan/i, type: 'RETURN_FAN', confidence: 0.85 },
     { pattern: /^CTF[-_]?\d*$/i, type: 'COOLING_TOWER_FAN', confidence: 0.95 },
     { pattern: /cooling.*tower.*fan/i, type: 'COOLING_TOWER_FAN', confidence: 0.9 },
+    
+    // Laboratory Equipment
+    { pattern: /^L[-_]?\d+$/i, type: 'LAB_AIR_VALVE', confidence: 0.95 },
+    { pattern: /lab.*air.*valve/i, type: 'LAB_AIR_VALVE', confidence: 0.9 },
+    { pattern: /laboratory.*exhaust/i, type: 'LAB_EXHAUST', confidence: 0.85 },
     
     // Pumps
     { pattern: /^CWP[-_]?\d*$/i, type: 'CHILLED_WATER_PUMP', confidence: 0.9 },
@@ -139,6 +145,66 @@ export class EquipmentClassifier {
   ];
 
   /**
+   * Dictionary of common equipment-name substrings → standard type (Haystack v5 inspired).
+   * Keys are sorted later by length-desc so more-specific tokens win.
+   */
+  private static readonly EQUIPMENT_TYPE_DICTIONARY: Record<string, string> = {
+    // HVAC units
+    'DOAS': 'DOAS',
+    'DOAU': 'DOAU',
+    'ERV': 'ENERGY_RECOVERY_VENTILATOR',
+    'HRV': 'HEAT_RECOVERY_VENTILATOR',
+    'AHU': 'AHU',
+    'RTU': 'RTU',
+    // Pumps / drives
+    'CWP': 'CHILLED_WATER_PUMP',
+    'HWP': 'HOT_WATER_PUMP',
+    'PMP': 'PUMP',
+    'VFD': 'VFD',
+    // Fans / towers
+    'CTF': 'COOLING_TOWER_FAN',
+    'EF':  'EXHAUST_FAN',
+    // Lab
+    'LAB': 'LAB_AIR_VALVE',
+    'L-':  'LAB_AIR_VALVE',
+    // Terminals
+    'VAV': 'VAV',
+    'VVR': 'VAV_CONTROLLER',
+    'FCU': 'FCU',
+    // Chiller / boiler
+    'BLR': 'BOILER',
+    'CH':  'CHILLER',
+    // Heat Pumps
+    'WSHP': 'WSHP',
+    'ASHP': 'ASHP',
+  };
+
+  // Memo-cache to avoid repeated scanning
+  private static readonly typeCache = new Map<string, { typeName: string; matchedKey: string }>();
+
+  /**
+   * Attempt to infer an equipment type from its name using substring matching.
+   */
+  public static getEquipmentTypeFromName(name: string): { typeName: string; matchedKey: string } {
+    if (this.typeCache.has(name)) return this.typeCache.get(name)!;
+
+    const upper = name.toUpperCase();
+    const keys = Object.keys(this.EQUIPMENT_TYPE_DICTIONARY)
+      .sort((a, b) => b.length - a.length); // longest first
+
+    for (const key of keys) {
+      if (upper.includes(key.toUpperCase())) {
+        const res = { typeName: this.EQUIPMENT_TYPE_DICTIONARY[key], matchedKey: key };
+        this.typeCache.set(name, res);
+        return res;
+      }
+    }
+    const res = { typeName: 'Unknown', matchedKey: '' };
+    this.typeCache.set(name, res);
+    return res;
+  }
+
+  /**
    * Classify equipment based on filename and metadata from connector service
    */
   public static classifyFromFilename(filename: string): ClassificationResult {
@@ -168,6 +234,21 @@ export class EquipmentClassifier {
     }
     
     // If vendor/model didn't match, try pattern matching on the name
+
+    // --- NEW: dictionary substring match (medium-confidence) ---
+    const dictGuess = this.getEquipmentTypeFromName(baseName);
+    if (dictGuess.typeName !== 'Unknown') {
+      console.log(`[CLASSIFIER] Matched by dictionary: ${baseName} -> ${dictGuess.typeName}`);
+      return {
+        equipmentType: dictGuess.typeName,
+        confidence: 0.9,
+        equipmentName: baseName,
+        matchedPattern: `Dictionary key: ${dictGuess.matchedKey}`,
+        alternatives: []
+      };
+    }
+
+    // -- Existing regex pattern matching fallback --
     const matches: Array<{ type: string; confidence: number; pattern: string }> = [];
     
     for (const { pattern, type, confidence } of this.EQUIPMENT_PATTERNS) {
