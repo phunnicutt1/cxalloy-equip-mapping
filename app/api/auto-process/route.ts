@@ -12,9 +12,12 @@ import { NormalizedPoint } from '../../../types/normalized';
 import { nanoid } from 'nanoid';
 import { parse } from 'csv-parse/sync';
 import path from 'path';
+import { EnhancedCsvProcessor } from '../../../lib/processors/enhanced-csv-processor';
+import { EquipmentConfigManager } from '../../../lib/managers/equipment-config-manager';
 
-// Initialize database service
+// Initialize database service and config manager
 const databaseService = new EquipmentDatabaseService();
+const configManager = new EquipmentConfigManager();
 
 // --- HELPER FUNCTIONS ---\n
 
@@ -130,6 +133,8 @@ interface ProcessingResult {
     enabled: boolean;
     equipmentCount: number;
     vendorRulesCount: number;
+    enhancedCsvFiles: number;
+    templateApplications: number;
   };
   processedFiles: Array<{
     fileName: string;
@@ -165,6 +170,7 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
   let enhancedFiles = 0;
   let confidenceSum = 0;
   let confidenceCount = 0;
+  let templateApplications = 0;
   
   const equipmentMetadataMap = new Map<string, { type: string; location: string; description: string }>();
 
@@ -221,6 +227,100 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
     }
   }
   
+  // Step 3.5: Process Enhanced CSV files with advanced processing
+  const enhancedCsvFiles = scanResult.csvFiles.enhanced || [];
+  if (enhancedCsvFiles.length > 0) {
+    console.log(`[Auto Process] Processing ${enhancedCsvFiles.length} enhanced CSV files...`);
+    
+    for (const enhancedFile of enhancedCsvFiles) {
+      console.log(`[Auto Process] Processing enhanced CSV file: ${enhancedFile.name}`);
+      try {
+        const content = await fileScannerService.readSampleFile(enhancedFile.name);
+        const enhancedResult = await EnhancedCsvProcessor.processCsvFile(enhancedFile.name, content);
+        
+        if (enhancedResult.success && enhancedResult.connectorData.length > 0) {
+          for (const connectorData of enhancedResult.connectorData) {
+            // Create equipment from enhanced connector data
+            const classification = EquipmentClassifier.getEquipmentTypeFromName(connectorData.equipmentName);
+            
+            const equipment: Equipment = {
+              id: nanoid(),
+              name: connectorData.equipmentName,
+              displayName: connectorData.fullDescription || connectorData.description || connectorData.equipmentName,
+              type: classification.typeName,
+              filename: enhancedFile.name,
+              status: EquipmentStatus.UNKNOWN,
+              connectionState: ConnectionState.CLOSED,
+              connectionStatus: 'enhanced',
+              vendor: connectorData.vendor || connectorData.vendorName || 'Enhanced CSV',
+              modelName: connectorData.model || connectorData.modelName || 'Unknown',
+              location: connectorData.location,
+              description: connectorData.fullDescription || connectorData.description || connectorData.equipmentName,
+              points: [],
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+            
+            await databaseService.storeEquipmentWithPoints(
+              enhancedFile.id,
+              equipment,
+              [],
+              sessionId
+            );
+            totalEquipment++;
+            
+            // Try to apply best template automatically
+            try {
+              const recommendations = await configManager.getTemplateRecommendations(equipment.id, 0.6);
+              if (recommendations.length > 0) {
+                const bestTemplate = recommendations[0];
+                console.log(`[Auto Process] Applying template ${bestTemplate.templateName} to ${equipment.name} (confidence: ${bestTemplate.confidence})`);
+                
+                const templateResult = await configManager.applyTemplate(equipment.id, bestTemplate.templateId, {
+                  threshold: 0.6,
+                  appliedBy: 'auto-process',
+                  isAutomatic: true
+                });
+                
+                if (templateResult.success) {
+                  templateApplications++;
+                  console.log(`[Auto Process] Successfully applied template to ${equipment.name}`);
+                }
+              }
+            } catch (templateError) {
+              console.warn(`[Auto Process] Template application failed for ${equipment.name}:`, templateError);
+            }
+          }
+          
+          console.log(`[Auto Process] Processed ${enhancedResult.connectorData.length} equipment from enhanced CSV ${enhancedFile.name}`);
+          processedFiles.push({
+            fileName: enhancedFile.name,
+            success: true,
+            pointCount: 0,
+            processingTime: enhancedResult.metadata.processingTime,
+            enhanced: true,
+          });
+        } else {
+          console.warn(`[Auto Process] Enhanced CSV processing failed for ${enhancedFile.name}:`, enhancedResult.errors);
+          processedFiles.push({
+            fileName: enhancedFile.name,
+            success: false,
+            error: enhancedResult.errors.join('; '),
+            enhanced: true,
+          });
+        }
+      } catch (error) {
+        console.error(`[Auto Process] Failed to process enhanced CSV ${enhancedFile.name}:`, error);
+        processedFiles.push({
+          fileName: enhancedFile.name,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          enhanced: true,
+        });
+      }
+    }
+  }
+  
   // Step 4: Process TRIO files to add points to existing equipment
   console.log(`[Auto Process] Processing ${scanResult.trioFiles.length} TRIO files...`);
   
@@ -268,6 +368,30 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
       );
 
       totalPoints += taggedPoints.length;
+      
+      // Try to apply best template automatically after points are added
+      if (taggedPoints.length > 0) {
+        try {
+          const recommendations = await configManager.getTemplateRecommendations(equipment.id, 0.7);
+          if (recommendations.length > 0) {
+            const bestTemplate = recommendations[0];
+            console.log(`[Auto Process] Applying template ${bestTemplate.templateName} to ${equipment.name} (confidence: ${bestTemplate.confidence})`);
+            
+            const templateResult = await configManager.applyTemplate(equipment.id, bestTemplate.templateId, {
+              threshold: 0.7,
+              appliedBy: 'auto-process',
+              isAutomatic: true
+            });
+            
+            if (templateResult.success) {
+              templateApplications++;
+              console.log(`[Auto Process] Successfully applied template to ${equipment.name}`);
+            }
+          }
+        } catch (templateError) {
+          console.warn(`[Auto Process] Template application failed for ${equipment.name}:`, templateError);
+        }
+      }
       processedFiles.push({
         fileName: trioFile.name,
         success: true,
@@ -301,9 +425,11 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
     success: true,
     scannedFiles: scanResult,
     csvEnhancement: {
-      enabled: !!equipmentMetadataMap.size,
+      enabled: !!equipmentMetadataMap.size || enhancedCsvFiles.length > 0,
       equipmentCount: equipmentMetadataMap.size,
       vendorRulesCount: 0, // Placeholder
+      enhancedCsvFiles: enhancedCsvFiles.length,
+      templateApplications: templateApplications,
     },
     processedFiles,
     summary,
@@ -358,7 +484,14 @@ export async function GET(request: NextRequest) {
       sampleDataPath: fileScannerService.getSampleDataPath(),
       scan: scanResult,
       csvEnhancementAvailable: !!(scanResult.csvFiles.bacnetConnections && scanResult.csvFiles.connectorData),
-      readyToProcess: scanResult.trioFiles.length > 0,
+      enhancedCsvAvailable: scanResult.enhancedCsvCount > 0,
+      readyToProcess: scanResult.trioFiles.length > 0 || scanResult.enhancedCsvCount > 0,
+      capabilities: {
+        trioProcessing: scanResult.trioFiles.length > 0,
+        csvEnhancement: !!(scanResult.csvFiles.bacnetConnections && scanResult.csvFiles.connectorData),
+        enhancedCsvProcessing: scanResult.enhancedCsvCount > 0,
+        templateApplication: true
+      }
     });
 
   } catch (error) {

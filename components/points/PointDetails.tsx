@@ -19,15 +19,24 @@ import {
   FileText,
   Zap,
   Gauge,
-  ToggleLeft
+  ToggleLeft,
+  Target,
+  Plus,
+  CheckCircle2,
+  Settings,
+  X
 } from 'lucide-react';
+import { Button } from '../ui/button';
+import { PointConfigModal } from './PointConfigModal';
 
 interface PointRowProps {
   point: NormalizedPoint;
   index: number;
+  isSelected: boolean;
+  onTrackPoint: (pointId: string) => void;
 }
 
-function PointRow({ point, index }: PointRowProps) {
+function PointRow({ point, index, isSelected, onTrackPoint }: PointRowProps) {
   const getPointIcon = (objectType?: string) => {
     switch (objectType) {
       case 'AI':
@@ -99,7 +108,7 @@ function PointRow({ point, index }: PointRowProps) {
             )}
           </div>
 
-          {/* Right: Unit and Object Type */}
+          {/* Right: Unit and Object Type + Track Button */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {point.units && getUnitDisplay(point.units)}
             {point.objectType && (
@@ -107,6 +116,15 @@ function PointRow({ point, index }: PointRowProps) {
                 {point.objectType}
               </span>
             )}
+            <Button
+              size="sm"
+              variant={isSelected ? "default" : "outline"}
+              onClick={() => onTrackPoint(point.originalPointId || point.originalName)}
+              className="ml-2"
+            >
+              <Target className="h-3 w-3 mr-1" />
+              {isSelected ? 'Tracked' : 'Track'}
+            </Button>
           </div>
         </div>
 
@@ -145,10 +163,31 @@ export function PointDetails() {
     viewMode,
     setSelectedTemplate,
     setViewMode,
-    getSelectedEquipmentPoints
+    getSelectedEquipmentPoints,
+    selectedPoints,
+    togglePointSelection,
+    clearPointSelection,
+    setShowPointConfigModal,
+    showPointConfigModal,
+    getSelectedPointsData
   } = useAppStore();
 
   const points = getSelectedEquipmentPoints();
+  const selectedPointsData = getSelectedPointsData();
+
+  const handleTrackPoint = (pointId: string) => {
+    togglePointSelection(pointId);
+  };
+
+  const handleCreateTemplate = () => {
+    if (selectedPoints.size > 0) {
+      setShowPointConfigModal(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowPointConfigModal(false);
+  };
 
   if (!selectedEquipment) {
     return (
@@ -229,8 +268,35 @@ export function PointDetails() {
               )}
             </div>
 
-            <div className="text-sm text-muted-foreground">
-              Showing {points.length} points
+            <div className="flex items-center gap-3">
+              {selectedPoints.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearPointSelection}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear ({selectedPoints.size})
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleCreateTemplate}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Create Template
+                  </Button>
+                </div>
+              )}
+              <div className="text-sm text-muted-foreground">
+                Showing {points.length} points
+                {selectedPoints.size > 0 && (
+                  <span className="ml-2 text-primary">
+                    • {selectedPoints.size} selected
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -260,6 +326,8 @@ export function PointDetails() {
                 key={point.originalPointId || `${point.originalName}-${index}`} 
                 point={point} 
                 index={index}
+                isSelected={selectedPoints.has(point.originalPointId || point.originalName)}
+                onTrackPoint={handleTrackPoint}
               />
             ))}
           </div>
@@ -292,6 +360,13 @@ export function PointDetails() {
           </div>
         </div>
       )}
+      
+      {/* Point Configuration Modal */}
+      <PointConfigModal
+        isOpen={showPointConfigModal}
+        onClose={handleCloseModal}
+        selectedPoints={selectedPointsData}
+      />
     </div>
   );
 } 

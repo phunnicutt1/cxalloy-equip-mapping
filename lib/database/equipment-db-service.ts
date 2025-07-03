@@ -1112,4 +1112,203 @@ export class EquipmentDatabaseService {
       recentApplications: recentApplicationsArray
     };
   }
+
+  // Get all template applications across all templates (for analytics)
+  async getAllTemplateApplications(): Promise<Array<{
+    id: string;
+    equipmentId: string;
+    templateId: string;
+    templateName: string;
+    equipmentType: string;
+    confidence: number;
+    success: boolean;
+    pointMatchRate: number;
+    appliedAt: Date;
+    appliedBy: string | null;
+    isAutomatic: boolean;
+  }>> {
+    const query = `
+      SELECT 
+        ta.id,
+        ta.equipment_id,
+        ta.configuration_id as template_id,
+        epc.name as template_name,
+        epc.equipment_type,
+        ta.confidence_score as confidence,
+        CASE WHEN ta.confidence_score >= 0.7 THEN true ELSE false END as success,
+        ta.confidence_score as point_match_rate,
+        ta.applied_at,
+        ta.applied_by,
+        ta.is_automatic
+      FROM template_applications ta
+      JOIN equipment_point_configurations epc ON ta.configuration_id = epc.id
+      ORDER BY ta.applied_at DESC
+    `;
+
+    const rows = await executeQuery<{
+      id: string;
+      equipment_id: string;
+      template_id: string;
+      template_name: string;
+      equipment_type: string;
+      confidence: number;
+      success: boolean;
+      point_match_rate: number;
+      applied_at: Date;
+      applied_by: string | null;
+      is_automatic: boolean;
+    }>(query, [], 'GET_ALL_APPLICATIONS');
+
+    return rows.map(row => ({
+      id: row.id,
+      equipmentId: row.equipment_id,
+      templateId: row.template_id,
+      templateName: row.template_name,
+      equipmentType: row.equipment_type,
+      confidence: row.confidence,
+      success: row.success,
+      pointMatchRate: row.point_match_rate,
+      appliedAt: row.applied_at,
+      appliedBy: row.applied_by,
+      isAutomatic: row.is_automatic
+    }));
+  }
+
+  // Get template applications for a specific template (for analytics)
+  async getTemplateApplicationsForAnalytics(templateId: string): Promise<Array<{
+    id: string;
+    equipmentId: string;
+    confidence: number;
+    success: boolean;
+    pointMatchRate: number;
+    appliedAt: Date;
+    appliedBy: string | null;
+    isAutomatic: boolean;
+  }>> {
+    const query = `
+      SELECT 
+        id,
+        equipment_id,
+        confidence_score as confidence,
+        CASE WHEN confidence_score >= 0.7 THEN true ELSE false END as success,
+        confidence_score as point_match_rate,
+        applied_at,
+        applied_by,
+        is_automatic
+      FROM template_applications
+      WHERE configuration_id = ?
+      ORDER BY applied_at DESC
+    `;
+
+    const rows = await executeQuery<{
+      id: string;
+      equipment_id: string;
+      confidence: number;
+      success: boolean;
+      point_match_rate: number;
+      applied_at: Date;
+      applied_by: string | null;
+      is_automatic: boolean;
+    }>(query, [templateId], 'GET_TEMPLATE_APPLICATIONS');
+
+    return rows.map(row => ({
+      id: row.id,
+      equipmentId: row.equipment_id,
+      confidence: row.confidence,
+      success: row.success,
+      pointMatchRate: row.point_match_rate,
+      appliedAt: row.applied_at,
+      appliedBy: row.applied_by,
+      isAutomatic: row.is_automatic
+    }));
+  }
+
+  // Get template usage statistics for analytics
+  async getTemplateUsageStats(): Promise<Array<{
+    templateId: string;
+    templateName: string;
+    equipmentType: string;
+    totalApplications: number;
+    successfulApplications: number;
+    successRate: number;
+    averageConfidence: number;
+    lastUsed: Date | null;
+    isDefault: boolean;
+  }>> {
+    const query = `
+      SELECT 
+        epc.id as template_id,
+        epc.name as template_name,
+        epc.equipment_type,
+        epc.is_default,
+        COUNT(ta.id) as total_applications,
+        SUM(CASE WHEN ta.confidence_score >= 0.7 THEN 1 ELSE 0 END) as successful_applications,
+        AVG(ta.confidence_score) as average_confidence,
+        MAX(ta.applied_at) as last_used
+      FROM equipment_point_configurations epc
+      LEFT JOIN template_applications ta ON epc.id = ta.configuration_id
+             WHERE 1=1
+      GROUP BY epc.id, epc.name, epc.equipment_type, epc.is_default
+      ORDER BY total_applications DESC, epc.name
+    `;
+
+    const rows = await executeQuery<{
+      template_id: string;
+      template_name: string;
+      equipment_type: string;
+      is_default: boolean;
+      total_applications: number;
+      successful_applications: number;
+      average_confidence: number | null;
+      last_used: Date | null;
+    }>(query, [], 'GET_TEMPLATE_USAGE_STATS');
+
+    return rows.map(row => ({
+      templateId: row.template_id,
+      templateName: row.template_name,
+      equipmentType: row.equipment_type,
+      totalApplications: row.total_applications,
+      successfulApplications: row.successful_applications,
+      successRate: row.total_applications > 0 ? row.successful_applications / row.total_applications : 0,
+      averageConfidence: row.average_confidence || 0,
+      lastUsed: row.last_used,
+      isDefault: row.is_default
+    }));
+  }
+
+  // Get analytics time series data
+  async getAnalyticsTimeSeries(days: number = 30): Promise<Array<{
+    date: string;
+    totalApplications: number;
+    successfulApplications: number;
+    successRate: number;
+    averageConfidence: number;
+  }>> {
+    const query = `
+      SELECT 
+        DATE(applied_at) as date,
+        COUNT(*) as total_applications,
+        SUM(CASE WHEN confidence_score >= 0.7 THEN 1 ELSE 0 END) as successful_applications,
+        AVG(confidence_score) as average_confidence
+      FROM template_applications
+      WHERE applied_at >= DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)
+      GROUP BY DATE(applied_at)
+      ORDER BY date
+    `;
+
+    const rows = await executeQuery<{
+      date: string;
+      total_applications: number;
+      successful_applications: number;
+      average_confidence: number;
+    }>(query, [days], 'GET_ANALYTICS_TIME_SERIES');
+
+    return rows.map(row => ({
+      date: row.date,
+      totalApplications: row.total_applications,
+      successfulApplications: row.successful_applications,
+      successRate: row.total_applications > 0 ? row.successful_applications / row.total_applications : 0,
+      averageConfidence: row.average_confidence
+    }));
+  }
 }

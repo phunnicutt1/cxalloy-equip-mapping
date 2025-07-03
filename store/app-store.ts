@@ -30,6 +30,10 @@ interface AppState {
   searchTerm: string;
   selectedTemplate: string | null;
   
+  // Point Selection State
+  selectedPoints: Set<string>; // Point IDs selected for template creation
+  showPointConfigModal: boolean;
+  
   // Panel State
   leftPanelWidth: number;
   rightPanelWidth: number;
@@ -65,6 +69,12 @@ interface AppState {
   removeEquipmentTemplate: (templateId: string) => void;
   fetchEquipmentTemplates: () => Promise<void>;
   
+  // Point Selection Actions
+  togglePointSelection: (pointId: string) => void;
+  clearPointSelection: () => void;
+  setShowPointConfigModal: (show: boolean) => void;
+  getSelectedPointsData: () => NormalizedPoint[];
+  
   // Computed Properties
   getEquipmentByType: () => Record<string, Equipment[]>;
   getFilteredEquipment: () => Equipment[];
@@ -95,6 +105,10 @@ export const useAppStore = create<AppState>()(
       isLoading: false,
       searchTerm: '',
       selectedTemplate: null,
+      
+      // Point Selection State
+      selectedPoints: new Set<string>(),
+      showPointConfigModal: false,
       
       leftPanelWidth: 320,
       rightPanelWidth: 350,
@@ -210,6 +224,31 @@ export const useAppStore = create<AppState>()(
           console.error('Failed to fetch templates:', error);
           set({ isLoading: false });
         }
+      },
+      
+      // Point Selection Actions
+      togglePointSelection: (pointId) =>
+        set((state) => {
+          const newSelected = new Set(state.selectedPoints);
+          if (newSelected.has(pointId)) {
+            newSelected.delete(pointId);
+          } else {
+            newSelected.add(pointId);
+          }
+          return { selectedPoints: newSelected };
+        }),
+      
+      clearPointSelection: () => set({ selectedPoints: new Set() }),
+      
+      setShowPointConfigModal: (show) => set({ showPointConfigModal: show }),
+      
+      getSelectedPointsData: () => {
+        const { selectedEquipment, selectedPoints } = get();
+        if (!selectedEquipment?.points) return [];
+        
+        return selectedEquipment.points.filter(point => 
+          selectedPoints.has(point.originalPointId || point.originalName)
+        );
       },
       
       // Computed Properties

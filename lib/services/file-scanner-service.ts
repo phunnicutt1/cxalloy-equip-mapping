@@ -17,9 +17,11 @@ export interface SampleDataScan {
   csvFiles: {
     bacnetConnections?: ScannedFile;
     connectorData?: ScannedFile;
+    enhanced?: ScannedFile[]; // Additional enhanced CSV files
   };
   totalFiles: number;
   scanTime: Date;
+  enhancedCsvCount: number;
 }
 
 export class FileScannerService {
@@ -63,15 +65,29 @@ export class FileScannerService {
 
       // Categorize files
       const trioFiles = scannedFiles.filter(f => f.type === 'trio');
-      const csvFiles = this.categorizeCsvFiles(scannedFiles.filter(f => f.type.startsWith('csv')));
+      const csvFilesResult = this.categorizeCsvFiles(scannedFiles.filter(f => f.type.startsWith('csv')));
+      
+      // Detect enhanced CSV files (additional CSV files that aren't bacnet_connections or ConnectorData)
+      const enhancedCsvFiles = scannedFiles.filter(f => 
+        f.type.startsWith('csv') && 
+        f !== csvFilesResult.bacnetConnections && 
+        f !== csvFilesResult.connectorData &&
+        this.isEnhancedCsvFile(f.name)
+      );
 
-      console.log(`[File Scanner] Found ${scannedFiles.length} files: ${trioFiles.length} TRIO, ${Object.keys(csvFiles).length} CSV`);
+      const csvFiles = {
+        ...csvFilesResult,
+        enhanced: enhancedCsvFiles
+      };
+
+      console.log(`[File Scanner] Found ${scannedFiles.length} files: ${trioFiles.length} TRIO, ${Object.keys(csvFilesResult).length} standard CSV, ${enhancedCsvFiles.length} enhanced CSV`);
 
       return {
         trioFiles,
         csvFiles,
         totalFiles: scannedFiles.length,
-        scanTime: new Date()
+        scanTime: new Date(),
+        enhancedCsvCount: enhancedCsvFiles.length
       };
 
     } catch (error) {
@@ -179,9 +195,44 @@ export class FileScannerService {
   }
 
   /**
+   * Check if a CSV file is an enhanced CSV file with vendor/equipment data
+   */
+  private isEnhancedCsvFile(fileName: string): boolean {
+    const name = fileName.toLowerCase();
+    
+    // Look for patterns that suggest enhanced equipment data
+    const enhancedPatterns = [
+      /equipment.*data/i,
+      /vendor.*data/i,
+      /model.*data/i,
+      /asset.*data/i,
+      /device.*data/i,
+      /system.*data/i,
+      /enhanced.*equipment/i,
+      /enhanced.*connector/i,
+      /detailed.*equipment/i,
+      /extended.*data/i
+    ];
+    
+    // Exclude standard files we already handle
+    const excludePatterns = [
+      /bacnet.*connection/i,
+      /connector.*data/i,
+      /^connector/i,
+      /^bacnet/i
+    ];
+    
+    // Check if it matches enhanced patterns but not exclude patterns
+    const matchesEnhanced = enhancedPatterns.some(pattern => pattern.test(name));
+    const matchesExclude = excludePatterns.some(pattern => pattern.test(name));
+    
+    return matchesEnhanced && !matchesExclude;
+  }
+
+  /**
    * Categorize CSV files into bacnet connections and connector data
    */
-  private categorizeCsvFiles(csvFiles: ScannedFile[]): SampleDataScan['csvFiles'] {
+  private categorizeCsvFiles(csvFiles: ScannedFile[]): Omit<SampleDataScan['csvFiles'], 'enhanced'> {
     const result: SampleDataScan['csvFiles'] = {};
     
     // Find BACnet connections file
