@@ -2,12 +2,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { fileScannerService } from '../../../lib/services/file-scanner-service';
-import { parseTrioFileFromContent } from '../../../lib/parsers/trio-parser';
-import { classifyEquipment, getEquipmentTypeFromName } from '../../../lib/classifiers/equipment-classifier';
+import { parseTrioFile, TrioParser } from '../../../lib/parsers/trio-parser';
+import { classifyEquipment, EquipmentClassifier } from '../../../lib/classifiers/equipment-classifier';
 import { PointNormalizer } from '../../../lib/normalizers/point-normalizer';
-import { generateHaystackTags } from '../../../lib/taggers/haystack-tagger';
 import { EquipmentDatabaseService } from '../../../lib/database/equipment-db-service';
-import { BACnetObjectType, PointDataType, PointCategory } from '../../../types/point';
+import { BACnetPoint } from '../../../types/point';
 import { Equipment, EquipmentStatus, ConnectionState } from '../../../types/equipment';
 import { NormalizedPoint } from '../../../types/normalized';
 import { nanoid } from 'nanoid';
@@ -51,6 +50,38 @@ function buildRichDescription(record: any, equipmentName: string): string {
 }
 
 /**
+ * Creates an Equipment object from TRIO data when no CSV data is available.
+ * @param trioFileName - The name of the TRIO file.
+ * @param trioData - The parsed TRIO data.
+ * @returns An Equipment object.
+ */
+function createEquipmentFromTrioData(trioFileName: string, trioData: any): Equipment {
+  const id = nanoid();
+  const name = path.basename(trioFileName, '.trio');
+  const classification = classifyEquipment(trioFileName);
+  
+  const equipment: Equipment = {
+    id,
+    name,
+    displayName: name,
+    type: classification.equipmentType,
+    filename: trioFileName,
+    status: EquipmentStatus.UNKNOWN,
+    connectionState: ConnectionState.CLOSED,
+    connectionStatus: 'unknown',
+    vendor: 'Unknown',
+    modelName: 'Unknown',
+    location: undefined,
+    description: `Auto-generated from ${trioFileName}`,
+    points: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  return equipment;
+}
+
+/**
  * Creates an initial Equipment object from a record in ConnectorData.csv.
  * This object is a "shell" that will be stored in the DB.
  * @param connectorRecord - A row from the ConnectorData.csv file.
@@ -66,7 +97,7 @@ function createEquipmentFromConnectorData(
   
   const enhancedMeta = metadataMap.get(name) || {};
 
-  const equipmentType = enhancedMeta.type || getEquipmentTypeFromName(name).typeName;
+  const equipmentType = enhancedMeta.type || EquipmentClassifier.getEquipmentTypeFromName(name).typeName;
   const displayName = enhancedMeta.description || name;
 
   const equipment: Equipment = {
@@ -75,8 +106,8 @@ function createEquipmentFromConnectorData(
     displayName,
     type: equipmentType,
     filename: name + '.trio',
-    status: connectorRecord.bacnetDeviceStatus === 'OPERATIONAL' ? EquipmentStatus.ACTIVE : EquipmentStatus.INACTIVE,
-    connectionState: connectorRecord.connState === 'open' ? ConnectionState.CONNECTED : ConnectionState.CLOSED,
+    status: connectorRecord.bacnetDeviceStatus === 'OPERATIONAL' ? EquipmentStatus.OPERATIONAL : EquipmentStatus.OFFLINE,
+    connectionState: connectorRecord.connState === 'open' ? ConnectionState.OPEN : ConnectionState.CLOSED,
     connectionStatus: connectorRecord.connStatus || 'unknown',
     vendor: connectorRecord.vendorName || 'Unknown',
     modelName: connectorRecord.modelName || 'Unknown',
@@ -154,7 +185,7 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
         const equipmentName = record[firstColKey];
         if (!equipmentName) continue;
 
-        const { typeName } = getEquipmentTypeFromName(equipmentName);
+        const { typeName } = EquipmentClassifier.getEquipmentTypeFromName(equipmentName);
         const location = record.Location || record.location || '';
         const description = buildRichDescription(record, equipmentName);
         
@@ -197,32 +228,37 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
     const startTime = Date.now();
     try {
       const fileContent = await fileScannerService.readSampleFile(trioFile.name);
-      const trioData = await parseTrioFileFromContent(fileContent, trioFile.name);
+      const trioData = parseTrioFile(trioFile.name, fileContent);
       
       const equipmentName = path.basename(trioFile.name, '.trio');
-      let equipment = await databaseService.getEquipmentByName(equipmentName);
+      let equipment = await databaseService.findEquipmentByName(equipmentName);
 
       if (!equipment) {
         console.warn(`[Auto Process] No existing equipment found for ${equipmentName}. Creating new record.`);
-        equipment = classifyEquipment(trioFile.name, trioData);
+        equipment = createEquipmentFromTrioData(trioFile.name, trioData);
         totalEquipment++; // Only count as new if it wasn't in the CSVs
       } else {
         console.log(`[Auto Process] Found existing equipment for ${equipmentName}. Enhancing with points.`);
         enhancedFiles++;
       }
 
-      const pointNormalizer = new PointNormalizer();
-      const normalizedPoints = trioData.records.map((record: any) => {
-        const normResult = pointNormalizer.normalize(record, equipment as Equipment);
-        confidenceSum += normResult.confidenceScore;
-        confidenceCount++;
-        return normResult;
-      });
+      const allRecords = trioData.sections.flatMap((section: any) => section.records || []);
+      const normalizedPoints = allRecords
+        .map((record: any) => TrioParser.trioRecordToBACnetPoint(record, equipmentName))
+        .filter((point): point is BACnetPoint => point !== null)
+        .map((bacnetPoint) => {
+          const normResult = PointNormalizer.normalizePointName(bacnetPoint, {
+            equipmentType: equipment.type,
+            equipmentName: equipment.name,
+            vendorName: equipment.vendor
+          });
+          confidenceSum += normResult.normalizedPoint?.confidenceScore || 0;
+          confidenceCount++;
+          return normResult.normalizedPoint;
+        })
+        .filter((point): point is NormalizedPoint => point !== undefined);
 
-      const taggedPoints = normalizedPoints.map((point: NormalizedPoint) => ({
-        ...point,
-        haystackTags: generateHaystackTags(point, equipment as Equipment),
-      }));
+      const taggedPoints = normalizedPoints;
 
       await databaseService.storeEquipmentWithPoints(
         trioFile.id,

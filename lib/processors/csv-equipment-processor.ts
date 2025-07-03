@@ -92,7 +92,7 @@ export class CSVEquipmentProcessor {
             reject(new Error(`Failed to process BACnet connections: ${error}`));
           }
         },
-        error: (error) => reject(error)
+        error: (error: Error) => reject(error)
       });
     });
   }
@@ -163,7 +163,7 @@ export class CSVEquipmentProcessor {
             reject(new Error(`Failed to process connector data: ${error}`));
           }
         },
-        error: (error) => reject(error)
+        error: (error: Error) => reject(error)
       });
     });
   }

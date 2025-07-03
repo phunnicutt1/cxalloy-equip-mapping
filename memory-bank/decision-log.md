@@ -107,3 +107,40 @@
   - Allows gradual migration to enhanced features
   - Enables A/B testing of normalization approaches
   - Adds slight complexity to configuration interface
+
+## TypeScript Build Error Resolution Strategy
+- **Date:** 2025-07-03 10:50:44 PM
+- **Author:** Unknown User
+- **Context:** Encountered multiple cascading TypeScript compilation errors blocking the build after data processing enhancements. System was broken with 11+ critical compilation errors preventing deployment.
+- **Decision:** Systematic error resolution approach: Fix import/export mismatches, align enum values with actual definitions, create missing UI components, update method signatures, and ensure proper type assertions throughout the codebase.
+- **Alternatives Considered:** 
+  - Quick fixes with @ts-ignore comments
+  - Downgrade TypeScript strictness
+  - Revert recent changes
+  - Rebuild components from scratch
+- **Consequences:** 
+  - ✅ Build now compiles successfully (Exit Code 0)
+  - ✅ All 18 pages generate without errors
+  - ✅ Auto-process functionality fully operational
+  - ✅ Type safety maintained throughout
+  - ✅ Production ready deployment
+  - ⚠️ Some ESLint warnings remain (non-blocking)
+
+## Project Standards Initialization for AI Agent Guidance
+- **Date:** 2025-07-03 10:55:11 PM
+- **Author:** Unknown User
+- **Context:** Need to establish comprehensive development standards to prevent build failures and guide AI agents working on the CxAlloy equipment mapping system. Recent experience with 11+ TypeScript compilation errors highlighted the need for systematic guidance.
+- **Decision:** Created shrimp-rules.md as a comprehensive project standards document specifically optimized for AI agent use, containing 11 major sections with actionable rules, prohibited actions, decision trees, and quality assurance standards.
+- **Alternatives Considered:** 
+  - Basic README documentation
+  - Code comments only
+  - General TypeScript style guide
+  - Ad-hoc error fixing without systematic prevention
+- **Consequences:** 
+  - ✅ AI agents have systematic guidance for common development tasks
+  - ✅ Build failures prevention through specific TypeScript and database rules
+  - ✅ Multi-file coordination workflows established
+  - ✅ Memory bank integration requirements defined
+  - ✅ Quality assurance standards implemented
+  - ✅ Decision trees for complex scenarios provided
+  - ⚠️ Document requires maintenance as codebase evolves

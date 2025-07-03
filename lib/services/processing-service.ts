@@ -336,6 +336,42 @@ export class ProcessingService {
             originalName: pointName,
             errors: normalizationResult.errors
           });
+
+          // Fallback if normalization fails
+          const fallbackPoint: NormalizedPoint = {
+            originalPointId: pointName,
+            equipmentId: equipmentId,
+            originalName: pointName,
+            originalDescription: bacnetPoint.description || '',
+            objectName: bacnetPoint.objectName,
+            objectType: bacnetPoint.objectType,
+            objectInstance: bacnetPoint.objectInstance,
+            normalizedName: pointName, // Use original name as fallback
+            expandedDescription: bacnetPoint.description || pointName,
+            pointFunction: PointFunction.Unknown,
+            category: bacnetPoint.category,
+            dataType: bacnetPoint.dataType,
+            units: bacnetPoint.units,
+            haystackTags: [],
+            confidence: NormalizationConfidence.UNKNOWN,
+            confidenceScore: 0.1,
+            normalizationMethod: 'fallback',
+            normalizationRules: ['fallback'],
+            hasAcronymExpansion: false,
+            hasUnitNormalization: !!bacnetPoint.units,
+            hasContextInference: false,
+            requiresManualReview: true,
+            normalizedAt: new Date(),
+            normalizedBy: 'system'
+          };
+
+          normalizedPoints.push(fallbackPoint);
+
+          debugLog(processingId, 'NORMALIZING', 'Fallback point created', {
+            index,
+            originalName: pointName,
+            fallbackName: fallbackPoint.normalizedName
+          });
         }
       }
 

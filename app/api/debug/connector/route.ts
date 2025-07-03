@@ -7,8 +7,8 @@ export async function GET(request: NextRequest) {
     const allMetadata = connectorService.getAllEquipmentMetadata();
     
     // Convert Map to array for JSON serialization
-    const metadataArray = Array.from(allMetadata.entries()).map(([name, data]) => ({
-      name,
+    const metadataArray = Array.from(allMetadata.entries()).map(([equipmentName, data]) => ({
+      equipmentName,
       ...data
     }));
     

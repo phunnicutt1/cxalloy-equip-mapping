@@ -256,31 +256,36 @@ The application includes a comprehensive test dashboard for validating functiona
 
 The test dashboard provides **5 comprehensive test suites** covering all critical functionality:
 
-#### **1. Upload & Processing Pipeline**
+#### **1\. Upload & Processing Pipeline**
+
 *   **File Upload Validation** - Test file upload mechanics and validation
 *   **Trio File Parsing** - Validate trio file format parsing and structure extraction
 *   **Processing Workflow** - End-to-end processing pipeline validation
 *   **Equipment Creation** - Verify equipment objects are created correctly
 
-#### **2. Point Data Normalization**
+#### **2\. Point Data Normalization**
+
 *   **Point Name Normalization** - Transform cryptic BACnet identifiers to readable names
 *   **Data Type Inference** - Validate automatic data type detection
 *   **Unit Standardization** - Test unit mapping and standardization
 *   **BACnet Mapping** - Verify BACnet acronym dictionary mappings
 
-#### **3. Equipment Classification**
+#### **3\. Equipment Classification**
+
 *   **Filename Classification** - Test equipment type detection from filenames
 *   **Point Pattern Analysis** - Validate equipment classification from point patterns
 *   **Vendor Detection** - Test vendor-specific equipment identification
 *   **Confidence Scoring** - Verify classification confidence algorithms
 
-#### **4. Haystack Tag Generation**
+#### **4\. Haystack Tag Generation**
+
 *   **Semantic Inference** - Test intelligent point classification
 *   **Equipment Tags** - Validate equipment-level Haystack tag generation
 *   **Point Tags** - Test point-level Haystack tag assignment
 *   **Tag Validation** - Verify Project Haystack 5.0 compliance
 
-#### **5. Data Integration**
+#### **5\. Data Integration**
+
 *   **Equipment Store Integration** - Test data persistence and retrieval
 *   **UI State Updates** - Validate real-time UI updates during processing
 *   **Point Count Validation** - Verify accurate point counting and statistics
