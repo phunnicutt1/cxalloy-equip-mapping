@@ -144,3 +144,21 @@
   - ✅ Quality assurance standards implemented
   - ✅ Decision trees for complex scenarios provided
   - ⚠️ Document requires maintenance as codebase evolves
+
+## Advanced File Processing System Enhancement Strategy
+- **Date:** 2025-07-03 12:38:31 AM
+- **Author:** Unknown User
+- **Context:** After comprehensive research of 5 mapping project implementations and analysis of current cxalloy-equip-mapping architecture, needed to determine the best approach for implementing enhanced CSV processing, point signature matching, and template management system.
+- **Decision:** Adopt hybrid approach combining best practices from mapping-equipment-ui (#1) and mapping-new-approach (#4) projects, building incrementally on existing cxalloy-equip-mapping foundation without breaking changes.
+- **Alternatives Considered:** 
+  - Complete rewrite using mapping-equipment-ui ML-based approach
+  - Minimal enhancement of existing CSV processing only
+  - Adopt mapping-ui-gemini Python-based backend approach
+  - Fork mapping-new-approach project as starting point
+- **Consequences:** 
+  - Maintains backward compatibility with existing TRIO processing and database schema
+  - Leverages sophisticated existing foundation (FileProcessor, EquipmentDatabaseService, three-panel UI)
+  - Enables parallel development of core components without dependencies
+  - Provides clear upgrade path with measurable benefits
+  - Reduces implementation risk by building on proven patterns
+  - Allows for incremental deployment and testing of enhanced features

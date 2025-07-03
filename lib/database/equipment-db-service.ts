@@ -1,9 +1,11 @@
 import { nanoid } from 'nanoid';
-import { Equipment, ConnectionState, EquipmentStatus } from '../../types/equipment';
+import { Equipment, EquipmentType, ConnectionState, EquipmentStatus } from '../../types/equipment';
 import { NormalizedPoint, PointFunction, NormalizationConfidence } from '../../types/normalized';
 import { BACnetObjectType, PointDataType, PointCategory } from '../../types/point';
+import { EquipmentTemplate, PointTemplate, TemplateApplicationResult } from '../../types/template';
+import { PointSignature, TemplateMatch } from '../engines/point-signature-engine';
 import { executeQuery, executeTransaction } from './config';
-import { EquipmentRecord, PointRecord, MappingSessionRecord, DbConnectionState } from './models';
+import { EquipmentRecord, PointRecord, MappingSessionRecord, DbConnectionState, EquipmentPointConfigurationRecord, TemplateApplicationRecord } from './models';
 
 // Mapping function to convert equipment status to database ENUM values
 function mapEquipmentStatusToDbEnum(status: string): string {
@@ -691,6 +693,423 @@ export class EquipmentDatabaseService {
       equipmentByType,
       pointsByCategory,
       recentActivity
+    };
+  }
+
+  // ===== TEMPLATE MANAGEMENT METHODS =====
+
+  // Create equipment point configuration template
+  async createEquipmentPointConfiguration(
+    equipmentType: EquipmentType,
+    name: string,
+    description: string,
+    pointSignatures: PointSignature[],
+    isDefault = false,
+    createdBy?: string,
+    metadata?: Record<string, any>
+  ): Promise<string> {
+    const configId = nanoid();
+    
+    console.log('[DB SERVICE] Creating equipment point configuration', { 
+      configId, 
+      equipmentType, 
+      name, 
+      signaturesCount: pointSignatures.length 
+    });
+
+    await executeQuery(`
+      INSERT INTO equipment_point_configurations (
+        id, equipment_type, name, description, point_signatures, 
+        default_config, created_by, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      configId,
+      equipmentType,
+      name,
+      description || null,
+      JSON.stringify(pointSignatures),
+      isDefault,
+      createdBy || null,
+      metadata ? JSON.stringify(metadata) : null
+    ], 'CREATE_CONFIGURATION');
+
+    return configId;
+  }
+
+  // Update equipment point configuration template
+  async updateEquipmentPointConfiguration(
+    configId: string,
+    updates: {
+      name?: string;
+      description?: string;
+      pointSignatures?: PointSignature[];
+      effectivenessScore?: number;
+      usageCount?: number;
+      successRate?: number;
+      metadata?: Record<string, any>;
+    }
+  ): Promise<void> {
+    const setClauses: string[] = [];
+    const params: any[] = [];
+
+    if (updates.name !== undefined) {
+      setClauses.push('name = ?');
+      params.push(updates.name);
+    }
+    if (updates.description !== undefined) {
+      setClauses.push('description = ?');
+      params.push(updates.description);
+    }
+    if (updates.pointSignatures !== undefined) {
+      setClauses.push('point_signatures = ?');
+      params.push(JSON.stringify(updates.pointSignatures));
+    }
+    if (updates.effectivenessScore !== undefined) {
+      setClauses.push('effectiveness_score = ?');
+      params.push(updates.effectivenessScore);
+    }
+    if (updates.usageCount !== undefined) {
+      setClauses.push('usage_count = ?');
+      params.push(updates.usageCount);
+    }
+    if (updates.successRate !== undefined) {
+      setClauses.push('success_rate = ?');
+      params.push(updates.successRate);
+    }
+    if (updates.metadata !== undefined) {
+      setClauses.push('metadata = ?');
+      params.push(JSON.stringify(updates.metadata));
+    }
+
+    if (setClauses.length === 0) return;
+
+    params.push(configId);
+    const query = `
+      UPDATE equipment_point_configurations 
+      SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `;
+
+    await executeQuery(query, params, 'UPDATE_CONFIGURATION');
+  }
+
+  // Delete equipment point configuration template
+  async deleteEquipmentPointConfiguration(configId: string): Promise<void> {
+    console.log('[DB SERVICE] Deleting equipment point configuration', { configId });
+
+    await executeQuery(`
+      DELETE FROM equipment_point_configurations WHERE id = ?
+    `, [configId], 'DELETE_CONFIGURATION');
+  }
+
+  // Get equipment point configurations
+  async getEquipmentPointConfigurations(
+    equipmentType?: EquipmentType,
+    includeDefaults = true
+  ): Promise<Array<{
+    id: string;
+    equipmentType: string;
+    name: string;
+    description: string | null;
+    pointSignatures: PointSignature[];
+    isDefault: boolean;
+    effectivenessScore: number;
+    usageCount: number;
+    successRate: number;
+    createdAt: Date;
+    updatedAt: Date;
+    createdBy: string | null;
+    metadata: Record<string, any> | null;
+  }>> {
+    let query = 'SELECT * FROM equipment_point_configurations';
+    const params: any[] = [];
+    const conditions: string[] = [];
+
+    if (equipmentType) {
+      conditions.push('equipment_type = ?');
+      params.push(equipmentType);
+    }
+
+    if (!includeDefaults) {
+      conditions.push('default_config = FALSE');
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY default_config DESC, effectiveness_score DESC, name ASC';
+
+    const rows = await executeQuery<EquipmentPointConfigurationRecord>(query, params, 'GET_CONFIGURATIONS');
+
+    return rows.map(row => {
+      let pointSignatures: PointSignature[] = [];
+      let metadata: Record<string, any> | null = null;
+
+      try {
+        pointSignatures = JSON.parse(row.point_signatures);
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse point signatures for config', row.id, e);
+      }
+
+      try {
+        if (row.metadata) {
+          metadata = JSON.parse(row.metadata);
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse metadata for config', row.id, e);
+      }
+
+      return {
+        id: row.id,
+        equipmentType: row.equipment_type,
+        name: row.name,
+        description: row.description,
+        pointSignatures,
+        isDefault: row.default_config,
+        effectivenessScore: row.effectiveness_score,
+        usageCount: row.usage_count,
+        successRate: row.success_rate,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        createdBy: row.created_by,
+        metadata
+      };
+    });
+  }
+
+  // Apply template to equipment
+  async applyTemplateToEquipment(
+    equipmentId: string,
+    configurationId: string,
+    templateMatches: TemplateMatch[],
+    confidenceScore: number,
+    appliedBy?: string,
+    isAutomatic = true,
+    effectivenessRating?: number,
+    metadata?: Record<string, any>
+  ): Promise<string> {
+    const applicationId = nanoid();
+    
+    console.log('[DB SERVICE] Applying template to equipment', { 
+      applicationId,
+      equipmentId, 
+      configurationId, 
+      matchesCount: templateMatches.length,
+      confidenceScore 
+    });
+
+    // Extract applied points data from template matches
+    const appliedPoints = templateMatches.map(match => ({
+      templatePointId: match.pointSignature.id,
+      actualPointId: match.matchedPoint.originalPointId,
+      confidence: match.confidence,
+      patternMatch: match.exactMatch || match.partialMatch,
+      matchedSignature: match.pointSignature.pattern
+    }));
+
+    await executeQuery(`
+      INSERT INTO template_applications (
+        id, equipment_id, configuration_id, applied_points, confidence_score,
+        match_results, effectiveness_rating, applied_by, is_automatic, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      applicationId,
+      equipmentId,
+      configurationId,
+      JSON.stringify(appliedPoints),
+      confidenceScore,
+      JSON.stringify(templateMatches),
+      effectivenessRating || null,
+      appliedBy || null,
+      isAutomatic,
+      metadata ? JSON.stringify(metadata) : null
+    ], 'APPLY_TEMPLATE');
+
+    // Update configuration usage statistics
+    await executeQuery(`
+      UPDATE equipment_point_configurations 
+      SET usage_count = usage_count + 1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `, [configurationId], 'UPDATE_CONFIG_USAGE');
+
+    return applicationId;
+  }
+
+  // Get template applications for equipment
+  async getTemplateApplications(
+    equipmentId?: string,
+    configurationId?: string
+  ): Promise<Array<{
+    id: string;
+    equipmentId: string;
+    configurationId: string;
+    appliedPoints: any[];
+    confidenceScore: number;
+    matchResults: TemplateMatch[] | null;
+    effectivenessRating: number | null;
+    appliedAt: Date;
+    appliedBy: string | null;
+    isAutomatic: boolean;
+    metadata: Record<string, any> | null;
+  }>> {
+    let query = 'SELECT * FROM template_applications';
+    const params: any[] = [];
+    const conditions: string[] = [];
+
+    if (equipmentId) {
+      conditions.push('equipment_id = ?');
+      params.push(equipmentId);
+    }
+
+    if (configurationId) {
+      conditions.push('configuration_id = ?');
+      params.push(configurationId);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY applied_at DESC';
+
+    const rows = await executeQuery<TemplateApplicationRecord>(query, params, 'GET_APPLICATIONS');
+
+    return rows.map(row => {
+      let appliedPoints: any[] = [];
+      let matchResults: TemplateMatch[] | null = null;
+      let metadata: Record<string, any> | null = null;
+
+      try {
+        appliedPoints = JSON.parse(row.applied_points);
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse applied points for application', row.id, e);
+      }
+
+      try {
+        if (row.match_results) {
+          matchResults = JSON.parse(row.match_results);
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse match results for application', row.id, e);
+      }
+
+      try {
+        if (row.metadata) {
+          metadata = JSON.parse(row.metadata);
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse metadata for application', row.id, e);
+      }
+
+      return {
+        id: row.id,
+        equipmentId: row.equipment_id,
+        configurationId: row.configuration_id,
+        appliedPoints,
+        confidenceScore: row.confidence_score,
+        matchResults,
+        effectivenessRating: row.effectiveness_rating,
+        appliedAt: row.applied_at,
+        appliedBy: row.applied_by,
+        isAutomatic: row.is_automatic,
+        metadata
+      };
+    });
+  }
+
+  // Get template effectiveness analytics
+  async getTemplateEffectiveness(configurationId?: string): Promise<{
+    totalApplications: number;
+    averageConfidence: number;
+    averageEffectiveness: number;
+    successRate: number;
+    equipmentTypes: { [key: string]: number };
+    recentApplications: Array<{
+      date: string;
+      applicationCount: number;
+      averageConfidence: number;
+    }>;
+  }> {
+    let baseQuery = `
+      SELECT 
+        ta.configuration_id,
+        ta.confidence_score,
+        ta.effectiveness_rating,
+        ta.applied_at,
+        epc.equipment_type
+      FROM template_applications ta
+      JOIN equipment_point_configurations epc ON ta.configuration_id = epc.id
+    `;
+    
+    const params: any[] = [];
+    if (configurationId) {
+      baseQuery += ' WHERE ta.configuration_id = ?';
+      params.push(configurationId);
+    }
+
+    const applicationData = await executeQuery<{
+      configuration_id: string;
+      confidence_score: number;
+      effectiveness_rating: number | null;
+      applied_at: Date;
+      equipment_type: string;
+    }>(baseQuery, params, 'GET_TEMPLATE_EFFECTIVENESS');
+
+    if (applicationData.length === 0) {
+      return {
+        totalApplications: 0,
+        averageConfidence: 0,
+        averageEffectiveness: 0,
+        successRate: 0,
+        equipmentTypes: {},
+        recentApplications: []
+      };
+    }
+
+    const totalApplications = applicationData.length;
+    const averageConfidence = applicationData.reduce((sum, app) => sum + app.confidence_score, 0) / totalApplications;
+    
+    const effectivenessRatings = applicationData.filter(app => app.effectiveness_rating !== null);
+    const averageEffectiveness = effectivenessRatings.length > 0 
+      ? effectivenessRatings.reduce((sum, app) => sum + (app.effectiveness_rating || 0), 0) / effectivenessRatings.length
+      : 0;
+
+    const successRate = applicationData.filter(app => app.confidence_score >= 0.7).length / totalApplications;
+
+    const equipmentTypes = applicationData.reduce((acc, app) => {
+      acc[app.equipment_type] = (acc[app.equipment_type] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Recent applications (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const recentData = applicationData.filter(app => new Date(app.applied_at) >= sevenDaysAgo);
+    const recentApplications = recentData.reduce((acc, app) => {
+      const date = new Date(app.applied_at).toISOString().split('T')[0];
+      if (!acc[date]) {
+        acc[date] = { applicationCount: 0, totalConfidence: 0 };
+      }
+      acc[date].applicationCount++;
+      acc[date].totalConfidence += app.confidence_score;
+      return acc;
+    }, {} as { [key: string]: { applicationCount: number; totalConfidence: number } });
+
+    const recentApplicationsArray = Object.entries(recentApplications).map(([date, data]) => ({
+      date,
+      applicationCount: data.applicationCount,
+      averageConfidence: data.totalConfidence / data.applicationCount
+    })).sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      totalApplications,
+      averageConfidence,
+      averageEffectiveness,
+      successRate,
+      equipmentTypes,
+      recentApplications: recentApplicationsArray
     };
   }
 }

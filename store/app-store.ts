@@ -58,12 +58,22 @@ interface AppState {
   addEquipmentMapping: (mapping: EquipmentMapping) => void;
   removeEquipmentMapping: (bacnetEquipmentId: string) => void;
   
+  // Template Actions
+  setEquipmentTemplates: (templates: EquipmentTemplate[]) => void;
+  addEquipmentTemplate: (template: EquipmentTemplate) => void;
+  updateEquipmentTemplate: (templateId: string, updates: Partial<EquipmentTemplate>) => void;
+  removeEquipmentTemplate: (templateId: string) => void;
+  fetchEquipmentTemplates: () => Promise<void>;
+  
   // Computed Properties
   getEquipmentByType: () => Record<string, Equipment[]>;
   getFilteredEquipment: () => Equipment[];
   getSelectedEquipmentPoints: () => NormalizedPoint[];
   getMappedCxAlloyEquipment: () => CxAlloyEquipment[];
   getUnmappedCxAlloyEquipment: () => CxAlloyEquipment[];
+  getTemplatesByType: () => Record<string, EquipmentTemplate[]>;
+  getFilteredTemplates: () => EquipmentTemplate[];
+  getSelectedTemplate: () => EquipmentTemplate | null;
 }
 
 export const useAppStore = create<AppState>()(
@@ -164,6 +174,44 @@ export const useAppStore = create<AppState>()(
           )
         })),
       
+      // Template Actions
+      setEquipmentTemplates: (templates) => set({ equipmentTemplates: templates }),
+      
+      addEquipmentTemplate: (template) =>
+        set((state) => ({
+          equipmentTemplates: [...state.equipmentTemplates, template]
+        })),
+      
+      updateEquipmentTemplate: (templateId, updates) =>
+        set((state) => ({
+          equipmentTemplates: state.equipmentTemplates.map(template =>
+            template.id === templateId ? { ...template, ...updates } : template
+          )
+        })),
+      
+      removeEquipmentTemplate: (templateId) =>
+        set((state) => ({
+          equipmentTemplates: state.equipmentTemplates.filter(
+            template => template.id !== templateId
+          )
+        })),
+      
+      fetchEquipmentTemplates: async () => {
+        set({ isLoading: true });
+        try {
+          const response = await fetch('/api/templates');
+          const data = await response.json();
+          if (data.success) {
+            set({ equipmentTemplates: data.templates, isLoading: false });
+          } else {
+            throw new Error(data.error || 'Failed to fetch templates');
+          }
+        } catch (error) {
+          console.error('Failed to fetch templates:', error);
+          set({ isLoading: false });
+        }
+      },
+      
       // Computed Properties
       getEquipmentByType: () => {
         const { equipment } = get();
@@ -212,6 +260,33 @@ export const useAppStore = create<AppState>()(
         const { cxAlloyEquipment, equipmentMappings } = get();
         const mappedIds = new Set(equipmentMappings.map(m => m.cxAlloyEquipmentId));
         return cxAlloyEquipment.filter(eq => !mappedIds.has(eq.id));
+      },
+      
+      getTemplatesByType: () => {
+        const { equipmentTemplates } = get();
+        return equipmentTemplates.reduce((acc, template) => {
+          const type = template.equipmentType || 'Unknown';
+          if (!acc[type]) acc[type] = [];
+          acc[type].push(template);
+          return acc;
+        }, {} as Record<string, EquipmentTemplate[]>);
+      },
+      
+      getFilteredTemplates: () => {
+        const { equipmentTemplates, searchTerm } = get();
+        if (!searchTerm) return equipmentTemplates;
+        
+        const term = searchTerm.toLowerCase();
+        return equipmentTemplates.filter(template =>
+          template.name.toLowerCase().includes(term) ||
+          template.description?.toLowerCase().includes(term) ||
+          template.equipmentType.toLowerCase().includes(term)
+        );
+      },
+      
+      getSelectedTemplate: () => {
+        const { equipmentTemplates, selectedTemplate } = get();
+        return equipmentTemplates.find(template => template.id === selectedTemplate) || null;
       }
     }),
     {
