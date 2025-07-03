@@ -143,9 +143,10 @@ function TemplateGroup({
 
 interface TemplateListProps {
   onCreateTemplate: () => void;
+  onEditTemplate: (template: EquipmentTemplate) => void;
 }
 
-export function TemplateList({ onCreateTemplate }: TemplateListProps) {
+export function TemplateList({ onCreateTemplate, onEditTemplate }: TemplateListProps) {
   const {
     searchTerm,
     selectedTemplate,
@@ -187,8 +188,7 @@ export function TemplateList({ onCreateTemplate }: TemplateListProps) {
   };
 
   const handleEditTemplate = (template: EquipmentTemplate) => {
-    // This will be handled by the parent component via modal
-    console.log('Edit template:', template.id);
+    onEditTemplate(template);
   };
 
   const handleDuplicateTemplate = (template: EquipmentTemplate) => {

@@ -51,11 +51,12 @@ export interface EquipmentTemplate {
   id: string;
   name: string;
   type?: EquipmentType;
-  equipmentType?: string; // Alternative equipment type string
+  equipmentType: EquipmentType; // Primary equipment type
   description?: string;
+  category?: string; // Template category for grouping
   pointPatterns?: string[];
-  requiredPoints?: string[];
-  optionalPoints?: string[];
+  requiredPoints?: PointTemplate[];
+  optionalPoints?: PointTemplate[];
   pointMappings?: Array<{
     pointName: string;
     normalizedName: string;
@@ -65,8 +66,21 @@ export interface EquipmentTemplate {
     haystackTags: string[];
   }>; // Point mapping definitions
   isBuiltIn?: boolean; // Whether this is a built-in template
+  effectiveness?: number; // 0-1 effectiveness score for template matching
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+/**
+ * Point Template Interface
+ */
+export interface PointTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  pointFunction: import('./normalized').PointFunction;
+  objectType?: import('./point').BACnetObjectType;
+  units?: string;
 }
 
 /**

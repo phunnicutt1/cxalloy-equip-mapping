@@ -13,6 +13,9 @@ import {
   Package,
   Wrench
 } from 'lucide-react';
+import { TemplateList } from '../templates/TemplateList';
+import { TemplateModal } from '../templates/TemplateModal';
+import type { EquipmentTemplate } from '../../types/equipment';
 
 interface EquipmentGroupProps {
   type: string;
@@ -98,10 +101,28 @@ export function EquipmentBrowser() {
     setSearchTerm,
     setSelectedEquipment,
     getEquipmentByType,
-    getFilteredEquipment
+    getFilteredEquipment,
+    fetchEquipmentTemplates,
+    getSelectedTemplate
   } = useAppStore();
 
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
+  const [templateModal, setTemplateModal] = React.useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit';
+    template?: EquipmentTemplate | null;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    template: null
+  });
+
+  // Load templates when switching to template mode
+  React.useEffect(() => {
+    if (viewMode.left === 'templates') {
+      fetchEquipmentTemplates();
+    }
+  }, [viewMode.left, fetchEquipmentTemplates]);
 
   const equipmentByType = getEquipmentByType();
   const filteredEquipment = getFilteredEquipment();
@@ -129,6 +150,30 @@ export function EquipmentBrowser() {
 
   const handleSelectEquipment = (equipment: Equipment) => {
     setSelectedEquipment(equipment);
+  };
+
+  const handleCreateTemplate = () => {
+    setTemplateModal({
+      isOpen: true,
+      mode: 'create',
+      template: null
+    });
+  };
+
+  const handleEditTemplate = (template: EquipmentTemplate) => {
+    setTemplateModal({
+      isOpen: true,
+      mode: 'edit',
+      template
+    });
+  };
+
+  const handleCloseTemplateModal = () => {
+    setTemplateModal({
+      isOpen: false,
+      mode: 'create',
+      template: null
+    });
   };
 
   return (
@@ -208,11 +253,10 @@ export function EquipmentBrowser() {
             )}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Template management</p>
-            <p className="text-sm text-muted-foreground">Coming soon</p>
-          </div>
+          <TemplateList 
+            onCreateTemplate={handleCreateTemplate}
+            onEditTemplate={handleEditTemplate}
+          />
         )}
       </div>
 
@@ -237,6 +281,14 @@ export function EquipmentBrowser() {
           </div>
         </div>
       )}
+
+      {/* Template Modal */}
+      <TemplateModal
+        isOpen={templateModal.isOpen}
+        onClose={handleCloseTemplateModal}
+        template={templateModal.template}
+        mode={templateModal.mode}
+      />
     </div>
   );
 } 
