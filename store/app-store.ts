@@ -44,7 +44,7 @@ interface AppState {
   
   // Actions
   setEquipment: (equipment: Equipment[]) => void;
-  setSelectedEquipment: (equipment: Equipment | null) => void;
+  setSelectedEquipment: (equipment: Equipment | null) => Promise<void>;
   setCxAlloyEquipment: (equipment: CxAlloyEquipment[]) => void;
   setViewMode: (panel: keyof ViewMode, mode: ViewMode[keyof ViewMode]) => void;
   setSearchTerm: (term: string) => void;
@@ -119,7 +119,35 @@ export const useAppStore = create<AppState>()(
       
       // Basic Actions
       setEquipment: (equipment) => set({ equipment }),
-      setSelectedEquipment: (equipment) => set({ selectedEquipment: equipment }),
+      setSelectedEquipment: async (equipment) => {
+        if (!equipment) {
+          set({ selectedEquipment: null });
+          return;
+        }
+        
+        // If equipment already has points loaded, use it directly
+        if (equipment.points && equipment.points.length > 0) {
+          set({ selectedEquipment: equipment });
+          return;
+        }
+        
+        // Otherwise, fetch full equipment data with points from the database
+        try {
+          set({ isLoading: true });
+          const response = await fetch(`/api/equipment/${equipment.id}`);
+          const data = await response.json();
+          if (data.success && data.equipment) {
+            set({ selectedEquipment: data.equipment, isLoading: false });
+          } else {
+            // Fallback to original equipment if fetch fails
+            set({ selectedEquipment: equipment, isLoading: false });
+          }
+        } catch (error) {
+          console.error('Failed to fetch full equipment data:', error);
+          // Fallback to original equipment if fetch fails
+          set({ selectedEquipment: equipment, isLoading: false });
+        }
+      },
       setCxAlloyEquipment: (equipment) => set({ cxAlloyEquipment: equipment }),
       setSearchTerm: (term) => set({ searchTerm: term }),
       setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),

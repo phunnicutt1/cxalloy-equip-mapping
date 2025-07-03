@@ -73,8 +73,8 @@ function EquipmentGroup({
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {item.points && (
-                    <span>{item.points.length} points</span>
+                  {(item.totalPoints !== undefined && item.totalPoints > 0) && (
+                    <span>{item.totalPoints} points</span>
                   )}
                   {item.vendor && (
                     <>

@@ -376,8 +376,30 @@ export class EquipmentDatabaseService {
     const pointRows = await executeQuery<PointRecord>(query, [equipmentId], 'GET_POINTS_BY_EQUIPMENT');
 
     return pointRows.map(record => {
-      const metadata = JSON.parse(record.normalization_metadata || '{}');
-      const haystackTagsData = JSON.parse(record.haystack_tags || '[]');
+      // Handle JSON parsing - MySQL driver may already parse JSON columns
+      let metadata: any = {};
+      try {
+        if (typeof record.normalization_metadata === 'string') {
+          metadata = JSON.parse(record.normalization_metadata || '{}');
+        } else if (typeof record.normalization_metadata === 'object' && record.normalization_metadata !== null) {
+          metadata = record.normalization_metadata;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse normalization_metadata:', e);
+        metadata = {};
+      }
+
+      let haystackTagsData: any[] = [];
+      try {
+        if (typeof record.haystack_tags === 'string') {
+          haystackTagsData = JSON.parse(record.haystack_tags || '[]');
+        } else if (Array.isArray(record.haystack_tags)) {
+          haystackTagsData = record.haystack_tags;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse haystack_tags:', e);
+        haystackTagsData = [];
+      }
       
               // Convert haystack tags to proper format
         const haystackTags = Array.isArray(haystackTagsData) 
@@ -847,14 +869,22 @@ export class EquipmentDatabaseService {
       let metadata: Record<string, any> | null = null;
 
       try {
-        pointSignatures = JSON.parse(row.point_signatures);
+        if (typeof row.point_signatures === 'string') {
+          pointSignatures = JSON.parse(row.point_signatures);
+        } else if (Array.isArray(row.point_signatures)) {
+          pointSignatures = row.point_signatures;
+        }
       } catch (e) {
         console.warn('[DB SERVICE] Failed to parse point signatures for config', row.id, e);
       }
 
       try {
         if (row.metadata) {
-          metadata = JSON.parse(row.metadata);
+          if (typeof row.metadata === 'string') {
+            metadata = JSON.parse(row.metadata);
+          } else if (typeof row.metadata === 'object' && row.metadata !== null) {
+            metadata = row.metadata;
+          }
         }
       } catch (e) {
         console.warn('[DB SERVICE] Failed to parse metadata for config', row.id, e);
@@ -981,14 +1011,22 @@ export class EquipmentDatabaseService {
       let metadata: Record<string, any> | null = null;
 
       try {
-        appliedPoints = JSON.parse(row.applied_points);
+        if (typeof row.applied_points === 'string') {
+          appliedPoints = JSON.parse(row.applied_points);
+        } else if (Array.isArray(row.applied_points)) {
+          appliedPoints = row.applied_points;
+        }
       } catch (e) {
         console.warn('[DB SERVICE] Failed to parse applied points for application', row.id, e);
       }
 
       try {
         if (row.match_results) {
-          matchResults = JSON.parse(row.match_results);
+          if (typeof row.match_results === 'string') {
+            matchResults = JSON.parse(row.match_results);
+          } else if (Array.isArray(row.match_results)) {
+            matchResults = row.match_results;
+          }
         }
       } catch (e) {
         console.warn('[DB SERVICE] Failed to parse match results for application', row.id, e);
@@ -996,7 +1034,11 @@ export class EquipmentDatabaseService {
 
       try {
         if (row.metadata) {
-          metadata = JSON.parse(row.metadata);
+          if (typeof row.metadata === 'string') {
+            metadata = JSON.parse(row.metadata);
+          } else if (typeof row.metadata === 'object' && row.metadata !== null) {
+            metadata = row.metadata;
+          }
         }
       } catch (e) {
         console.warn('[DB SERVICE] Failed to parse metadata for application', row.id, e);

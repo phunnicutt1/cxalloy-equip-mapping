@@ -183,3 +183,18 @@
   - ✅ Created scalable foundation for template effectiveness analytics
   - ✅ Enabled seamless workflow between equipment and template management
   - ⚠️ Increased component complexity requires careful maintenance
+
+## Equipment Points Display Fix - Database Performance vs UI Display
+- **Date:** 2025-07-03 2:46:55 AM
+- **Author:** Unknown User
+- **Context:** Equipment in the UI was showing "0 points attached" even though the database contained the correct point data. This was due to a performance optimization where getAllEquipment() returns empty points arrays but includes totalPoints field, while the UI was checking points.length instead of totalPoints.
+- **Decision:** Fixed the equipment points display issue with two key changes: 1) Updated EquipmentBrowser.tsx to use item.totalPoints instead of item.points.length for displaying point counts, and 2) Enhanced setSelectedEquipment in app-store.ts to automatically fetch full equipment data with points from /api/equipment/{id} when equipment is selected, ensuring point details load properly.
+- **Alternatives Considered:** 
+  - Keep existing performance optimization and load points on-demand
+  - Pre-load all points for all equipment (performance impact)
+  - Add separate point count API endpoint
+- **Consequences:** 
+  - Correct point counts now display in equipment browser
+  - Full point data loads automatically when equipment selected
+  - Maintains database performance optimization
+  - Graceful fallback if API call fails
