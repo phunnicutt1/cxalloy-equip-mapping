@@ -7,7 +7,7 @@ import { PointDetails } from '../../components/points/PointDetails';
 import { CxAlloyPanel } from '../../components/mapping/CxAlloyPanel';
 import { useAppStore } from '../../store/app-store';
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Download, Settings, TestTube, Upload } from 'lucide-react';
+import { RefreshCw, Download, Settings, TestTube, Upload, BarChart3 } from 'lucide-react';
 
 function DashboardHeader({ onRefresh, loading }: { onRefresh: () => void; loading: boolean; }) {
   return (
@@ -22,6 +22,10 @@ function DashboardHeader({ onRefresh, loading }: { onRefresh: () => void; loadin
         <Button onClick={onRefresh} disabled={loading} className="font-bold">
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           {loading ? 'Processing...' : 'Process Sample Data'}
+        </Button>
+        <Button variant="outline" onClick={() => window.open('/analytics', '_blank')}>
+          <BarChart3 className="w-4 h-4 mr-2" />
+          Analytics
         </Button>
         <Button variant="outline">
           <Download className="w-4 h-4 mr-2" />
