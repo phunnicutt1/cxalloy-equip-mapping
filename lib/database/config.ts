@@ -17,7 +17,7 @@ export const databaseConfig: DatabaseConfig = {
   port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '567eight',
-  database: process.env.DB_NAME || 'cxalloytq-dup',
+  database: process.env.DB_NAME || 'cxalloytq',
   connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
   acquireTimeout: parseInt(process.env.DB_ACQUIRE_TIMEOUT || '60000'),
   timeout: parseInt(process.env.DB_TIMEOUT || '60000'),

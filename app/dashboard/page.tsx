@@ -41,8 +41,27 @@ function DashboardHeader({ onRefresh, loading }: { onRefresh: () => void; loadin
 }
 
 export default function DashboardPage() {
-  const { equipment, fetchEquipment, isLoading } = useAppStore();
+  const { equipment, fetchEquipment, isLoading, setCxAlloyEquipment } = useAppStore();
   const [error, setError] = useState<string | null>(null);
+
+  const fetchCxAlloyEquipment = useCallback(async () => {
+    try {
+      console.log('[Dashboard] Fetching CxAlloy equipment for project 2...');
+      const response = await fetch('/api/cxalloy/equipment?projectId=2');
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.equipment) {
+          console.log(`[Dashboard] Loaded ${data.equipment.length} CxAlloy equipment items`);
+          setCxAlloyEquipment(data.equipment);
+        }
+      } else {
+        console.error('[Dashboard] Failed to fetch CxAlloy equipment');
+      }
+    } catch (err) {
+      console.error('[Dashboard] Error fetching CxAlloy equipment:', err);
+    }
+  }, [setCxAlloyEquipment]);
 
   const handleRefresh = useCallback(async () => {
     setError(null);
@@ -72,10 +91,13 @@ export default function DashboardPage() {
       // Re-fetch equipment data after processing
       await fetchEquipment(1, {});
       
+      // Also fetch CxAlloy equipment
+      await fetchCxAlloyEquipment();
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     }
-  }, [fetchEquipment]);
+  }, [fetchEquipment, fetchCxAlloyEquipment]);
 
   useEffect(() => {
     // Initial data load

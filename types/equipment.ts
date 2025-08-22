@@ -92,8 +92,17 @@ export interface CxAlloyEquipment {
   type: string;
   description?: string;
   location?: string;
+  floor?: string;
+  space?: string;
   zone?: string;
   system?: string;
+  vendor?: string;
+  model?: string;
+  serialNumber?: string;
+  status?: string;
+  projectId?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
