@@ -19,13 +19,17 @@ import {
   Building,
   Filter,
   MapPin,
-  ArrowRight
+  ArrowRight,
+  Search
 } from 'lucide-react';
+import { Input } from '../ui/input';
 import { CxAlloyEquipment } from '../../types/equipment';
 
 interface CxAlloyEquipmentItemProps {
   equipment: CxAlloyEquipment;
   isMapped: boolean;
+  isHighlighted?: boolean;
+  mappedBacnetName?: string;
   onMap: () => void;
   onUnmap: () => void;
 }
@@ -33,15 +37,27 @@ interface CxAlloyEquipmentItemProps {
 function CxAlloyEquipmentItem({ 
   equipment, 
   isMapped, 
+  isHighlighted = false,
+  mappedBacnetName,
   onMap, 
   onUnmap 
 }: CxAlloyEquipmentItemProps) {
   return (
     <div className={cn(
-      "border border-border rounded-lg p-3 bg-card transition-all duration-200",
-      isMapped ? "border-green-200 bg-green-50/50" : "hover:border-primary/50"
+      "border border-border rounded-lg p-3 bg-card transition-all duration-200 relative",
+      isMapped ? "border-green-200 bg-green-50/50" : "hover:border-primary/50",
+      isHighlighted && "ring-2 ring-blue-500 ring-opacity-50 border-blue-300 bg-blue-50/30 shadow-lg"
     )}>
       <div className="space-y-2">
+        {/* Highlighted Badge */}
+        {isHighlighted && (
+          <div className="absolute -top-2 -right-2 z-10">
+            <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
+              SELECTED MAPPING
+            </div>
+          </div>
+        )}
+
         {/* Equipment Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
@@ -110,7 +126,7 @@ function CxAlloyEquipmentItem({
         {isMapped && (
           <div className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded flex items-center gap-1">
             <ArrowRight className="h-3 w-3" />
-            <span>Mapped to BACnet equipment</span>
+            <span>Mapped to BACnet equipment{mappedBacnetName ? `: ${mappedBacnetName}` : ''}</span>
           </div>
         )}
       </div>
@@ -121,6 +137,7 @@ function CxAlloyEquipmentItem({
 export function CxAlloyPanel() {
   const {
     selectedEquipment,
+    equipment,
     cxAlloyEquipment,
     equipmentMappings,
     viewMode,
@@ -128,44 +145,158 @@ export function CxAlloyPanel() {
     addEquipmentMapping,
     removeEquipmentMapping,
     getMappedCxAlloyEquipment,
-    getUnmappedCxAlloyEquipment
+    getMappedCxAlloyForDataSource,
+    getUnmappedCxAlloyEquipment,
+    recordEquipmentMapping
   } = useAppStore();
+
+  const [searchTerm, setSearchTerm] = React.useState('');
+  
+  // Force a re-render when equipment mappings change
+  React.useEffect(() => {
+    // This effect will trigger when equipmentMappings change
+    console.log('[CxAlloyPanel] Equipment mappings updated:', equipmentMappings.length);
+  }, [equipmentMappings]);
 
   const mappedEquipment = getMappedCxAlloyEquipment();
   const unmappedEquipment = getUnmappedCxAlloyEquipment();
+  
+  // Get the mapped CxAlloy equipment for the currently selected data source
+  const highlightedEquipment = selectedEquipment ? getMappedCxAlloyForDataSource(selectedEquipment.id) : null;
+
+  // Helper functions (need to be declared before use)
+  const isEquipmentMapped = (equipmentId: string) => {
+    return equipmentMappings.some(m => m.cxAlloyEquipmentId === equipmentId);
+  };
+
+  const getMappedBacnetName = (cxAlloyEquipmentId: string): string | undefined => {
+    const mapping = equipmentMappings.find(m => m.cxAlloyEquipmentId === cxAlloyEquipmentId);
+    if (!mapping) return undefined;
+    
+    const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
+    return bacnetEquipment?.name;
+  };
 
   const getFilteredEquipment = () => {
+    let equipment;
     switch (viewMode.right) {
       case 'mapped':
-        return mappedEquipment;
+        equipment = mappedEquipment;
+        break;
       case 'unmapped':
-        return unmappedEquipment;
+        equipment = unmappedEquipment;
+        break;
       default:
-        return cxAlloyEquipment;
+        equipment = cxAlloyEquipment;
     }
+
+    // Apply search filter
+    if (searchTerm) {
+      equipment = equipment.filter(eq => 
+        eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eq.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eq.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eq.space?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Smart sorting: if there's a highlighted equipment (mapped to selected data source),
+    // bring it to the top of the list for better visibility
+    if (highlightedEquipment) {
+      const highlighted = equipment.find(eq => eq.id === highlightedEquipment.id);
+      if (highlighted) {
+        const remaining = equipment.filter(eq => eq.id !== highlightedEquipment.id);
+        equipment = [highlighted, ...remaining];
+      }
+    }
+
+    // Secondary sort: within each group, sort mapped equipment before unmapped
+    equipment = equipment.sort((a, b) => {
+      const aMapped = isEquipmentMapped(a.id);
+      const bMapped = isEquipmentMapped(b.id);
+      
+      // If one is mapped and the other isn't, prioritize the mapped one
+      if (aMapped && !bMapped) return -1;
+      if (!aMapped && bMapped) return 1;
+      
+      // Otherwise, maintain alphabetical order
+      return a.name.localeCompare(b.name);
+    });
+
+    return equipment;
   };
 
   const filteredEquipment = getFilteredEquipment();
 
-  const handleMap = (cxAlloyEquipmentItem: CxAlloyEquipment) => {
+  const handleMap = async (cxAlloyEquipmentItem: CxAlloyEquipment) => {
     if (!selectedEquipment) return;
     
-    addEquipmentMapping({
-      bacnetEquipmentId: selectedEquipment.id,
-      cxAlloyEquipmentId: cxAlloyEquipmentItem.id,
-      mappedAt: new Date().toISOString(),
-      confidence: 0.8, // This would be calculated based on similarity
-      mappingType: 'manual'
-    });
+    try {
+      // Create the equipment mapping
+      const mapping = {
+        id: `manual-${selectedEquipment.id}-${cxAlloyEquipmentItem.id}`,
+        bacnetEquipmentId: selectedEquipment.id,
+        bacnetEquipmentName: selectedEquipment.name,
+        bacnetEquipmentType: selectedEquipment.type || 'Unknown',
+        cxalloyEquipmentId: cxAlloyEquipmentItem.id,
+        cxalloyEquipmentName: cxAlloyEquipmentItem.name,
+        cxalloyCategory: cxAlloyEquipmentItem.type as any,
+        mappingType: 'manual' as const,
+        confidence: 0.8,
+        mappingReason: 'Manual mapping from CxAlloy panel',
+        totalBacnetPoints: selectedEquipment.totalPoints || 0,
+        mappedPointsCount: 0,
+        unmappedPointsCount: 0,
+        isActive: true,
+        isVerified: true,
+        verifiedBy: 'user-manual-map',
+        verifiedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'manual-mapping',
+        mappingMethod: 'manual' as const
+      };
+
+      // Add the mapping to the store
+      addEquipmentMapping(mapping);
+
+      // Record audit trail
+      await recordEquipmentMapping(
+        selectedEquipment.id,
+        selectedEquipment.name,
+        cxAlloyEquipmentItem.id,
+        cxAlloyEquipmentItem.name,
+        'created',
+        'manual',
+        0.8,
+        selectedEquipment.totalPoints || 0
+      );
+
+      console.log('[CxAlloyPanel] Manual mapping created:', selectedEquipment.name, '→', cxAlloyEquipmentItem.name);
+    } catch (error) {
+      console.error('[CxAlloyPanel] Failed to create mapping:', error);
+    }
   };
 
-  const handleUnmap = (cxAlloyEquipmentItem: CxAlloyEquipment) => {
+  const handleUnmap = async (cxAlloyEquipmentItem: CxAlloyEquipment) => {
     if (!selectedEquipment) return;
-    removeEquipmentMapping(selectedEquipment.id);
-  };
+    
+    try {
+      // Record audit trail before removing
+      await recordEquipmentMapping(
+        selectedEquipment.id,
+        selectedEquipment.name,
+        cxAlloyEquipmentItem.id,
+        cxAlloyEquipmentItem.name,
+        'deleted',
+        'manual'
+      );
 
-  const isEquipmentMapped = (equipmentId: string) => {
-    return equipmentMappings.some(m => m.cxAlloyEquipmentId === equipmentId);
+      removeEquipmentMapping(selectedEquipment.id);
+      console.log('[CxAlloyPanel] Mapping removed:', selectedEquipment.name, '→', cxAlloyEquipmentItem.name);
+    } catch (error) {
+      console.error('[CxAlloyPanel] Failed to remove mapping:', error);
+    }
   };
 
   return (
@@ -182,8 +313,20 @@ export function CxAlloyPanel() {
             Map BACnet equipment to CxAlloy project equipment
           </p>
 
-          {/* Filter Controls */}
-          <div className="flex items-center gap-2">
+          {/* Search and Filter Controls */}
+          <div className="space-y-2">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search CxAlloy equipment..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+            
+            {/* Filter Dropdown */}
             <Select
               value={viewMode.right}
               onValueChange={(value: 'all' | 'mapped' | 'unmapped') => setViewMode('right', value)}
@@ -241,13 +384,15 @@ export function CxAlloyPanel() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredEquipment.map((equipment) => (
+            {filteredEquipment.map((equip) => (
               <CxAlloyEquipmentItem
-                key={equipment.id}
-                equipment={equipment}
-                isMapped={isEquipmentMapped(equipment.id)}
-                onMap={() => handleMap(equipment)}
-                onUnmap={() => handleUnmap(equipment)}
+                key={equip.id}
+                equipment={equip}
+                isMapped={isEquipmentMapped(equip.id)}
+                isHighlighted={highlightedEquipment?.id === equip.id}
+                mappedBacnetName={getMappedBacnetName(equip.id)}
+                onMap={() => handleMap(equip)}
+                onUnmap={() => handleUnmap(equip)}
               />
             ))}
           </div>

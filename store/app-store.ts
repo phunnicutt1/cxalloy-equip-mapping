@@ -7,6 +7,8 @@ import type {
   EquipmentMapping 
 } from '../types/equipment';
 import type { NormalizedPoint } from '../types/normalized';
+import type { AutoMappingResult, AutoMappingMatch } from '../lib/services/auto-mapping-service';
+import type { MappingTemplate } from '../types/template-mapping';
 
 interface ViewMode {
   left: 'equipment' | 'templates';
@@ -24,11 +26,19 @@ interface AppState {
   cxAlloyEquipment: CxAlloyEquipment[];
   equipmentMappings: EquipmentMapping[];
   
+  // Template Mapping System
+  mappingTemplates: MappingTemplate[];
+  showTemplateManagementModal: boolean;
+  
+  // Auto-mapping State
+  autoMappingResult: AutoMappingResult | null;
+  autoMappingInProgress: boolean;
+  
   // UI State
   viewMode: ViewMode;
   isLoading: boolean;
   searchTerm: string;
-  selectedTemplate: string | null;
+  equipmentTemplateMap: Record<string, string>; // equipment ID -> template ID
   
   // Point Selection State
   selectedPoints: Set<string>; // Point IDs selected for template creation
@@ -49,6 +59,7 @@ interface AppState {
   setViewMode: (panel: keyof ViewMode, mode: ViewMode[keyof ViewMode]) => void;
   setSearchTerm: (term: string) => void;
   setSelectedTemplate: (templateId: string | null) => void;
+  setEquipmentTemplate: (equipmentId: string, templateId: string | null) => void;
   setLoading: (loading: boolean) => void;
   
   // Data Fetching
@@ -62,12 +73,49 @@ interface AppState {
   addEquipmentMapping: (mapping: EquipmentMapping) => void;
   removeEquipmentMapping: (bacnetEquipmentId: string) => void;
   
+  // Auto-mapping Actions
+  performAutoMapping: () => Promise<AutoMappingResult | null>;
+  applyExactMappings: (mappings: (AutoMappingMatch | EquipmentMapping)[]) => Promise<void>;
+  applySuggestedMapping: (mapping: AutoMappingMatch) => void;
+  clearAutoMappingResult: () => void;
+  
   // Template Actions
   setEquipmentTemplates: (templates: EquipmentTemplate[]) => void;
   addEquipmentTemplate: (template: EquipmentTemplate) => void;
   updateEquipmentTemplate: (templateId: string, updates: Partial<EquipmentTemplate>) => void;
   removeEquipmentTemplate: (templateId: string) => void;
   fetchEquipmentTemplates: () => Promise<void>;
+  
+  // Template Mapping Actions
+  setShowTemplateManagementModal: (show: boolean) => void;
+  loadMappingTemplates: () => Promise<void>;
+  
+  // Bulk Mapping Actions
+  showBulkMappingModal: boolean;
+  setShowBulkMappingModal: (show: boolean) => void;
+  
+  // Audit Trail Actions
+  recordPointEdit: (
+    pointId: string,
+    equipmentId: string,
+    equipmentName: string,
+    changeType: 'navName' | 'units' | 'category' | 'mapping' | 'confidence',
+    oldValue: string | number | null,
+    newValue: string | number | null,
+    source?: 'manual' | 'template' | 'auto-mapping' | 'bulk-operation'
+  ) => Promise<void>;
+  recordEquipmentMapping: (
+    bacnetEquipmentId: string,
+    bacnetEquipmentName: string,
+    cxalloyEquipmentId: number,
+    cxalloyEquipmentName: string,
+    actionType: 'created' | 'updated' | 'deleted',
+    source?: 'manual' | 'template' | 'auto-mapping' | 'bulk-operation',
+    confidence?: number,
+    pointMappingCount?: number,
+    templateId?: string,
+    templateName?: string
+  ) => Promise<void>;
   
   // Point Selection Actions
   togglePointSelection: (pointId: string) => void;
@@ -80,6 +128,7 @@ interface AppState {
   getFilteredEquipment: () => Equipment[];
   getSelectedEquipmentPoints: () => NormalizedPoint[];
   getMappedCxAlloyEquipment: () => CxAlloyEquipment[];
+  getMappedCxAlloyForDataSource: (bacnetEquipmentId: string) => CxAlloyEquipment | null;
   getUnmappedCxAlloyEquipment: () => CxAlloyEquipment[];
   getTemplatesByType: () => Record<string, EquipmentTemplate[]>;
   getFilteredTemplates: () => EquipmentTemplate[];
@@ -96,6 +145,17 @@ export const useAppStore = create<AppState>()(
       cxAlloyEquipment: [],
       equipmentMappings: [],
       
+      // Template Mapping State
+      mappingTemplates: [],
+      showTemplateManagementModal: false,
+      
+      // Bulk Mapping State
+      showBulkMappingModal: false,
+      
+      // Auto-mapping State
+      autoMappingResult: null,
+      autoMappingInProgress: false,
+      
       viewMode: {
         left: 'equipment',
         middle: 'all-points',
@@ -104,7 +164,7 @@ export const useAppStore = create<AppState>()(
       
       isLoading: false,
       searchTerm: '',
-      selectedTemplate: null,
+      equipmentTemplateMap: {},
       
       // Point Selection State
       selectedPoints: new Set<string>(),
@@ -120,6 +180,22 @@ export const useAppStore = create<AppState>()(
       // Basic Actions
       setEquipment: (equipment) => set({ equipment }),
       setSelectedEquipment: async (equipment) => {
+        const currentState = get();
+        
+        // When switching between different equipment
+        if (currentState.selectedEquipment?.id !== equipment?.id) {
+          // Check if the NEW equipment being selected is mapped
+          const isNewEquipmentMapped = equipment ? currentState.equipmentMappings.some(
+            m => m.bacnetEquipmentId === equipment.id
+          ) : false;
+          
+          // Only clear points if the new equipment is NOT mapped
+          // This preserves tracked points for mapped equipment
+          if (!isNewEquipmentMapped) {
+            set({ selectedPoints: new Set() });
+          }
+        }
+        
         if (!equipment) {
           set({ selectedEquipment: null });
           return;
@@ -137,7 +213,12 @@ export const useAppStore = create<AppState>()(
           const response = await fetch(`/api/equipment/${equipment.id}`);
           const data = await response.json();
           if (data.success && data.equipment) {
-            set({ selectedEquipment: data.equipment, isLoading: false });
+            // Attach points to the equipment object
+            const equipmentWithPoints = {
+              ...data.equipment,
+              points: data.points || []
+            };
+            set({ selectedEquipment: equipmentWithPoints, isLoading: false });
           } else {
             // Fallback to original equipment if fetch fails
             set({ selectedEquipment: equipment, isLoading: false });
@@ -150,7 +231,20 @@ export const useAppStore = create<AppState>()(
       },
       setCxAlloyEquipment: (equipment) => set({ cxAlloyEquipment: equipment }),
       setSearchTerm: (term) => set({ searchTerm: term }),
-      setSelectedTemplate: (templateId) => set({ selectedTemplate: templateId }),
+      setSelectedTemplate: (templateId) => {
+        const { selectedEquipment } = get();
+        if (selectedEquipment) {
+          get().setEquipmentTemplate(selectedEquipment.id, templateId);
+        }
+      },
+      
+      setEquipmentTemplate: (equipmentId, templateId) =>
+        set((state) => ({
+          equipmentTemplateMap: {
+            ...state.equipmentTemplateMap,
+            [equipmentId]: templateId || ''
+          }
+        })),
       setLoading: (loading) => set({ isLoading: loading }),
       
       fetchEquipment: async (page, filters) => {
@@ -216,6 +310,126 @@ export const useAppStore = create<AppState>()(
           )
         })),
       
+      // Auto-mapping Actions
+      performAutoMapping: async () => {
+        set({ autoMappingInProgress: true });
+        try {
+          const response = await fetch('/api/auto-map', { method: 'POST' });
+          const data = await response.json();
+          
+          if (data.success) {
+            set({ 
+              autoMappingResult: data.data,
+              autoMappingInProgress: false 
+            });
+            return data.data;
+          } else {
+            throw new Error(data.error || 'Auto-mapping failed');
+          }
+        } catch (error) {
+          console.error('Auto-mapping error:', error);
+          set({ autoMappingInProgress: false });
+          return null;
+        }
+      },
+      
+      applyExactMappings: async (mappings) => {
+        const { recordEquipmentMapping } = get();
+        
+        const newMappings = mappings.map(match => {
+          // Check if it's already an EquipmentMapping object or an AutoMappingMatch
+          if ('bacnetEquipmentId' in match) {
+            // It's already an EquipmentMapping, return as is
+            return match;
+          } else if ('bacnetEquipment' in match && 'cxAlloyEquipment' in match) {
+            // It's an AutoMappingMatch, convert it
+            return {
+              id: `auto-${match.bacnetEquipment.id}-${match.cxAlloyEquipment.id}`,
+              bacnetEquipmentId: match.bacnetEquipment.id,
+              bacnetEquipmentName: match.bacnetEquipment.name,
+              bacnetEquipmentType: match.bacnetEquipment.type || 'Unknown',
+              cxalloyEquipmentId: match.cxAlloyEquipment.id,
+              cxalloyEquipmentName: match.cxAlloyEquipment.name,
+              cxalloyCategory: match.cxAlloyEquipment.type as any,
+              mappingType: 'automatic' as const,
+              confidence: match.confidence,
+              mappingReason: match.reasons?.join('; ') || '',
+              totalBacnetPoints: match.bacnetEquipment.totalPoints || 0,
+              mappedPointsCount: 0,
+              unmappedPointsCount: 0,
+              isActive: true,
+              isVerified: true,
+              verifiedBy: 'auto-mapping',
+              verifiedAt: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              createdBy: 'auto-mapping-service',
+              mappingMethod: 'auto' as const
+            };
+          } else {
+            // Fallback for other structures
+            console.error('Unknown mapping structure:', match);
+            return match as any;
+          }
+        });
+        
+        // Record audit trail for each mapping
+        for (const mapping of newMappings) {
+          await recordEquipmentMapping(
+            mapping.bacnetEquipmentId,
+            mapping.bacnetEquipmentName,
+            mapping.cxalloyEquipmentId,
+            mapping.cxalloyEquipmentName,
+            'created',
+            'auto-mapping',
+            mapping.confidence,
+            mapping.totalBacnetPoints
+          );
+        }
+        
+        set((state) => ({
+          equipmentMappings: [
+            ...state.equipmentMappings,
+            ...newMappings
+          ]
+        }));
+      },
+      
+      applySuggestedMapping: (mapping) => {
+        const newMapping = {
+          id: `suggested-${mapping.bacnetEquipment.id}-${mapping.cxAlloyEquipment.id}`,
+          bacnetEquipmentId: mapping.bacnetEquipment.id,
+          bacnetEquipmentName: mapping.bacnetEquipment.name,
+          bacnetEquipmentType: mapping.bacnetEquipment.type || 'Unknown',
+          cxalloyEquipmentId: mapping.cxAlloyEquipment.id,
+          cxalloyEquipmentName: mapping.cxAlloyEquipment.name,
+          cxalloyCategory: mapping.cxAlloyEquipment.type as any,
+          mappingType: 'manual' as const,
+          confidence: mapping.confidence,
+          mappingReason: mapping.reasons.join('; '),
+          totalBacnetPoints: mapping.bacnetEquipment.totalPoints || 0,
+          mappedPointsCount: 0,
+          unmappedPointsCount: 0,
+          isActive: true,
+          isVerified: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          createdBy: 'user-selection',
+          mappingMethod: 'manual' as const
+        };
+        
+        set((state) => ({
+          equipmentMappings: [
+            ...state.equipmentMappings.filter(
+              m => m.bacnetEquipmentId !== mapping.bacnetEquipment.id
+            ),
+            newMapping
+          ]
+        }));
+      },
+      
+      clearAutoMappingResult: () => set({ autoMappingResult: null }),
+      
       // Template Actions
       setEquipmentTemplates: (templates) => set({ equipmentTemplates: templates }),
       
@@ -270,11 +484,65 @@ export const useAppStore = create<AppState>()(
       
       setShowPointConfigModal: (show) => set({ showPointConfigModal: show }),
       
+      // Template Mapping Actions
+      setShowTemplateManagementModal: (show) => set({ showTemplateManagementModal: show }),
+      loadMappingTemplates: async () => {
+        try {
+          const TemplateMappingService = (await import('../lib/services/template-mapping-service')).TemplateMappingService;
+          const templates = await TemplateMappingService.getTemplates();
+          set({ mappingTemplates: templates });
+        } catch (error) {
+          console.error('Error loading mapping templates:', error);
+        }
+      },
+      
+      // Bulk Mapping Actions
+      setShowBulkMappingModal: (show) => set({ showBulkMappingModal: show }),
+      
+      // Audit Trail Actions
+      recordPointEdit: async (pointId, equipmentId, equipmentName, changeType, oldValue, newValue, source = 'manual') => {
+        try {
+          const AuditTrailService = (await import('../lib/services/audit-trail-service')).AuditTrailService;
+          await AuditTrailService.recordPointEdit(
+            pointId,
+            equipmentId,
+            equipmentName,
+            changeType,
+            oldValue,
+            newValue,
+            source
+          );
+        } catch (error) {
+          console.error('Error recording point edit:', error);
+        }
+      },
+      
+      recordEquipmentMapping: async (bacnetEquipmentId, bacnetEquipmentName, cxalloyEquipmentId, cxalloyEquipmentName, actionType, source = 'manual', confidence = 0, pointMappingCount = 0, templateId, templateName) => {
+        try {
+          const AuditTrailService = (await import('../lib/services/audit-trail-service')).AuditTrailService;
+          await AuditTrailService.recordEquipmentMapping(
+            bacnetEquipmentId,
+            bacnetEquipmentName,
+            cxalloyEquipmentId,
+            cxalloyEquipmentName,
+            actionType,
+            source,
+            'user',
+            confidence,
+            pointMappingCount,
+            templateId,
+            templateName
+          );
+        } catch (error) {
+          console.error('Error recording equipment mapping:', error);
+        }
+      },
+      
       getSelectedPointsData: () => {
-        const { selectedEquipment, selectedPoints } = get();
-        if (!selectedEquipment?.points) return [];
+        const { selectedPoints, getSelectedEquipmentPoints } = get();
+        const points = getSelectedEquipmentPoints(); // Use deduplicated points
         
-        return selectedEquipment.points.filter(point => 
+        return points.filter(point => 
           selectedPoints.has(point.originalPointId || point.originalName)
         );
       },
@@ -303,15 +571,39 @@ export const useAppStore = create<AppState>()(
       },
       
       getSelectedEquipmentPoints: () => {
-        const { selectedEquipment, selectedTemplate, viewMode } = get();
+        const { selectedEquipment, equipmentTemplateMap, equipmentTemplates } = get();
         if (!selectedEquipment) return [];
         
-        const points = selectedEquipment.points || [];
+        let points = selectedEquipment.points || [];
         
-        if (viewMode.middle === 'template-points' && selectedTemplate) {
-          // Filter points based on selected template
-          // This would need template matching logic
-          return points; // Placeholder
+        // Deduplicate points based on originalPointId or originalName
+        const seen = new Set();
+        points = points.filter(point => {
+          const id = point.originalPointId || point.originalName;
+          if (seen.has(id)) {
+            return false;
+          }
+          seen.add(id);
+          return true;
+        });
+        
+        // Get template for current equipment
+        const selectedTemplateId = equipmentTemplateMap[selectedEquipment.id];
+        
+        // If a template is selected, only show points that match template points
+        if (selectedTemplateId) {
+          const template = equipmentTemplates.find(t => t.id === selectedTemplateId);
+          if (template) {
+            const templatePointNames = new Set([
+              ...(template.requiredPoints || []).map(p => p.name),
+              ...(template.optionalPoints || []).map(p => p.name)
+            ]);
+            
+            return points.filter(point => 
+              templatePointNames.has(point.normalizedName) || 
+              templatePointNames.has(point.originalName)
+            );
+          }
         }
         
         return points;
@@ -321,6 +613,16 @@ export const useAppStore = create<AppState>()(
         const { cxAlloyEquipment, equipmentMappings } = get();
         const mappedIds = new Set(equipmentMappings.map(m => m.cxAlloyEquipmentId));
         return cxAlloyEquipment.filter(eq => mappedIds.has(eq.id));
+      },
+      
+      // Get mapped CxAlloy equipment for a specific BACnet data source
+      getMappedCxAlloyForDataSource: (bacnetEquipmentId: string) => {
+        const { cxAlloyEquipment, equipmentMappings } = get();
+        const mapping = equipmentMappings.find(m => m.bacnetEquipmentId === bacnetEquipmentId);
+        if (mapping) {
+          return cxAlloyEquipment.find(eq => eq.id === mapping.cxAlloyEquipmentId);
+        }
+        return null;
       },
       
       getUnmappedCxAlloyEquipment: () => {
@@ -352,8 +654,13 @@ export const useAppStore = create<AppState>()(
       },
       
       getSelectedTemplate: () => {
-        const { equipmentTemplates, selectedTemplate } = get();
-        return equipmentTemplates.find(template => template.id === selectedTemplate) || null;
+        const { equipmentTemplates, equipmentTemplateMap, selectedEquipment } = get();
+        if (!selectedEquipment) return null;
+        
+        const selectedTemplateId = equipmentTemplateMap[selectedEquipment.id];
+        if (!selectedTemplateId) return null;
+        
+        return equipmentTemplates.find(template => template.id === selectedTemplateId) || null;
       }
     }),
     {

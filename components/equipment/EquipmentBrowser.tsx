@@ -11,11 +11,16 @@ import {
   ChevronDown, 
   ChevronRight,
   Package,
-  Wrench
+  Wrench,
+  Lightbulb,
+  Plus,
+  ArrowRight,
+  CheckCircle2
 } from 'lucide-react';
 import { TemplateList } from '../templates/TemplateList';
 import { TemplateModal } from '../templates/TemplateModal';
 import type { EquipmentTemplate } from '../../types/equipment';
+import { findMappingSuggestions, shouldShowCreateNewOption, type NameMatchSuggestion } from '../../lib/utils/smart-matching';
 
 interface EquipmentGroupProps {
   type: string;
@@ -24,6 +29,8 @@ interface EquipmentGroupProps {
   onToggle: () => void;
   onSelectEquipment: (equipment: Equipment) => void;
   selectedEquipmentId?: string;
+  equipmentMappings: any[];
+  cxAlloyEquipment: any[];
 }
 
 function EquipmentGroup({
@@ -32,8 +39,68 @@ function EquipmentGroup({
   isExpanded,
   onToggle,
   onSelectEquipment,
-  selectedEquipmentId
+  selectedEquipmentId,
+  equipmentMappings,
+  cxAlloyEquipment
 }: EquipmentGroupProps) {
+  const { addEquipmentMapping, recordEquipmentMapping } = useAppStore();
+
+  const handleSuggestionClick = async (event: React.MouseEvent, bacnetEquipment: Equipment, suggestion: NameMatchSuggestion) => {
+    event.stopPropagation(); // Prevent parent button click
+    
+    try {
+      // Find the CxAlloy equipment
+      const cxAlloyEq = cxAlloyEquipment.find(eq => eq.name === suggestion.equipmentName);
+      if (!cxAlloyEq) {
+        console.error('CxAlloy equipment not found:', suggestion.equipmentName);
+        return;
+      }
+
+      // Create the equipment mapping
+      const mapping = {
+        id: `auto-${bacnetEquipment.id}-${cxAlloyEq.id}`,
+        bacnetEquipmentId: bacnetEquipment.id,
+        bacnetEquipmentName: bacnetEquipment.name,
+        bacnetEquipmentType: bacnetEquipment.type || 'Unknown',
+        cxalloyEquipmentId: cxAlloyEq.id,
+        cxalloyEquipmentName: cxAlloyEq.name,
+        cxalloyCategory: cxAlloyEq.type as any,
+        mappingType: 'manual' as const,
+        confidence: suggestion.confidence,
+        mappingReason: (suggestion.reasons || []).join('; '),
+        totalBacnetPoints: bacnetEquipment.totalPoints || 0,
+        mappedPointsCount: 0,
+        unmappedPointsCount: 0,
+        isActive: true,
+        isVerified: true,
+        verifiedBy: 'user-suggestion-click',
+        verifiedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'suggestion-auto-mapping',
+        mappingMethod: 'manual' as const
+      };
+
+      // Add the mapping to the store
+      addEquipmentMapping(mapping);
+
+      // Record audit trail
+      await recordEquipmentMapping(
+        bacnetEquipment.id,
+        bacnetEquipment.name,
+        cxAlloyEq.id,
+        cxAlloyEq.name,
+        'created',
+        'manual',
+        suggestion.confidence,
+        bacnetEquipment.totalPoints || 0
+      );
+
+      console.log('Auto-mapped equipment:', bacnetEquipment.name, '→', cxAlloyEq.name);
+    } catch (error) {
+      console.error('Failed to create auto-mapping:', error);
+    }
+  };
   return (
     <div className="border border-border rounded-lg bg-card">
       <button
@@ -61,28 +128,88 @@ function EquipmentGroup({
               key={item.id}
               onClick={() => onSelectEquipment(item)}
               className={cn(
-                "w-full text-left p-3 hover:bg-muted/50 transition-colors border-b border-border last:border-b-0 last:rounded-b-lg",
-                selectedEquipmentId === item.id && "bg-primary/10 border-l-4 border-l-primary"
+                "w-full text-left p-3 hover:bg-muted/50 transition-all duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative",
+                selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-500 ring-offset-1",
+                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId === item.id && "bg-green-50/70 ring-2 ring-green-500 ring-offset-1",
+                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400"
               )}
             >
+              {/* MAPPED Badge */}
+              {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                <div className="absolute top-2 right-2">
+                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">MAPPED</span>
+                </div>
+              )}
               <div className="space-y-1">
-                <div className="font-medium text-sm text-foreground">{item.name}</div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold text-base text-foreground">{item.name}</div>
+                    {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    )}
+                  </div>
+                </div>
+                {item.type && (
+                  <div className="text-xs text-muted-foreground">
+                    {item.type === 'VAV_CONTROLLER' ? 'VVR' : item.type.replace(/_/g, ' ')}
+                  </div>
+                )}
                 {item.description && (
                   <div className="text-xs text-muted-foreground line-clamp-2">
                     {item.description}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 text-xs">
                   {(item.totalPoints !== undefined && item.totalPoints > 0) && (
-                    <span>{item.totalPoints} points</span>
+                    <div>
+                      <span className="font-semibold text-foreground">{item.totalPoints} points</span>
+                    </div>
+                  )}
+                  {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                    <div className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold uppercase text-[10px] tracking-wider">
+                      ONLINE
+                    </div>
                   )}
                   {item.vendor && (
-                    <>
-                      <span>•</span>
-                      <span>{item.vendor}</span>
-                    </>
+                    <span className="text-muted-foreground">{item.vendor}</span>
                   )}
                 </div>
+                
+                {/* Smart suggestions for unmapped equipment */}
+                {(() => {
+                  const isMapped = equipmentMappings.some(m => m.bacnetEquipmentId === item.id);
+                  if (isMapped) return null;
+                  
+                  const suggestions = findMappingSuggestions(item.name, item.type, cxAlloyEquipment);
+                  if (suggestions.length === 0) return null;
+                  
+                  const topSuggestion = suggestions[0];
+                  if (topSuggestion.confidence < 0.6) return null;
+                  
+                  return (
+                    <div
+                      onClick={(e) => handleSuggestionClick(e, item, topSuggestion)}
+                      className="mt-2 w-full p-2 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-1 text-xs text-blue-700 mb-1">
+                        <Lightbulb className="h-3 w-3" />
+                        <span className="font-medium">Click to Map</span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1">
+                          <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
+                          <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
+                        </div>
+                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors" />
+                      </div>
+                      {suggestions.length > 1 && (
+                        <div className="text-xs text-blue-600 mt-1">
+                          +{suggestions.length - 1} more suggestions
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </button>
           ))}
@@ -97,6 +224,8 @@ export function EquipmentBrowser() {
     viewMode,
     searchTerm,
     selectedEquipment,
+    cxAlloyEquipment,
+    equipmentMappings,
     setViewMode,
     setSearchTerm,
     setSelectedEquipment,
@@ -182,7 +311,7 @@ export function EquipmentBrowser() {
       <div className="p-4 border-b border-border bg-background">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-foreground">
-            {viewMode.left === 'equipment' ? 'Equipment' : 'Templates'}
+            {viewMode.left === 'equipment' ? 'Data Sources' : 'Templates'}
           </h2>
           <Button
             variant="ghost"
@@ -247,6 +376,8 @@ export function EquipmentBrowser() {
                     onToggle={() => toggleGroup(type)}
                     onSelectEquipment={handleSelectEquipment}
                     selectedEquipmentId={selectedEquipment?.id}
+                    equipmentMappings={equipmentMappings}
+                    cxAlloyEquipment={cxAlloyEquipment}
                   />
                 );
               })

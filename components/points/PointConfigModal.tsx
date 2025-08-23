@@ -52,7 +52,8 @@ export function PointConfigModal({ isOpen, onClose, selectedPoints }: PointConfi
     addEquipmentTemplate, 
     selectedEquipment,
     clearPointSelection,
-    setShowPointConfigModal 
+    setShowPointConfigModal,
+    setSelectedTemplate 
   } = useAppStore();
   
   const [isLoading, setIsLoading] = React.useState(false);
@@ -162,6 +163,10 @@ export function PointConfigModal({ isOpen, onClose, selectedPoints }: PointConfi
       };
       
       addEquipmentTemplate(templateData);
+      
+      // Auto-apply the newly created template
+      setSelectedTemplate(templateData.id);
+      
       clearPointSelection();
       setShowPointConfigModal(false);
       onClose();
