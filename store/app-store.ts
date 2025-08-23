@@ -611,7 +611,7 @@ export const useAppStore = create<AppState>()(
       
       getMappedCxAlloyEquipment: () => {
         const { cxAlloyEquipment, equipmentMappings } = get();
-        const mappedIds = new Set(equipmentMappings.map(m => m.cxAlloyEquipmentId));
+        const mappedIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId));
         return cxAlloyEquipment.filter(eq => mappedIds.has(eq.id));
       },
       
@@ -620,14 +620,14 @@ export const useAppStore = create<AppState>()(
         const { cxAlloyEquipment, equipmentMappings } = get();
         const mapping = equipmentMappings.find(m => m.bacnetEquipmentId === bacnetEquipmentId);
         if (mapping) {
-          return cxAlloyEquipment.find(eq => eq.id === mapping.cxAlloyEquipmentId);
+          return cxAlloyEquipment.find(eq => eq.id === mapping.cxalloyEquipmentId);
         }
         return null;
       },
       
       getUnmappedCxAlloyEquipment: () => {
         const { cxAlloyEquipment, equipmentMappings } = get();
-        const mappedIds = new Set(equipmentMappings.map(m => m.cxAlloyEquipmentId));
+        const mappedIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId));
         return cxAlloyEquipment.filter(eq => !mappedIds.has(eq.id));
       },
       

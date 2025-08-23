@@ -138,10 +138,10 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
-            Auto Process Sample Data
+            Auto Re-process Data
           </CardTitle>
           <CardDescription>
-            Process all TRIO files from the sample_data directory with CSV enhancement
+            Re-process all TRIO files from the sample_data directory with CSV enhancement
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

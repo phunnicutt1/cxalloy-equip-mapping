@@ -13,11 +13,10 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Download, Settings, TestTube, Upload, BarChart3, Zap, Copy, Layers } from 'lucide-react';
 import { EquipmentMapping } from '../../types/auto-mapping';
 
-function DashboardHeader({ onRefresh, loading, onAutoMap, onTemplateManagement, onBulkMapping }: { 
+function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping }: { 
   onRefresh: () => void; 
   loading: boolean; 
-  onAutoMap: () => void; 
-  onTemplateManagement: () => void;
+  onAutoMap: () => void;
   onBulkMapping: () => void;
 }) {
   return (
@@ -31,15 +30,11 @@ function DashboardHeader({ onRefresh, loading, onAutoMap, onTemplateManagement, 
       <div className="flex items-center space-x-2">
         <Button onClick={onRefresh} disabled={loading} className="font-bold">
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          {loading ? 'Processing...' : 'Process Sample Data'}
+          {loading ? 'Processing...' : 'Re-process Data'}
         </Button>
         <Button variant="outline" onClick={onAutoMap} disabled={loading}>
           <Zap className={`w-4 h-4 mr-2 ${loading ? 'animate-pulse' : ''}`} />
           {loading ? 'Auto Mapping...' : 'Auto Map Equipment'}
-        </Button>
-        <Button variant="outline" onClick={onTemplateManagement}>
-          <Copy className="w-4 h-4 mr-2" />
-          Templates
         </Button>
         <Button variant="outline" onClick={onBulkMapping}>
           <Layers className="w-4 h-4 mr-2" />
@@ -187,8 +182,7 @@ export default function DashboardPage() {
       <DashboardHeader 
         onRefresh={handleRefresh} 
         loading={isLoading || autoMappingInProgress} 
-        onAutoMap={handleAutoMap} 
-        onTemplateManagement={() => setShowTemplateManagementModal(true)}
+        onAutoMap={handleAutoMap}
         onBulkMapping={() => setShowBulkMappingModal(true)}
       />
       <main className="flex-1 p-4 overflow-hidden">

@@ -30,6 +30,8 @@ interface CxAlloyEquipmentItemProps {
   isMapped: boolean;
   isHighlighted?: boolean;
   mappedBacnetName?: string;
+  isMappedToSelectedSource?: boolean;
+  selectedSourceName?: string;
   onMap: () => void;
   onUnmap: () => void;
 }
@@ -39,6 +41,8 @@ function CxAlloyEquipmentItem({
   isMapped, 
   isHighlighted = false,
   mappedBacnetName,
+  isMappedToSelectedSource = false,
+  selectedSourceName,
   onMap, 
   onUnmap 
 }: CxAlloyEquipmentItemProps) {
@@ -46,11 +50,18 @@ function CxAlloyEquipmentItem({
     <div className={cn(
       "border border-border rounded-lg p-3 bg-card transition-all duration-200 relative",
       isMapped ? "border-green-200 bg-green-50/50" : "hover:border-primary/50",
-      isHighlighted && "ring-2 ring-blue-500 ring-opacity-50 border-blue-300 bg-blue-50/30 shadow-lg"
+      isHighlighted && "ring-2 ring-blue-500 ring-opacity-50 border-blue-300 bg-blue-50/30 shadow-lg",
+      isMappedToSelectedSource && "ring-2 ring-green-500 ring-opacity-70 border-green-400 bg-green-50/60 shadow-md"
     )}>
       <div className="space-y-2">
         {/* Highlighted Badge */}
-        {isHighlighted && (
+        {isMappedToSelectedSource && selectedSourceName ? (
+          <div className="absolute -top-2 -right-2 z-10">
+            <div className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
+              MAPPED TO SELECTED
+            </div>
+          </div>
+        ) : isHighlighted && (
           <div className="absolute -top-2 -right-2 z-10">
             <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
               SELECTED MAPPING
@@ -124,9 +135,19 @@ function CxAlloyEquipmentItem({
 
         {/* Mapping Info */}
         {isMapped && (
-          <div className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded flex items-center gap-1">
+          <div className={cn(
+            "text-xs px-2 py-1 rounded flex items-center gap-1",
+            isMappedToSelectedSource 
+              ? "text-green-800 bg-green-200 border border-green-300" 
+              : "text-green-700 bg-green-100"
+          )}>
             <ArrowRight className="h-3 w-3" />
-            <span>Mapped to BACnet equipment{mappedBacnetName ? `: ${mappedBacnetName}` : ''}</span>
+            <span>
+              {isMappedToSelectedSource && selectedSourceName 
+                ? `MAPPED TO: ${selectedSourceName}`
+                : `Mapped to BACnet equipment${mappedBacnetName ? `: ${mappedBacnetName}` : ''}`
+              }
+            </span>
           </div>
         )}
       </div>
@@ -166,15 +187,33 @@ export function CxAlloyPanel() {
 
   // Helper functions (need to be declared before use)
   const isEquipmentMapped = (equipmentId: string) => {
-    return equipmentMappings.some(m => m.cxAlloyEquipmentId === equipmentId);
+    return equipmentMappings.some(m => m.cxalloyEquipmentId === equipmentId);
   };
 
   const getMappedBacnetName = (cxAlloyEquipmentId: string): string | undefined => {
-    const mapping = equipmentMappings.find(m => m.cxAlloyEquipmentId === cxAlloyEquipmentId);
+    const mapping = equipmentMappings.find(m => m.cxalloyEquipmentId === cxAlloyEquipmentId);
     if (!mapping) return undefined;
     
     const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
     return bacnetEquipment?.name;
+  };
+
+  // Get all CxAlloy equipment mapped to the selected data source
+  const getAllMappedToSelectedSource = () => {
+    if (!selectedEquipment) return [];
+    return cxAlloyEquipment.filter(eq => 
+      equipmentMappings.some(m => 
+        m.bacnetEquipmentId === selectedEquipment.id && m.cxalloyEquipmentId === eq.id
+      )
+    );
+  };
+
+  // Check if a CxAlloy equipment is mapped to the selected data source
+  const isMappedToSelectedSource = (cxAlloyEquipmentId: string): boolean => {
+    if (!selectedEquipment) return false;
+    return equipmentMappings.some(m => 
+      m.bacnetEquipmentId === selectedEquipment.id && m.cxalloyEquipmentId === cxAlloyEquipmentId
+    );
   };
 
   const getFilteredEquipment = () => {
@@ -210,14 +249,22 @@ export function CxAlloyPanel() {
       }
     }
 
-    // Secondary sort: within each group, sort mapped equipment before unmapped
+    // Enhanced sorting: prioritize equipment mapped to selected data source, then other mapped equipment, then unmapped
     equipment = equipment.sort((a, b) => {
+      const aMappedToSelected = isMappedToSelectedSource(a.id);
+      const bMappedToSelected = isMappedToSelectedSource(b.id);
       const aMapped = isEquipmentMapped(a.id);
       const bMapped = isEquipmentMapped(b.id);
       
-      // If one is mapped and the other isn't, prioritize the mapped one
-      if (aMapped && !bMapped) return -1;
-      if (!aMapped && bMapped) return 1;
+      // First priority: equipment mapped to currently selected data source
+      if (aMappedToSelected && !bMappedToSelected) return -1;
+      if (!aMappedToSelected && bMappedToSelected) return 1;
+      
+      // Second priority: if neither is mapped to selected source, prioritize any mapped equipment
+      if (!aMappedToSelected && !bMappedToSelected) {
+        if (aMapped && !bMapped) return -1;
+        if (!aMapped && bMapped) return 1;
+      }
       
       // Otherwise, maintain alphabetical order
       return a.name.localeCompare(b.name);
@@ -358,6 +405,30 @@ export function CxAlloyPanel() {
             <div className="font-medium text-foreground">Selected for Mapping:</div>
             <div className="text-muted-foreground">{selectedEquipment.name}</div>
             <div className="text-xs text-muted-foreground">{selectedEquipment.type}</div>
+            
+            {/* Show mapped CxAlloy equipment if any */}
+            {(() => {
+              const mappedEquipment = getAllMappedToSelectedSource();
+              if (mappedEquipment.length > 0) {
+                return (
+                  <div className="mt-2 pt-2 border-t border-border/50">
+                    <div className="text-xs font-medium text-green-700 mb-1">
+                      Mapped to CxAlloy Equipment:
+                    </div>
+                    <div className="space-y-1">
+                      {mappedEquipment.map((eq, idx) => (
+                        <div key={eq.id} className="flex items-center gap-2 text-xs bg-green-50 px-2 py-1 rounded border border-green-200">
+                          <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                          <span className="font-medium text-green-800">{eq.name}</span>
+                          <span className="text-green-600">({eq.type})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
           </div>
         </div>
       )}
@@ -389,8 +460,10 @@ export function CxAlloyPanel() {
                 key={equip.id}
                 equipment={equip}
                 isMapped={isEquipmentMapped(equip.id)}
-                isHighlighted={highlightedEquipment?.id === equip.id}
+                isHighlighted={highlightedEquipment?.id === equip.id || isMappedToSelectedSource(equip.id)}
                 mappedBacnetName={getMappedBacnetName(equip.id)}
+                isMappedToSelectedSource={isMappedToSelectedSource(equip.id)}
+                selectedSourceName={selectedEquipment?.name}
                 onMap={() => handleMap(equip)}
                 onUnmap={() => handleUnmap(equip)}
               />
