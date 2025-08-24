@@ -10,14 +10,16 @@ import { TemplateManagementModal } from '../../components/templates/TemplateMana
 import { BulkMappingModal } from '../../components/templates/BulkMappingModal';
 import { useAppStore } from '../../store/app-store';
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Download, Settings, TestTube, Upload, BarChart3, Zap, Copy, Layers } from 'lucide-react';
+import { RefreshCw, Download, Save, TestTube, Upload, BarChart3, Zap, Copy, Layers } from 'lucide-react';
 import { EquipmentMapping } from '../../types/auto-mapping';
 
-function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping }: { 
+function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping, onSaveMappings, savingMappings }: { 
   onRefresh: () => void; 
   loading: boolean; 
   onAutoMap: () => void;
   onBulkMapping: () => void;
+  onSaveMappings: () => void;
+  savingMappings: boolean;
 }) {
   return (
     <div className="flex items-center justify-between p-4 bg-background border-b">
@@ -40,9 +42,9 @@ function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping }: {
           <Layers className="w-4 h-4 mr-2" />
           Bulk Mapping
         </Button>
-        <Button variant="outline">
-          <Settings className="w-4 h-4 mr-2" />
-          Settings
+        <Button variant="outline" onClick={onSaveMappings} disabled={savingMappings}>
+          <Save className={`w-4 h-4 mr-2 ${savingMappings ? 'animate-pulse' : ''}`} />
+          {savingMappings ? 'Saving...' : 'Save Mappings'}
         </Button>
       </div>
     </div>
@@ -54,6 +56,7 @@ export default function DashboardPage() {
     equipment, 
     fetchEquipment, 
     isLoading, 
+    cxAlloyEquipment,
     setCxAlloyEquipment,
     performAutoMapping,
     applyExactMappings,
@@ -63,10 +66,14 @@ export default function DashboardPage() {
     setShowTemplateManagementModal,
     showBulkMappingModal,
     setShowBulkMappingModal,
-    setSelectedEquipment
+    setSelectedEquipment,
+    equipmentMappings,
+    selectedPoints,
+    getSelectedPointsData
   } = useAppStore();
   const [error, setError] = useState<string | null>(null);
   const [showMappingModal, setShowMappingModal] = useState(false);
+  const [savingMappings, setSavingMappings] = useState(false);
 
   const fetchCxAlloyEquipment = useCallback(async () => {
     try {
@@ -141,6 +148,69 @@ export default function DashboardPage() {
     }
   }, [performAutoMapping]);
 
+  const handleSaveMappings = useCallback(async () => {
+    setError(null);
+    setSavingMappings(true);
+    
+    try {
+      console.log('[Dashboard] Starting save mappings...');
+      
+      // Prepare mappings data with tracked points
+      const mappingsToSave = equipmentMappings.map(mapping => {
+        // Get equipment names from the arrays
+        const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
+        const cxalloyEquipment = cxAlloyEquipment.find(eq => eq.id === mapping.cxAlloyEquipmentId);
+        
+        // Get tracked points for this equipment
+        const trackedPoints = getSelectedPointsData().filter(point => 
+          point.equipmentId === mapping.bacnetEquipmentId
+        ).map(point => ({
+          id: point.originalPointId || point.originalName,
+          originalName: point.originalName,
+          normalizedName: point.normalizedName,
+          displayName: point.originalName, // Use originalName as displayName
+          description: point.originalDescription || point.normalizedName,
+          category: point.category || 'Unknown',
+          dataType: point.dataType || 'Unknown',
+          units: point.units || '',
+          bacnetObjectType: point.objectType,
+          bacnetObjectInstance: point.objectInstance,
+          vendorName: 'Unknown' // vendorName not available in NormalizedPoint
+        }));
+        
+        return {
+          bacnetEquipmentId: mapping.bacnetEquipmentId,
+          bacnetEquipmentName: bacnetEquipment?.name || 'Unknown',
+          cxalloyEquipmentId: mapping.cxAlloyEquipmentId,
+          cxalloyEquipmentName: cxalloyEquipment?.name || 'Unknown',
+          trackedPoints
+        };
+      });
+      
+      console.log(`[Dashboard] Saving ${mappingsToSave.length} equipment mappings with tracked points...`);
+      
+      const response = await fetch('/api/save-mappings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ equipmentMappings: mappingsToSave })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('[Dashboard] Mappings saved successfully:', data.data);
+        alert(`Successfully saved ${data.data.equipmentMappingsSaved} equipment mappings and ${data.data.totalPointsSaved} tracked points to CxAlloy database!`);
+      } else {
+        throw new Error(data.error || 'Failed to save mappings');
+      }
+    } catch (err) {
+      console.error('[Dashboard] Save mappings error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save mappings');
+    } finally {
+      setSavingMappings(false);
+    }
+  }, [equipmentMappings, getSelectedPointsData]);
+
   const handleApplyMapping = async (mapping: EquipmentMapping) => {
     try {
       // TODO: Implement actual mapping persistence to database
@@ -172,6 +242,78 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCreateCxAlloyEquipment = async (bacnetEquipment: any) => {
+    try {
+      console.log('[Dashboard] Creating new CxAlloy equipment based on:', bacnetEquipment);
+      
+      // Extract richer information from BACnet equipment metadata and connector data
+      const vendor = bacnetEquipment.vendor || 'Unknown';
+      const model = bacnetEquipment.model || bacnetEquipment.modelName || 'Unknown';
+      const description = bacnetEquipment.description || 
+                         bacnetEquipment.metadata?.deviceName || 
+                         `${bacnetEquipment.type} - ${vendor} ${model}`.trim();
+      
+      // Try to extract location information from various sources
+      let location = 'TBD';
+      let space = 'TBD';
+      
+      if (bacnetEquipment.location) {
+        location = bacnetEquipment.location;
+      } else if (bacnetEquipment.metadata?.uri) {
+        // Extract building/location info from BACnet URI if available
+        const uriMatch = bacnetEquipment.metadata.uri.match(/bacnet:\/\/(\d+\.\d+\.\d+\.\d+)\//);
+        if (uriMatch) {
+          location = `BACnet Network ${uriMatch[1]}`;
+        }
+      }
+      
+      // Use vendor description if available - it's often more detailed
+      let enhancedDescription = description;
+      if (bacnetEquipment.metadata?.customFields?.descriptionFromVendor) {
+        enhancedDescription = bacnetEquipment.metadata.customFields.descriptionFromVendor;
+      }
+      
+      // Create new CxAlloy equipment based on enhanced BACnet equipment data
+      const newCxAlloyEquipment = {
+        name: bacnetEquipment.name,
+        type: bacnetEquipment.type,
+        description: `${enhancedDescription} (Mapped from BACnet: ${bacnetEquipment.name})`,
+        location: location,
+        space: space,
+        vendor: vendor,
+        model: model,
+        projectId: 2 // Default project ID
+      };
+      
+      // Call API to create the equipment
+      const response = await fetch('/api/cxalloy/equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCxAlloyEquipment)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('[Dashboard] Created new CxAlloy equipment:', data.equipment);
+        
+        // Refresh CxAlloy equipment list to include the new equipment
+        await fetchCxAlloyEquipment();
+        
+        // Close the mapping modal and select the BACnet equipment for mapping
+        setShowMappingModal(false);
+        setSelectedEquipment(bacnetEquipment);
+        
+        alert(`Successfully created new CxAlloy equipment: ${data.equipment.name}`);
+      } else {
+        throw new Error(data.error || 'Failed to create CxAlloy equipment');
+      }
+    } catch (err) {
+      console.error('[Dashboard] Failed to create CxAlloy equipment:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create CxAlloy equipment');
+    }
+  };
+
   useEffect(() => {
     // Initial data load
     handleRefresh();
@@ -184,6 +326,8 @@ export default function DashboardPage() {
         loading={isLoading || autoMappingInProgress} 
         onAutoMap={handleAutoMap}
         onBulkMapping={() => setShowBulkMappingModal(true)}
+        onSaveMappings={handleSaveMappings}
+        savingMappings={savingMappings}
       />
       <main className="flex-1 p-4 overflow-hidden">
         {error && (
@@ -211,6 +355,7 @@ export default function DashboardPage() {
           setShowMappingModal(false);
           setSelectedEquipment(equipment);
         }}
+        onCreateCxAlloyEquipment={handleCreateCxAlloyEquipment}
       />
       
       <TemplateManagementModal

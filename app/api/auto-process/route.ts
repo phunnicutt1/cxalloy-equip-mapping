@@ -100,7 +100,9 @@ function createEquipmentFromConnectorData(
   
   const enhancedMeta = metadataMap.get(name) || {};
 
-  const equipmentType = enhancedMeta.type || EquipmentClassifier.getEquipmentTypeFromName(name).typeName;
+  // Primary method: Use EquipmentClassifier to determine type from equipment name
+  const classificationResult = EquipmentClassifier.getEquipmentTypeFromName(name);
+  const equipmentType = classificationResult.typeName;
   const displayName = enhancedMeta.description || name;
 
   const equipment: Equipment = {
@@ -191,6 +193,7 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
         const equipmentName = record[firstColKey];
         if (!equipmentName) continue;
 
+        // Use EquipmentClassifier as primary method for determining equipment type
         const { typeName } = EquipmentClassifier.getEquipmentTypeFromName(equipmentName);
         const location = record.Location || record.location || '';
         const description = buildRichDescription(record, equipmentName);

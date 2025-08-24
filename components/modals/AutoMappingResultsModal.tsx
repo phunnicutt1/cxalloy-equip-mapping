@@ -12,6 +12,7 @@ interface AutoMappingResultsModalProps {
   onApplyAllExact: () => Promise<void>;
   onApplySelectedSuggestions: (mappings: EquipmentMapping[]) => Promise<void>;
   onManualMap?: (equipment: any) => void;
+  onCreateCxAlloyEquipment?: (bacnetEquipment: any) => void;
 }
 
 const AutoMappingResultsModal: React.FC<AutoMappingResultsModalProps> = ({
@@ -21,7 +22,8 @@ const AutoMappingResultsModal: React.FC<AutoMappingResultsModalProps> = ({
   onApplyMapping,
   onApplyAllExact,
   onApplySelectedSuggestions,
-  onManualMap
+  onManualMap,
+  onCreateCxAlloyEquipment
 }) => {
   const [selectedSuggestions, setSelectedSuggestions] = useState<Set<string>>(new Set());
   const [appliedMappings, setAppliedMappings] = useState<Set<string>>(new Set());
@@ -394,12 +396,20 @@ const AutoMappingResultsModal: React.FC<AutoMappingResultsModalProps> = ({
                       <div className="font-medium">{equipment.name}</div>
                       <div className="text-gray-500">{equipment.type} • {equipment.totalPoints} points</div>
                     </div>
-                    <button 
-                      onClick={() => onManualMap?.(equipment)}
-                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm"
-                    >
-                      Manual Map
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => onManualMap?.(equipment)}
+                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors text-sm"
+                      >
+                        Manual Map
+                      </button>
+                      <button 
+                        onClick={() => onCreateCxAlloyEquipment?.(equipment)}
+                        className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors text-sm"
+                      >
+                        Create New
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

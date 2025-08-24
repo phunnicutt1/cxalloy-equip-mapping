@@ -1,0 +1,660 @@
+dis:DX_TS
+bacnetCur:AI1
+bacnetDesc:DX Cooling Coil Leaving Temperature
+kind:Number
+point
+unit:°F
+---
+dis:RA_HS
+bacnetCur:AI2
+bacnetDesc:Return Air Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:RA_TS
+bacnetCur:AI3
+bacnetDesc:Return Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:SA_TS
+bacnetCur:AI0
+bacnetDesc:Supply air temperature
+kind:Number
+point
+unit:°F
+---
+dis:HGR_SIG
+bacnetCur:AO0
+bacnetDesc:Hot Gas Reheat Signal
+bacnetWrite:AO0
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"B_3A'Roof'Rtu2'AVG_RM_TEMP"
+bacnetCur:AV26
+bacnetDesc:Average room temperature
+bacnetWrite:AV26
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"B_3A'Roof'Rtu2'CLG_REQ_SP"
+bacnetCur:AV10
+bacnetDesc:Cooling Request Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Roof'Rtu2'DEHUM_DIS_OFST"
+bacnetCur:AV23
+bacnetDesc:Dehumidification Disable Offset
+kind:Number
+point
+unit:"%RH"
+---
+dis:"B_3A'Roof'Rtu2'DEHUM_DX_LVG_TEMP_SP"
+bacnetCur:AV47
+bacnetDesc:Dehumidification Mode Coil Leaving Temperature Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'DEHUM_ENA_SP"
+bacnetCur:AV22
+bacnetDesc:Dehumidification Enable Setpoint
+kind:Number
+point
+unit:"%RH"
+---
+dis:"B_3A'Roof'Rtu2'EFF_CLG_DMD"
+bacnetCur:AV48
+bacnetDesc:Effective Cooling Demand
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Roof'Rtu2'EFF_CTRL_TEMP"
+bacnetCur:AV46
+bacnetDesc:Effective Control Temperature
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'EFF_HTG_DMD"
+bacnetCur:AV51
+bacnetDesc:Effective Heating Demand
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Roof'Rtu2'HTG_REQ_SP"
+bacnetCur:AV9
+bacnetDesc:Heating Request Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Roof'Rtu2'HuOa"
+bacnetCur:AV13
+bacnetDesc:Outside air humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:"B_3A'Roof'Rtu2'OA_CLG_ENA_SP"
+bacnetCur:AV50
+bacnetDesc:Outside Air Cooling Enable Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'OA_HTG_ENA_SP"
+bacnetCur:AV49
+bacnetDesc:Outside Air Heating Enable Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'OCC_CLG_SP"
+bacnetCur:AV8
+bacnetDesc:Occupied Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'OCC_HTG_SP"
+bacnetCur:AV7
+bacnetDesc:Occupied Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_CLG_SP_HI"
+bacnetCur:AV14
+bacnetDesc:Supply Air Temperature Cooling Setpoint High
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_CLG_SP_LO"
+bacnetCur:AV15
+bacnetDesc:Supply Air Temperature Cooling Setpoint Low
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_DEF_SP"
+bacnetCur:AV18
+bacnetDesc:Supply Air Temperature Default Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_HI_LIM"
+bacnetCur:AV20
+bacnetDesc:Supply Air Temperature High Limit
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_HTG_SP_HI"
+bacnetCur:AV16
+bacnetDesc:Supply Air Temperature Heating Setpoint High
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_HTG_SP_LO"
+bacnetCur:AV17
+bacnetDesc:Supply Air Temperature Heating Setpoint Low
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_LO_LIM"
+bacnetCur:AV21
+bacnetDesc:Supply Air Temperature Low Limit
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'SPC_CLG_DMD"
+bacnetCur:AV11
+bacnetDesc:Space Cooling Demand
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Roof'Rtu2'SPC_HTG_DMD"
+bacnetCur:AV52
+bacnetDesc:Space Heating Demand
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Roof'Rtu2'TOa"
+bacnetCur:AV12
+bacnetDesc:Outside air temperature
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_10_TR"
+bacnetCur:AV44
+bacnetDesc:VVR_2_10 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_11_TR"
+bacnetCur:AV45
+bacnetDesc:VVR_2_11 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_1_TR"
+bacnetCur:AV27
+bacnetDesc:VVR_2_1 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_2_TR"
+bacnetCur:AV30
+bacnetDesc:VVR_2_2 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_3_TR"
+bacnetCur:AV29
+bacnetDesc:VVR_2_3 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_4_TR"
+bacnetCur:AV31
+bacnetDesc:VVR_2_4 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_5_TR"
+bacnetCur:AV32
+bacnetDesc:VVR_2_5 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_6_TR"
+bacnetCur:AV34
+bacnetDesc:VVR_2_6 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_7_TR"
+bacnetCur:AV40
+bacnetDesc:VVR_2_7 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_8_TR"
+bacnetCur:AV42
+bacnetDesc:VVR_2_8 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_2_9_TR"
+bacnetCur:AV43
+bacnetDesc:VVR_2_9 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E17_TR"
+bacnetCur:AV36
+bacnetDesc:VVR_E17 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E18_TR"
+bacnetCur:AV39
+bacnetDesc:VVR_E18 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E21_TR"
+bacnetCur:AV37
+bacnetDesc:VVR_E21 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E24_TR"
+bacnetCur:AV41
+bacnetDesc:VVR_E24 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E26_TR"
+bacnetCur:AV38
+bacnetDesc:VVR_E26 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E8_TR"
+bacnetCur:AV33
+bacnetDesc:VVR_E8 Room temperature
+kind:Number
+point
+---
+dis:"B_3A'Roof'Rtu2'VVR_E9_TR"
+bacnetCur:AV35
+bacnetDesc:VVR_E9 Room temperature
+kind:Number
+point
+---
+dis:EFF_SA_TEMP_SP
+bacnetCur:AV55
+bacnetDesc:Effective Supply Air Temperature Setpoint
+bacnetWrite:AV55
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"ExternalIBUS'DiagIOBus"
+bacnetCur:AV4186115
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:"Infra'DiagAs"
+bacnetCur:AV4186111
+bacnetDesc:Diagnostics for automation station
+kind:Number
+point
+---
+dis:"Infra'DiagChgLog"
+bacnetCur:AV4186113
+bacnetDesc:Diagnostics for change log
+kind:Number
+point
+---
+dis:"Infra'DiagS7"
+bacnetCur:AV4186112
+bacnetDesc:Diagnostics for S7 program
+kind:Number
+point
+---
+dis:"OnboardIBUS'DiagIOBus"
+bacnetCur:AV4186114
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:RA_SMK
+bacnetCur:BI1
+bacnetDesc:Return Smoke Alarm Status
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:SFN_ST
+bacnetCur:BI0
+bacnetDesc:Supply Air Fan Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:CMP1_CMD
+bacnetCur:BO3
+bacnetDesc:"Compressor Start/Stop Y1"
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CMP2_CMD
+bacnetCur:BO4
+bacnetDesc:"Compressor Start/Stop Y2"
+bacnetWrite:BO4
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CMP3_CMD
+bacnetCur:BO5
+bacnetDesc:"Compressor Start/Stop Y3"
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CMP4_CMD
+bacnetCur:BO6
+bacnetDesc:"Compressor Start/Stop Y4"
+bacnetWrite:BO6
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CPD_CMD
+bacnetCur:BO2
+bacnetDesc:Pump Down Valve Command Condenser Circuit
+bacnetWrite:BO2
+bacnetWriteLevel:16
+cmd
+enum:"Close,Open"
+kind:Bool
+point
+writable
+---
+dis:HEAT1_CMD
+bacnetCur:BO7
+bacnetDesc:Heat Command W1
+bacnetWrite:BO7
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:HEAT2_CMD
+bacnetCur:BO8
+bacnetDesc:Heat Command W2
+bacnetWrite:BO8
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:RPD_CMD
+bacnetCur:BO1
+bacnetDesc:Pump Down Valve Command Reheat Circuit
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"Close,Open"
+kind:Bool
+point
+writable
+---
+dis:SFN_SS
+bacnetCur:BO0
+bacnetDesc:"Supply Fan Start/Stop"
+bacnetWrite:BO0
+bacnetWriteLevel:16
+cmd
+enum:"Stop,Start"
+kind:Bool
+point
+writable
+---
+dis:"B_3A'Roof'Rtu2'CLG_PMP_DWN_FNC"
+bacnetCur:BV16
+bacnetDesc:Allow Pump Down Cooling Function
+enum:"Block,Allow"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'DEHUM_MODE"
+bacnetCur:BV12
+bacnetDesc:Dehumidification Mode
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'EFF_SYS_ENA"
+bacnetCur:BV1
+bacnetDesc:Effective System Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'HTG_PMP_DWN_FNC"
+bacnetCur:BV17
+bacnetDesc:Allow Pump Down Heating Function
+enum:"Block,Allow"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'OA_CLG_ENA"
+bacnetCur:BV14
+bacnetDesc:Outside Air Cooling Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'OA_HTG_ENA"
+bacnetCur:BV15
+bacnetDesc:Outside Air Heating Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'RTU2_SCHED"
+bacnetCur:BV0
+bacnetDesc:RTU 2 Schedule
+enum:"UnOcc,Occupied"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_HI_LIM_ALRT"
+bacnetCur:BV10
+bacnetDesc:Supply Air Temperature High Limit Alert
+enum:"Normal,Alert"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'SA_TEMP_LO_LIM_ALRT"
+bacnetCur:BV11
+bacnetDesc:Supply Air Temperature Low Limit Alert
+enum:"Normal,Alert"
+kind:Bool
+point
+---
+dis:CTRL_TEMP_SEL
+bacnetCur:BV13
+bacnetDesc:Control Temperature Selection
+enum:"ReturnTemp,AvgRoomTemp"
+kind:Bool
+point
+---
+dis:"B_3A'Roof'Rtu2'HVAC_MODE_CMD"
+bacnetCur:MSV7
+bacnetDesc:HVAC Mode Command
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Heat,Cool,Vent"
+kind:Str
+point
+---
+dis:"B_3A'Roof'Rtu2'HVAC_MODE_STS"
+bacnetCur:MSV6
+bacnetDesc:HVAC Mode Status
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Heat,Cool,Vent"
+kind:Str
+point
+---
+dis:"B_3A'Roof'Rtu2'PltSta"
+bacnetCur:MSV0
+bacnetDesc:Plant state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"B_3A'Roof'Rtu2'SYS_ENA_MODE"
+bacnetCur:MSV3
+bacnetDesc:System Enable Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,ManualOn,ManualOff"
+kind:Str
+point
+---
+dis:"ExternalIBUS'IOBusMgmt"
+bacnetCur:MSV4186118
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"ExternalIBUS'IOBusSta"
+bacnetCur:MSV4186117
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"ExternalIBUS'Rail'TXM1.6R(2)'PrphDev"
+bacnetCur:MSV1
+bacnetDesc:Peripheral device
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"ExternalIBUS'Rail'TXM1.8X(1)'PrphDev"
+bacnetCur:MSV2
+bacnetDesc:Peripheral device
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"Infra'AsSta"
+bacnetCur:MSV4186111
+bacnetDesc:Automation station state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"Infra'Crtf"
+bacnetCur:MSV4186112
+bacnetDesc:Certificate
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Activated,Expiration warning,Expired,Inactive"
+kind:Str
+point
+---
+dis:"OnboardIBUS'DX_DOM_4DO_A'OnbMdl"
+bacnetCur:MSV4186116
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"OnboardIBUS'DX_UIOM_12UIO'OnbMdl"
+bacnetCur:MSV4186115
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"OnboardIBUS'IOBusMgmt"
+bacnetCur:MSV4186114
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"OnboardIBUS'IOBusSta"
+bacnetCur:MSV4186113
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"B_3A'Roof'Rtu2'RTU2_OCC_SCHED"
+bacnetCur:SCH0
+bacnetDesc:RTU 2 Occupancy Schedule
+kind:Str
+point

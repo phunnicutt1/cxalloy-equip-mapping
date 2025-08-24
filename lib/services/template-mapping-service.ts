@@ -21,6 +21,13 @@ export class TemplateMappingService {
     templateDescription?: string,
     createdBy: string = 'user'
   ): Promise<MappingTemplate> {
+    console.log('[createTemplateFromMappedEquipment] Function called with:', {
+      cxAlloyEquipment: cxAlloyEquipment?.name,
+      bacnetEquipment: bacnetEquipment?.name,
+      bacnetPointsCount: bacnetPoints?.length,
+      templateName,
+      templateDescription
+    });
     
     // Extract point mappings from the current state
     const pointMappings: PointMapping[] = bacnetPoints.map(point => ({
@@ -44,7 +51,7 @@ export class TemplateMappingService {
       sourceEquipmentName: cxAlloyEquipment.name,
       equipmentType: cxAlloyEquipment.type,
       pointMappings,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString() as any, // Store as ISO string for JSON serialization
       createdBy,
       usageCount: 0,
       successRate: 0,
@@ -113,7 +120,7 @@ export class TemplateMappingService {
         unmatchedPoints: targetPoints.length - totalMatches,
         averageConfidence
       },
-      appliedAt: new Date(),
+      appliedAt: new Date().toISOString() as any, // Store as ISO string for JSON serialization
       appliedBy,
       isSuccessful
     };
@@ -223,8 +230,17 @@ export class TemplateMappingService {
    */
   static async getTemplates(): Promise<MappingTemplate[]> {
     try {
+      // Check if we're on the client side
+      if (typeof window === 'undefined') {
+        console.log('[TemplateMappingService] Server-side rendering - no localStorage access');
+        return [];
+      }
+      
       const stored = localStorage.getItem('mapping-templates');
-      return stored ? JSON.parse(stored) : [];
+      console.log('[TemplateMappingService] Loading templates from localStorage:', stored ? 'Found data' : 'No data');
+      const templates = stored ? JSON.parse(stored) : [];
+      console.log('[TemplateMappingService] Loaded templates:', templates.length, 'templates');
+      return templates;
     } catch (error) {
       console.error('Error loading templates:', error);
       return [];
@@ -246,18 +262,60 @@ export class TemplateMappingService {
    */
   static async saveTemplate(template: MappingTemplate): Promise<void> {
     try {
-      const templates = await this.getTemplates();
+      // Check if we're on the client side
+      if (typeof window === 'undefined') {
+        console.error('[TemplateMappingService] Cannot save template - server-side rendering');
+        throw new Error('localStorage is not available on server side');
+      }
+      
+      console.log('[TemplateMappingService] Starting to save template:', template.name);
+      console.log('[TemplateMappingService] Template data:', JSON.stringify(template, null, 2));
+      
+      // Get existing templates
+      let templates: MappingTemplate[] = [];
+      try {
+        const existing = localStorage.getItem('mapping-templates');
+        if (existing) {
+          templates = JSON.parse(existing);
+          console.log('[TemplateMappingService] Found existing templates:', templates.length);
+        } else {
+          console.log('[TemplateMappingService] No existing templates found, starting fresh');
+        }
+      } catch (parseError) {
+        console.error('[TemplateMappingService] Error parsing existing templates, starting fresh:', parseError);
+        templates = [];
+      }
+      
+      // Check for duplicates
       const existingIndex = templates.findIndex(t => t.id === template.id);
       
       if (existingIndex >= 0) {
+        console.log('[TemplateMappingService] Updating existing template at index:', existingIndex);
         templates[existingIndex] = template;
       } else {
+        console.log('[TemplateMappingService] Adding new template');
         templates.push(template);
       }
 
-      localStorage.setItem('mapping-templates', JSON.stringify(templates));
+      // Save to localStorage
+      const dataToSave = JSON.stringify(templates);
+      console.log('[TemplateMappingService] Attempting to save to localStorage, data length:', dataToSave.length);
+      
+      localStorage.setItem('mapping-templates', dataToSave);
+      
+      console.log('[TemplateMappingService] localStorage.setItem completed');
+      
+      // Verify it was saved
+      const verification = localStorage.getItem('mapping-templates');
+      if (verification) {
+        const verifiedTemplates = JSON.parse(verification);
+        console.log('[TemplateMappingService] ✅ Verification successful - saved', verifiedTemplates.length, 'templates');
+      } else {
+        console.error('[TemplateMappingService] ❌ Verification failed - localStorage is empty!');
+      }
     } catch (error) {
-      console.error('Error saving template:', error);
+      console.error('[TemplateMappingService] Error saving template:', error);
+      console.error('[TemplateMappingService] Error stack:', (error as Error).stack);
       throw error;
     }
   }

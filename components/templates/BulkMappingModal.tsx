@@ -27,6 +27,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [suggestedPairs, setSuggestedPairs] = useState<BulkMappingPair[]>([]);
   const [selectedPairs, setSelectedPairs] = useState<Set<string>>(new Set());
+  const [selectedEquipmentType, setSelectedEquipmentType] = useState<string>('all');
   const [matchingOptions, setMatchingOptions] = useState<TemplateMatchingOptions>({
     matchingFacet: 'bacnetDis',
     confidenceThreshold: 0.7,
@@ -39,10 +40,26 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
 
   // Get unmapped equipment
   const mappedDataSourceIds = new Set(equipmentMappings.map(m => m.bacnetEquipmentId));
-  const mappedCxAlloyIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId));
+  const mappedCxAlloyIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId || m.cxAlloyEquipmentId));
   
   const unmappedDataSources = equipment.filter(eq => !mappedDataSourceIds.has(eq.id));
   const unmappedCxAlloyEquipment = cxAlloyEquipment.filter(eq => !mappedCxAlloyIds.has(eq.id));
+
+  // Get all available equipment types
+  const availableDataSourceTypes = [...new Set(unmappedDataSources.map(ds => ds.type))].sort();
+  const availableCxAlloyTypes = [...new Set(unmappedCxAlloyEquipment.map(cx => cx.type))].sort();
+  const allAvailableTypes = [...new Set([...availableDataSourceTypes, ...availableCxAlloyTypes])].sort();
+
+  // Filter equipment by selected type
+  const getFilteredDataSources = () => {
+    if (selectedEquipmentType === 'all') return unmappedDataSources;
+    return unmappedDataSources.filter(ds => ds.type.toLowerCase() === selectedEquipmentType.toLowerCase());
+  };
+
+  const getFilteredCxAlloyEquipment = () => {
+    if (selectedEquipmentType === 'all') return unmappedCxAlloyEquipment;
+    return unmappedCxAlloyEquipment.filter(cx => cx.type.toLowerCase() === selectedEquipmentType.toLowerCase());
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -51,15 +68,18 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
       setSelectedTemplateId('');
       setSuggestedPairs([]);
       setSelectedPairs(new Set());
+      setSelectedEquipmentType('all');
     }
   }, [isOpen]);
 
   const loadTemplates = async () => {
     try {
+      console.log('[BulkMappingModal] Loading templates...');
       const loadedTemplates = await TemplateMappingService.getTemplates();
+      console.log('[BulkMappingModal] Loaded templates:', loadedTemplates);
       setTemplates(loadedTemplates);
     } catch (error) {
-      console.error('Error loading templates:', error);
+      console.error('[BulkMappingModal] Error loading templates:', error);
     }
   };
 
@@ -67,18 +87,41 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
     setSelectedTemplateId(templateId);
     
     if (templateId) {
-      // Generate suggested pairings for this template type
+      // Set the equipment type filter to match the template by default, but allow user to override
       const template = templates.find(t => t.id === templateId);
       if (template) {
-        const pairs = TemplateMappingService.suggestBulkPairings(
-          unmappedDataSources.filter(ds => ds.type.toLowerCase() === template.equipmentType.toLowerCase()),
-          unmappedCxAlloyEquipment.filter(cx => cx.type.toLowerCase() === template.equipmentType.toLowerCase())
-        );
-        setSuggestedPairs(pairs);
+        // Set filter to template type if it exists in available types, otherwise keep 'all'
+        if (allAvailableTypes.some(type => type.toLowerCase() === template.equipmentType.toLowerCase())) {
+          setSelectedEquipmentType(template.equipmentType);
+        } else {
+          setSelectedEquipmentType('all');
+        }
+        
+        generatePairings();
         setCurrentStep('pairs');
       }
     }
   };
+
+  const generatePairings = () => {
+    const filteredDataSources = getFilteredDataSources();
+    const filteredCxAlloyEquipment = getFilteredCxAlloyEquipment();
+    
+    const pairs = TemplateMappingService.suggestBulkPairings(
+      filteredDataSources,
+      filteredCxAlloyEquipment
+    );
+    
+    setSuggestedPairs(pairs);
+    setSelectedPairs(new Set()); // Clear selection when regenerating pairs
+  };
+
+  // Regenerate pairings when equipment type filter changes
+  useEffect(() => {
+    if (currentStep === 'pairs' && selectedTemplateId) {
+      generatePairings();
+    }
+  }, [selectedEquipmentType]);
 
   const handlePairToggle = (pairId: string) => {
     const newSelected = new Set(selectedPairs);
@@ -223,6 +266,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
           {currentStep === 'template' && (
             <div className="p-6">
               <h3 className="text-lg font-medium mb-4">Select a Template to Apply</h3>
+              
               <div className="space-y-4">
                 {templates.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
@@ -279,6 +323,34 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                 </div>
               </div>
 
+              {/* Equipment Type Filter */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">Filter by Equipment Type</label>
+                <Select
+                  value={selectedEquipmentType}
+                  onValueChange={setSelectedEquipmentType}
+                >
+                  <SelectTrigger className="w-64">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Equipment Types ({unmappedDataSources.length + unmappedCxAlloyEquipment.length})</SelectItem>
+                    {allAvailableTypes.map((type) => {
+                      const dataSourceCount = unmappedDataSources.filter(ds => ds.type === type).length;
+                      const cxAlloyCount = unmappedCxAlloyEquipment.filter(cx => cx.type === type).length;
+                      return (
+                        <SelectItem key={type} value={type}>
+                          {type} ({dataSourceCount + cxAlloyCount})
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Showing {getFilteredDataSources().length} data sources and {getFilteredCxAlloyEquipment().length} CxAlloy equipment
+                </p>
+              </div>
+
               {selectedTemplate && (
                 <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                   <div className="text-sm font-medium text-blue-900">
@@ -294,8 +366,13 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                 {suggestedPairs.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <MapPin className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                    <p>No compatible equipment found</p>
-                    <p className="text-sm">No unmapped data sources match this template's equipment type</p>
+                    <p>No equipment pairings found</p>
+                    <p className="text-sm">
+                      {selectedEquipmentType === 'all' 
+                        ? 'Try selecting a specific equipment type or ensure you have both BACnet and CxAlloy equipment available'
+                        : `No unmapped equipment found for type "${selectedEquipmentType}"`
+                      }
+                    </p>
                   </div>
                 ) : (
                   suggestedPairs.map((pair) => (

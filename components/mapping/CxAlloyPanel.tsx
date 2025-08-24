@@ -20,10 +20,23 @@ import {
   Filter,
   MapPin,
   ArrowRight,
-  Search
+  Search,
+  Save,
+  Plus
 } from 'lucide-react';
 import { Input } from '../ui/input';
-import { CxAlloyEquipment } from '../../types/equipment';
+import { CxAlloyEquipment, Equipment } from '../../types/equipment';
+import { TemplateMappingService } from '../../lib/services/template-mapping-service';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Alert, AlertDescription } from '../ui/alert';
 
 interface CxAlloyEquipmentItemProps {
   equipment: CxAlloyEquipment;
@@ -32,6 +45,7 @@ interface CxAlloyEquipmentItemProps {
   mappedBacnetName?: string;
   isMappedToSelectedSource?: boolean;
   selectedSourceName?: string;
+  trackedPointsCount?: number;
   onMap: () => void;
   onUnmap: () => void;
 }
@@ -43,6 +57,7 @@ function CxAlloyEquipmentItem({
   mappedBacnetName,
   isMappedToSelectedSource = false,
   selectedSourceName,
+  trackedPointsCount = 0,
   onMap, 
   onUnmap 
 }: CxAlloyEquipmentItemProps) {
@@ -135,19 +150,27 @@ function CxAlloyEquipmentItem({
 
         {/* Mapping Info */}
         {isMapped && (
-          <div className={cn(
-            "text-xs px-2 py-1 rounded flex items-center gap-1",
-            isMappedToSelectedSource 
-              ? "text-green-800 bg-green-200 border border-green-300" 
-              : "text-green-700 bg-green-100"
-          )}>
-            <ArrowRight className="h-3 w-3" />
-            <span>
-              {isMappedToSelectedSource && selectedSourceName 
-                ? `MAPPED TO: ${selectedSourceName}`
-                : `Mapped to BACnet equipment${mappedBacnetName ? `: ${mappedBacnetName}` : ''}`
-              }
-            </span>
+          <div className="space-y-1">
+            <div className={cn(
+              "text-xs px-2 py-1 rounded flex items-center gap-1",
+              isMappedToSelectedSource 
+                ? "text-green-800 bg-green-200 border border-green-300" 
+                : "text-green-700 bg-green-100"
+            )}>
+              <ArrowRight className="h-3 w-3" />
+              <span>
+                {isMappedToSelectedSource && selectedSourceName 
+                  ? `MAPPED TO: ${selectedSourceName}`
+                  : `Mapped to BACnet equipment${mappedBacnetName ? `: ${mappedBacnetName}` : ''}`
+                }
+              </span>
+            </div>
+            {/* Tracked Points Count */}
+            <div className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+              <span className="font-medium">
+                {trackedPointsCount} Tracked
+              </span>
+            </div>
           </div>
         )}
       </div>
@@ -160,6 +183,7 @@ export function CxAlloyPanel() {
     selectedEquipment,
     equipment,
     cxAlloyEquipment,
+    setCxAlloyEquipment,
     equipmentMappings,
     viewMode,
     setViewMode,
@@ -168,10 +192,15 @@ export function CxAlloyPanel() {
     getMappedCxAlloyEquipment,
     getMappedCxAlloyForDataSource,
     getUnmappedCxAlloyEquipment,
-    recordEquipmentMapping
+    recordEquipmentMapping,
+    selectedPoints,
+    getSelectedPointsData
   } = useAppStore();
 
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [showCreateTemplate, setShowCreateTemplate] = React.useState(false);
+  const [lastMappedEquipment, setLastMappedEquipment] = React.useState<{bacnet: Equipment, cxalloy: CxAlloyEquipment} | null>(null);
+  const [creatingNewEquipment, setCreatingNewEquipment] = React.useState(false);
   
   // Force a re-render when equipment mappings change
   React.useEffect(() => {
@@ -186,12 +215,12 @@ export function CxAlloyPanel() {
   const highlightedEquipment = selectedEquipment ? getMappedCxAlloyForDataSource(selectedEquipment.id) : null;
 
   // Helper functions (need to be declared before use)
-  const isEquipmentMapped = (equipmentId: string) => {
-    return equipmentMappings.some(m => m.cxalloyEquipmentId === equipmentId);
+  const isEquipmentMapped = (equipmentId: string | number) => {
+    return equipmentMappings.some(m => Number(m.cxalloyEquipmentId) === Number(equipmentId));
   };
 
-  const getMappedBacnetName = (cxAlloyEquipmentId: string): string | undefined => {
-    const mapping = equipmentMappings.find(m => m.cxalloyEquipmentId === cxAlloyEquipmentId);
+  const getMappedBacnetName = (cxAlloyEquipmentId: string | number): string | undefined => {
+    const mapping = equipmentMappings.find(m => Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId));
     if (!mapping) return undefined;
     
     const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
@@ -203,17 +232,30 @@ export function CxAlloyPanel() {
     if (!selectedEquipment) return [];
     return cxAlloyEquipment.filter(eq => 
       equipmentMappings.some(m => 
-        m.bacnetEquipmentId === selectedEquipment.id && m.cxalloyEquipmentId === eq.id
+        m.bacnetEquipmentId === selectedEquipment.id && Number(m.cxalloyEquipmentId) === Number(eq.id)
       )
     );
   };
 
   // Check if a CxAlloy equipment is mapped to the selected data source
-  const isMappedToSelectedSource = (cxAlloyEquipmentId: string): boolean => {
+  const isMappedToSelectedSource = (cxAlloyEquipmentId: string | number): boolean => {
     if (!selectedEquipment) return false;
     return equipmentMappings.some(m => 
-      m.bacnetEquipmentId === selectedEquipment.id && m.cxalloyEquipmentId === cxAlloyEquipmentId
+      m.bacnetEquipmentId === selectedEquipment.id && Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId)
     );
+  };
+
+  // Get tracked points count for a specific CxAlloy equipment
+  const getTrackedPointsCount = (cxAlloyEquipmentId: string | number): number => {
+    const mapping = equipmentMappings.find(m => Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId));
+    if (!mapping) return 0;
+    
+    // Get the selected points for the mapped BACnet equipment
+    const trackedPoints = getSelectedPointsData().filter(point => 
+      point.equipmentId === mapping.bacnetEquipmentId
+    );
+    
+    return trackedPoints.length;
   };
 
   const getFilteredEquipment = () => {
@@ -285,8 +327,8 @@ export function CxAlloyPanel() {
         bacnetEquipmentId: selectedEquipment.id,
         bacnetEquipmentName: selectedEquipment.name,
         bacnetEquipmentType: selectedEquipment.type || 'Unknown',
-        cxalloyEquipmentId: cxAlloyEquipmentItem.id,
-        cxalloyEquipmentName: cxAlloyEquipmentItem.name,
+        cxalloyEquipmentId: Number(cxAlloyEquipmentItem.id),
+        cxAlloyEquipmentName: cxAlloyEquipmentItem.name,
         cxalloyCategory: cxAlloyEquipmentItem.type as any,
         mappingType: 'manual' as const,
         confidence: 0.8,
@@ -301,7 +343,8 @@ export function CxAlloyPanel() {
         createdAt: new Date(),
         updatedAt: new Date(),
         createdBy: 'manual-mapping',
-        mappingMethod: 'manual' as const
+        mappingMethod: 'manual' as const,
+        mappedAt: new Date()
       };
 
       // Add the mapping to the store
@@ -311,7 +354,7 @@ export function CxAlloyPanel() {
       await recordEquipmentMapping(
         selectedEquipment.id,
         selectedEquipment.name,
-        cxAlloyEquipmentItem.id,
+        Number(cxAlloyEquipmentItem.id),
         cxAlloyEquipmentItem.name,
         'created',
         'manual',
@@ -320,6 +363,15 @@ export function CxAlloyPanel() {
       );
 
       console.log('[CxAlloyPanel] Manual mapping created:', selectedEquipment.name, '→', cxAlloyEquipmentItem.name);
+      
+      // Store the mapped equipment for template creation
+      if (selectedPoints.size > 0) {
+        setLastMappedEquipment({
+          bacnet: selectedEquipment,
+          cxalloy: cxAlloyEquipmentItem
+        });
+        setShowCreateTemplate(true);
+      }
     } catch (error) {
       console.error('[CxAlloyPanel] Failed to create mapping:', error);
     }
@@ -333,7 +385,7 @@ export function CxAlloyPanel() {
       await recordEquipmentMapping(
         selectedEquipment.id,
         selectedEquipment.name,
-        cxAlloyEquipmentItem.id,
+        Number(cxAlloyEquipmentItem.id),
         cxAlloyEquipmentItem.name,
         'deleted',
         'manual'
@@ -343,6 +395,95 @@ export function CxAlloyPanel() {
       console.log('[CxAlloyPanel] Mapping removed:', selectedEquipment.name, '→', cxAlloyEquipmentItem.name);
     } catch (error) {
       console.error('[CxAlloyPanel] Failed to remove mapping:', error);
+    }
+  };
+
+  const handleCreateNewEquipment = async () => {
+    if (!selectedEquipment) return;
+    
+    setCreatingNewEquipment(true);
+    
+    try {
+      console.log('[CxAlloyPanel] Creating new CxAlloy equipment based on:', selectedEquipment);
+      
+      // Extract richer information from BACnet equipment metadata and connector data
+      const vendor = selectedEquipment.vendor || 'Unknown';
+      const model = selectedEquipment.model || selectedEquipment.modelName || 'Unknown';
+      const description = selectedEquipment.description || 
+                         selectedEquipment.metadata?.deviceName || 
+                         `${selectedEquipment.type} - ${vendor} ${model}`.trim();
+      
+      // Try to extract location information from various sources
+      let location = 'TBD';
+      let space = 'TBD';
+      
+      if (selectedEquipment.location) {
+        location = selectedEquipment.location;
+      } else if (selectedEquipment.metadata?.uri) {
+        // Extract building/location info from BACnet URI if available
+        const uriMatch = selectedEquipment.metadata.uri.match(/bacnet:\/\/(\d+\.\d+\.\d+\.\d+)\//);
+        if (uriMatch) {
+          location = `BACnet Network ${uriMatch[1]}`;
+        }
+      }
+      
+      // Use vendor description if available - it's often more detailed and descriptive
+      let enhancedDescription = description;
+      if (selectedEquipment.metadata?.customFields?.descriptionFromVendor) {
+        enhancedDescription = selectedEquipment.metadata.customFields.descriptionFromVendor;
+      }
+      
+      // For BACnet device name, use the more descriptive name if available
+      let deviceName = selectedEquipment.name;
+      if (selectedEquipment.metadata?.deviceName && selectedEquipment.metadata.deviceName !== selectedEquipment.name) {
+        deviceName = selectedEquipment.metadata.deviceName;
+      }
+      
+      // Create new CxAlloy equipment based on enhanced BACnet equipment data
+      const newCxAlloyEquipment = {
+        name: selectedEquipment.name, // Keep original name for consistency
+        type: selectedEquipment.type,
+        description: `${enhancedDescription} (Mapped from BACnet: ${deviceName})`,
+        location: location,
+        space: space,
+        vendor: vendor,
+        model: model,
+        projectId: 2 // Default project ID
+      };
+      
+      // Call API to create the equipment
+      const response = await fetch('/api/cxalloy/equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCxAlloyEquipment)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('[CxAlloyPanel] Created new CxAlloy equipment:', data.equipment);
+        
+        // Refresh CxAlloy equipment list to include the new equipment
+        const equipmentResponse = await fetch('/api/cxalloy/equipment?projectId=2');
+        const equipmentData = await equipmentResponse.json();
+        if (equipmentData.success) {
+          setCxAlloyEquipment(equipmentData.equipment);
+        }
+        
+        alert(`Successfully created new CxAlloy equipment: ${data.equipment.name}`);
+        
+        // Automatically map the new equipment if desired
+        const newEquipment = data.equipment;
+        await handleMap(newEquipment);
+        
+      } else {
+        throw new Error(data.error || 'Failed to create CxAlloy equipment');
+      }
+    } catch (error) {
+      console.error('[CxAlloyPanel] Failed to create CxAlloy equipment:', error);
+      alert(`Failed to create CxAlloy equipment: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setCreatingNewEquipment(false);
     }
   };
 
@@ -402,9 +543,26 @@ export function CxAlloyPanel() {
       {selectedEquipment && (
         <div className="p-3 border-b border-border bg-muted/30">
           <div className="text-sm">
-            <div className="font-medium text-foreground">Selected for Mapping:</div>
-            <div className="text-muted-foreground">{selectedEquipment.name}</div>
-            <div className="text-xs text-muted-foreground">{selectedEquipment.type}</div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-medium text-foreground">Selected for Mapping:</div>
+                <div className="text-muted-foreground">{selectedEquipment.name}</div>
+                <div className="text-xs text-muted-foreground">{selectedEquipment.type}</div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleCreateNewEquipment}
+                disabled={creatingNewEquipment}
+                className="text-xs bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300 flex-shrink-0"
+                title="Create new CxAlloy equipment based on this BACnet equipment"
+              >
+                <Plus className="h-3 w-3 sm:mr-1" />
+                <span className="hidden sm:inline">
+                  {creatingNewEquipment ? 'Creating...' : 'Add New'}
+                </span>
+              </Button>
+            </div>
             
             {/* Show mapped CxAlloy equipment if any */}
             {(() => {
@@ -464,6 +622,7 @@ export function CxAlloyPanel() {
                 mappedBacnetName={getMappedBacnetName(equip.id)}
                 isMappedToSelectedSource={isMappedToSelectedSource(equip.id)}
                 selectedSourceName={selectedEquipment?.name}
+                trackedPointsCount={getTrackedPointsCount(equip.id)}
                 onMap={() => handleMap(equip)}
                 onUnmap={() => handleUnmap(equip)}
               />
@@ -496,6 +655,152 @@ export function CxAlloyPanel() {
           </div>
         </div>
       </div>
+
+      {/* Template Creation Dialog */}
+      <CreateMappingTemplateDialog
+        isOpen={showCreateTemplate}
+        onClose={() => {
+          setShowCreateTemplate(false);
+          setLastMappedEquipment(null);
+        }}
+        bacnetEquipment={lastMappedEquipment?.bacnet || null}
+        cxalloyEquipment={lastMappedEquipment?.cxalloy || null}
+        selectedPoints={getSelectedPointsData()}
+      />
     </div>
+  );
+}
+
+// Template Creation Dialog Component
+function CreateMappingTemplateDialog({
+  isOpen,
+  onClose,
+  bacnetEquipment,
+  cxalloyEquipment,
+  selectedPoints
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  bacnetEquipment: Equipment | null;
+  cxalloyEquipment: CxAlloyEquipment | null;
+  selectedPoints: any[];
+}) {
+  const [templateName, setTemplateName] = React.useState('');
+  const [templateDescription, setTemplateDescription] = React.useState('');
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen && cxalloyEquipment) {
+      setTemplateName(`${cxalloyEquipment.type} - ${cxalloyEquipment.name} Template`);
+      setTemplateDescription(`Template based on ${bacnetEquipment?.name} → ${cxalloyEquipment.name} mapping with ${selectedPoints.length} tracked points`);
+    }
+  }, [isOpen, cxalloyEquipment, bacnetEquipment, selectedPoints]);
+
+  const handleSave = async () => {
+    console.log('[CreateMappingTemplateDialog] handleSave called');
+    console.log('[CreateMappingTemplateDialog] bacnetEquipment:', bacnetEquipment);
+    console.log('[CreateMappingTemplateDialog] cxalloyEquipment:', cxalloyEquipment);
+    console.log('[CreateMappingTemplateDialog] selectedPoints:', selectedPoints);
+    console.log('[CreateMappingTemplateDialog] templateName:', templateName);
+    
+    if (!bacnetEquipment || !cxalloyEquipment || !templateName.trim()) {
+      setError('Please provide a template name');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      console.log('[CreateMappingTemplateDialog] Calling createTemplateFromMappedEquipment...');
+      const template = await TemplateMappingService.createTemplateFromMappedEquipment(
+        cxalloyEquipment,
+        bacnetEquipment,
+        selectedPoints,
+        templateName,
+        templateDescription,
+        'user'
+      );
+
+      console.log('[CreateMappingTemplateDialog] Template created successfully:', template);
+      alert(`Template "${templateName}" created successfully! You can now use it in Bulk Mapping.`);
+      onClose();
+    } catch (err) {
+      console.error('[CreateMappingTemplateDialog] Error creating template:', err);
+      setError(`Failed to create template: ${(err as Error).message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[525px]">
+        <DialogHeader>
+          <DialogTitle>Save Mapping as Template</DialogTitle>
+          <DialogDescription>
+            Create a reusable template from this equipment mapping with {selectedPoints.length} tracked points.
+            This template can be used for bulk mapping similar equipment.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid gap-4 py-4">
+          {/* Equipment Info */}
+          <Alert>
+            <AlertDescription>
+              <div className="space-y-1 text-sm">
+                <div><strong>BACnet:</strong> {bacnetEquipment?.name}</div>
+                <div><strong>CxAlloy:</strong> {cxalloyEquipment?.name}</div>
+                <div><strong>Type:</strong> {cxalloyEquipment?.type}</div>
+                <div><strong>Points:</strong> {selectedPoints.length} tracked</div>
+              </div>
+            </AlertDescription>
+          </Alert>
+
+          {/* Template Name */}
+          <div className="grid gap-2">
+            <Label htmlFor="template-name">Template Name</Label>
+            <Input
+              id="template-name"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Enter template name..."
+              disabled={saving}
+            />
+          </div>
+
+          {/* Template Description */}
+          <div className="grid gap-2">
+            <Label htmlFor="template-desc">Description (optional)</Label>
+            <Input
+              id="template-desc"
+              value={templateDescription}
+              onChange={(e) => setTemplateDescription(e.target.value)}
+              placeholder="Enter template description..."
+              disabled={saving}
+            />
+          </div>
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={saving || !templateName.trim()}>
+            <Save className="h-4 w-4 mr-2" />
+            {saving ? 'Creating...' : 'Create Template'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 } 

@@ -15,7 +15,8 @@ import {
   Lightbulb,
   Plus,
   ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  X
 } from 'lucide-react';
 import { TemplateList } from '../templates/TemplateList';
 import { TemplateModal } from '../templates/TemplateModal';
@@ -43,7 +44,7 @@ function EquipmentGroup({
   equipmentMappings,
   cxAlloyEquipment
 }: EquipmentGroupProps) {
-  const { addEquipmentMapping, recordEquipmentMapping } = useAppStore();
+  const { addEquipmentMapping, recordEquipmentMapping, removeEquipmentMapping, setSelectedEquipment } = useAppStore();
 
   const handleSuggestionClick = async (event: React.MouseEvent, bacnetEquipment: Equipment, suggestion: NameMatchSuggestion) => {
     event.stopPropagation(); // Prevent parent button click
@@ -56,33 +57,37 @@ function EquipmentGroup({
         return;
       }
 
-      // Create the equipment mapping
+      // Create the equipment mapping (complete format matching CxAlloyPanel)
       const mapping = {
-        id: `auto-${bacnetEquipment.id}-${cxAlloyEq.id}`,
+        id: `suggestion-${bacnetEquipment.id}-${cxAlloyEq.id}`,
         bacnetEquipmentId: bacnetEquipment.id,
         bacnetEquipmentName: bacnetEquipment.name,
         bacnetEquipmentType: bacnetEquipment.type || 'Unknown',
-        cxalloyEquipmentId: cxAlloyEq.id,
-        cxalloyEquipmentName: cxAlloyEq.name,
+        cxalloyEquipmentId: Number(cxAlloyEq.id),
+        cxAlloyEquipmentName: cxAlloyEq.name,
         cxalloyCategory: cxAlloyEq.type as any,
-        mappingType: 'manual' as const,
+        mappingType: 'automatic' as const,
         confidence: suggestion.confidence,
-        mappingReason: (suggestion.reasons || []).join('; '),
+        mappingReason: suggestion.matchReason || 'Suggestion mapping',
         totalBacnetPoints: bacnetEquipment.totalPoints || 0,
         mappedPointsCount: 0,
         unmappedPointsCount: 0,
         isActive: true,
-        isVerified: true,
-        verifiedBy: 'user-suggestion-click',
-        verifiedAt: new Date(),
+        isVerified: suggestion.confidence >= 0.8,
+        verifiedBy: suggestion.confidence >= 0.8 ? 'auto-suggestion' : undefined,
+        verifiedAt: suggestion.confidence >= 0.8 ? new Date() : undefined,
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'suggestion-auto-mapping',
-        mappingMethod: 'manual' as const
+        createdBy: 'suggestion-mapping',
+        mappingMethod: 'automatic' as const,
+        mappedAt: new Date()
       };
 
       // Add the mapping to the store
       addEquipmentMapping(mapping);
+
+      // Select the BACnet equipment to show the mapping in the UI
+      setSelectedEquipment(bacnetEquipment);
 
       // Record audit trail
       await recordEquipmentMapping(
@@ -128,12 +133,28 @@ function EquipmentGroup({
               key={item.id}
               onClick={() => onSelectEquipment(item)}
               className={cn(
-                "w-full text-left p-3 hover:bg-muted/50 transition-all duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative",
+                "w-full text-left p-3 hover:bg-muted/50 transition-all duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative group",
                 selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-500 ring-offset-1",
                 equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId === item.id && "bg-green-50/70 ring-2 ring-green-500 ring-offset-1",
                 equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400"
               )}
             >
+              {/* Unmap button - only visible on hover, upper left corner */}
+              {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeEquipmentMapping(item.id);
+                  }}
+                  className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                >
+                  <span className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                    <X className="h-2.5 w-2.5" />
+                    UNMAP
+                  </span>
+                </div>
+              )}
+              
               {/* MAPPED Badge */}
               {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
                 <div className="absolute top-2 right-2">
@@ -154,7 +175,7 @@ function EquipmentGroup({
                     {item.type === 'VAV_CONTROLLER' ? 'VVR' : item.type.replace(/_/g, ' ')}
                   </div>
                 )}
-                {item.description && (
+                {item.description && item.description !== item.name && (
                   <div className="text-xs text-muted-foreground line-clamp-2">
                     {item.description}
                   </div>

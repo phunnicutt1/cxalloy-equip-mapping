@@ -6,6 +6,7 @@ import { EquipmentTemplate, PointTemplate, TemplateApplicationResult } from '../
 import { PointSignature, TemplateMatch } from '../engines/point-signature-engine';
 import { executeQuery, executeTransaction } from './config';
 import { EquipmentRecord, PointRecord, MappingSessionRecord, DbConnectionState, EquipmentPointConfigurationRecord, TemplateApplicationRecord } from './models';
+import { connectorService } from '../services/connector-service';
 
 // Mapping function to convert equipment status to database ENUM values
 function mapEquipmentStatusToDbEnum(status: string): string {
@@ -58,10 +59,66 @@ function mapConnectionStateToDbEnum(connectionState: string): string {
 
 // Mapping function to convert human-readable equipment types to database ENUM values
 function mapEquipmentTypeToDbEnum(equipmentType: string): string {
-  // Handle exact matches first
-  const upperType = equipmentType.toUpperCase().replace(/\s+/g, '_');
+  // Handle uppercase Haystack-aligned types first
+  const upperType = equipmentType.toUpperCase().replace(/\s+/g, '-');
   
-  // Direct mappings
+  // Haystack to DB mappings (uppercase input -> DB enum)
+  const haystackMappings: { [key: string]: string } = {
+    'AHU': 'AIR_HANDLER_UNIT',
+    'RTU': 'RTU_CONTROLLER',
+    'VAV': 'VAV_CONTROLLER',
+    'FCU': 'FAN_COIL_UNIT',
+    'DOAS': 'AIR_HANDLER_UNIT', // Map DOAS to AHU
+    'MAU': 'AIR_HANDLER_UNIT',  // Map MAU to AHU
+    'ERV': 'AIR_HANDLER_UNIT',  // Map ERV to AHU
+    'HRV': 'AIR_HANDLER_UNIT',  // Map HRV to AHU
+    'FPB': 'FAN', // Fan Powered Box
+    'CAV': 'VAV_CONTROLLER', // Constant Air Volume similar to VAV
+    
+    // Fans
+    'EXHAUST-FAN': 'EXHAUST_FAN',
+    'SUPPLY-FAN': 'SUPPLY_FAN',
+    'RETURN-FAN': 'RETURN_FAN',
+    'COOLING-TOWER-FAN': 'FAN',
+    'FAN': 'FAN',
+    
+    // Laboratory
+    'LAB-EXHAUST': 'LAB_AIR_VALVE',
+    
+    // Pumps
+    'CHILLED-WATER-PUMP': 'PUMP',
+    'HOT-WATER-PUMP': 'PUMP',
+    'CONDENSER-WATER-PUMP': 'PUMP',
+    'PUMP': 'PUMP',
+    
+    // Central Plant
+    'CHILLER': 'CHILLER',
+    'BOILER': 'BOILER',
+    'COOLING-TOWER': 'COOLING_TOWER',
+    
+    // Heat Pumps
+    'WATER-SOURCE-HEAT-PUMP': 'HEAT_EXCHANGER',
+    'AIR-SOURCE-HEAT-PUMP': 'HEAT_EXCHANGER',
+    'HEAT-PUMP': 'HEAT_EXCHANGER',
+    'UNIT-HEATER': 'UNIT_HEATER',
+    
+    // Controls
+    'VFD': 'CONTROLLER',
+    'CONTROLLER': 'CONTROLLER',
+    
+    // Systems
+    'SYSTEM': 'CONTROLLER' // Map system to controller
+  };
+  
+  // Check Haystack mapping first
+  if (haystackMappings[upperType]) {
+    return haystackMappings[upperType];
+  }
+  
+  // Handle legacy uppercase types for backwards compatibility
+  const legacyType = equipmentType.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '_');
+  
+  // Direct mappings (legacy)
   const mappings: { [key: string]: string } = {
     'LAB_AIR_VALVE': 'LAB_AIR_VALVE',
     'AIR_HANDLER_UNIT': 'AIR_HANDLER_UNIT',
@@ -84,6 +141,7 @@ function mapEquipmentTypeToDbEnum(equipmentType: string): string {
     'UNIT_HEATER': 'UNIT_HEATER',
     'ZONE_CONTROLLER': 'ZONE_CONTROLLER',
     'FUME_HOOD': 'FUME_HOOD',
+    'FAN_COIL_UNIT': 'FAN_COIL_UNIT',
     'LIGHTING_CONTROLLER': 'LIGHTING_CONTROLLER',
     'POWER_METER': 'POWER_METER',
     'WEATHER_STATION': 'WEATHER_STATION',
@@ -93,31 +151,31 @@ function mapEquipmentTypeToDbEnum(equipmentType: string): string {
     'ESCALATOR': 'ESCALATOR'
   };
 
-  // Check direct mapping first
-  if (mappings[upperType]) {
-    return mappings[upperType];
+  // Check direct mapping
+  if (mappings[legacyType]) {
+    return mappings[legacyType];
   }
 
   // Partial matches for common variations
-  if (upperType.includes('LAB') && (upperType.includes('AIR') || upperType.includes('VALVE'))) {
+  if (legacyType.includes('LAB') && (legacyType.includes('AIR') || legacyType.includes('VALVE') || legacyType.includes('EXHAUST'))) {
     return 'LAB_AIR_VALVE';
   }
-  if (upperType.includes('AHU') || upperType.includes('AIR_HANDLER')) {
+  if (legacyType.includes('AHU') || legacyType.includes('AIR_HANDLER')) {
     return 'AIR_HANDLER_UNIT';
   }
-  if (upperType.includes('VAV')) {
+  if (legacyType.includes('VAV') || legacyType.includes('VVR') || legacyType.includes('VV')) {
     return 'VAV_CONTROLLER';
   }
-  if (upperType.includes('RTU')) {
+  if (legacyType.includes('RTU')) {
     return 'RTU_CONTROLLER';
   }
-  if (upperType.includes('FAN')) {
-    if (upperType.includes('EXHAUST')) return 'EXHAUST_FAN';
-    if (upperType.includes('SUPPLY')) return 'SUPPLY_FAN';
-    if (upperType.includes('RETURN')) return 'RETURN_FAN';
+  if (legacyType.includes('FAN')) {
+    if (legacyType.includes('EXHAUST')) return 'EXHAUST_FAN';
+    if (legacyType.includes('SUPPLY')) return 'SUPPLY_FAN';
+    if (legacyType.includes('RETURN')) return 'RETURN_FAN';
     return 'FAN';
   }
-  if (upperType.includes('FUME') && upperType.includes('HOOD')) {
+  if (legacyType.includes('FUME') && legacyType.includes('HOOD')) {
     return 'FUME_HOOD';
   }
 
@@ -347,6 +405,9 @@ export class EquipmentDatabaseService {
       console.warn('[DB SERVICE] Failed to parse metadata for equipment', record.id, e);
     }
     
+    // Get connector metadata for vendor and model info
+    const connectorMetadata = connectorService.getEquipmentMetadata(record.equipment_name);
+    
     // Get points for this equipment
     const points = await this.getPointsByEquipmentId(equipmentId);
 
@@ -357,8 +418,9 @@ export class EquipmentDatabaseService {
       displayName: record.equipment_name,
       type: record.equipment_type,
       filename: record.original_filename,
-      vendor: metadata.vendor || 'Unknown',
-      modelName: metadata.model || 'Unknown',
+      vendor: connectorMetadata.vendor || metadata.vendor || 'Unknown',
+      modelName: connectorMetadata.model || metadata.model || 'Unknown', 
+      description: connectorMetadata.description,
       status: record.status as EquipmentStatus,
       connectionState: mapDbEnumToConnectionState(rawConnectionState),
       connectionStatus: metadata.connectionStatus || (rawConnectionState === 'CONNECTED' ? 'ok' : 'fault'),
@@ -524,14 +586,18 @@ export class EquipmentDatabaseService {
         console.warn('[DB SERVICE] Failed to parse metadata for equipment', row.id, e);
       }
       
+      // Get connector metadata for vendor and model info
+      const connectorMetadata = connectorService.getEquipmentMetadata(row.equipment_name);
+      
       return {
         id: row.id,
         name: row.equipment_name,
         displayName: row.equipment_name,
         type: row.equipment_type,
         filename: row.original_filename,
-        vendor: metadata.vendor || 'Unknown',
-        modelName: metadata.model || 'Unknown',
+        vendor: connectorMetadata.vendor || metadata.vendor || 'Unknown',
+        modelName: connectorMetadata.model || metadata.model || 'Unknown',
+        description: connectorMetadata.description,
         status: row.status as EquipmentStatus,
         connectionState: mapDbEnumToConnectionState(row.connection_state),
         connectionStatus: metadata.connectionStatus || 'ok',

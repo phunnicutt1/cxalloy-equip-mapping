@@ -69,7 +69,8 @@ export class AutoMappingService {
           unmatchedCxAlloy.splice(bestMatchIndex, 1);
         } else if (bestMatch.confidence >= this.SUGGESTION_THRESHOLD) {
           suggestedMappings.push(bestMatch);
-          // Don't remove from unmatchedCxAlloy for suggestions - allow multiple suggestions per CxAlloy equipment
+          // Remove from unmatchedCxAlloy to prevent duplicate suggestions
+          unmatchedCxAlloy.splice(bestMatchIndex, 1);
         } else {
           unmatchedBacnet.push(bacnet);
         }
@@ -115,8 +116,8 @@ export class AutoMappingService {
     const bacnetNormalized = this.normalizeName(bacnet.name);
     const cxAlloyNormalized = this.normalizeName(cxAlloy.name);
 
-    // Calculate base name similarity
-    const nameSimilarity = this.calculateStringSimilarity(bacnetNormalized, cxAlloyNormalized);
+    // Calculate advanced name similarity
+    const nameSimilarity = this.calculateAdvancedNameSimilarity(bacnet.name, cxAlloy.name);
     confidence += nameSimilarity * 0.8; // 80% weight for name similarity
 
     if (nameSimilarity >= 0.95) {
@@ -166,9 +167,40 @@ export class AutoMappingService {
   private static normalizeName(name: string): string {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, '') // Remove special characters and spaces
-      .replace(/(\d+)/g, '') // Remove numbers for better type matching
+      .replace(/[-_\s\.]/g, '') // Normalize separators (hyphens, underscores, spaces, periods)
+      .replace(/[^a-z0-9]/g, '') // Remove remaining special characters
       .trim();
+  }
+
+  /**
+   * Advanced name similarity that preserves numbers and handles common variations
+   */
+  private static calculateAdvancedNameSimilarity(name1: string, name2: string): number {
+    // First try exact match after normalization
+    const normalized1 = this.normalizeName(name1);
+    const normalized2 = this.normalizeName(name2);
+    
+    if (normalized1 === normalized2) {
+      return 1.0;
+    }
+
+    // Preserve original names with just separator normalization for better number matching
+    const semiNorm1 = name1.toLowerCase().replace(/[-_\s\.]/g, '');
+    const semiNorm2 = name2.toLowerCase().replace(/[-_\s\.]/g, '');
+    
+    if (semiNorm1 === semiNorm2) {
+      return 0.95;
+    }
+
+    // Check if one name contains the other (for partial matches)
+    if (semiNorm1.includes(semiNorm2) || semiNorm2.includes(semiNorm1)) {
+      const longer = semiNorm1.length > semiNorm2.length ? semiNorm1 : semiNorm2;
+      const shorter = semiNorm1.length > semiNorm2.length ? semiNorm2 : semiNorm1;
+      return 0.8 * (shorter.length / longer.length);
+    }
+
+    // Fall back to Levenshtein distance
+    return this.calculateStringSimilarity(semiNorm1, semiNorm2);
   }
 
   /**

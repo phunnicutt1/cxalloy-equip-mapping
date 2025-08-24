@@ -611,8 +611,8 @@ export const useAppStore = create<AppState>()(
       
       getMappedCxAlloyEquipment: () => {
         const { cxAlloyEquipment, equipmentMappings } = get();
-        const mappedIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId));
-        return cxAlloyEquipment.filter(eq => mappedIds.has(eq.id));
+        const mappedIds = new Set(equipmentMappings.map(m => Number(m.cxalloyEquipmentId)));
+        return cxAlloyEquipment.filter(eq => mappedIds.has(Number(eq.id)));
       },
       
       // Get mapped CxAlloy equipment for a specific BACnet data source
@@ -620,15 +620,15 @@ export const useAppStore = create<AppState>()(
         const { cxAlloyEquipment, equipmentMappings } = get();
         const mapping = equipmentMappings.find(m => m.bacnetEquipmentId === bacnetEquipmentId);
         if (mapping) {
-          return cxAlloyEquipment.find(eq => eq.id === mapping.cxalloyEquipmentId);
+          return cxAlloyEquipment.find(eq => Number(eq.id) === Number(mapping.cxalloyEquipmentId));
         }
         return null;
       },
       
       getUnmappedCxAlloyEquipment: () => {
         const { cxAlloyEquipment, equipmentMappings } = get();
-        const mappedIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId));
-        return cxAlloyEquipment.filter(eq => !mappedIds.has(eq.id));
+        const mappedIds = new Set(equipmentMappings.map(m => Number(m.cxalloyEquipmentId)));
+        return cxAlloyEquipment.filter(eq => !mappedIds.has(Number(eq.id)));
       },
       
       getTemplatesByType: () => {

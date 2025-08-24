@@ -12,14 +12,13 @@ export interface NameMatchSuggestion {
 }
 
 /**
- * Normalize equipment names for comparison
+ * Normalize equipment names for comparison (enhanced version)
  */
 function normalizeEquipmentName(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[-_\s]/g, '') // Remove separators
-    .replace(/^0+/, '') // Remove leading zeros
-    .replace(/\b0+/g, '') // Remove zeros after word boundaries
+    .replace(/[-_\s\.]/g, '') // Normalize separators (hyphens, underscores, spaces, periods)
+    .replace(/[^a-z0-9]/g, '') // Remove remaining special characters
     .trim();
 }
 
@@ -70,75 +69,131 @@ function generateNameVariations(name: string): string[] {
 }
 
 /**
- * Calculate string similarity using Levenshtein distance
+ * Advanced name similarity that preserves numbers and handles common variations
  */
-function calculateSimilarity(str1: string, str2: string): number {
-  const len1 = str1.length;
-  const len2 = str2.length;
+function calculateAdvancedNameSimilarity(name1: string, name2: string): number {
+  // First try exact match after normalization
+  const normalized1 = normalizeEquipmentName(name1);
+  const normalized2 = normalizeEquipmentName(name2);
   
-  if (len1 === 0) return len2 === 0 ? 1 : 0;
-  if (len2 === 0) return 0;
-  
-  const matrix = Array(len1 + 1).fill(null).map(() => Array(len2 + 1).fill(null));
-  
-  for (let i = 0; i <= len1; i++) matrix[i][0] = i;
-  for (let j = 0; j <= len2; j++) matrix[0][j] = j;
-  
-  for (let i = 1; i <= len1; i++) {
-    for (let j = 1; j <= len2; j++) {
-      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1,     // deletion
-        matrix[i][j - 1] + 1,     // insertion
-        matrix[i - 1][j - 1] + cost // substitution
-      );
-    }
+  if (normalized1 === normalized2) {
+    return 1.0;
   }
+
+  // Preserve original names with just separator normalization for better number matching
+  const semiNorm1 = name1.toLowerCase().replace(/[-_\s\.]/g, '');
+  const semiNorm2 = name2.toLowerCase().replace(/[-_\s\.]/g, '');
   
-  const distance = matrix[len1][len2];
-  const maxLen = Math.max(len1, len2);
-  return (maxLen - distance) / maxLen;
+  if (semiNorm1 === semiNorm2) {
+    return 0.95;
+  }
+
+  // Check if one name contains the other (for partial matches)
+  if (semiNorm1.includes(semiNorm2) || semiNorm2.includes(semiNorm1)) {
+    const longer = semiNorm1.length > semiNorm2.length ? semiNorm1 : semiNorm2;
+    const shorter = semiNorm1.length > semiNorm2.length ? semiNorm2 : semiNorm1;
+    return 0.8 * (shorter.length / longer.length);
+  }
+
+  // Fall back to Levenshtein distance
+  return calculateStringSimilarity(semiNorm1, semiNorm2);
 }
 
 /**
- * Get equipment type similarity bonus
+ * Calculate string similarity using Levenshtein distance
+ * Returns a value between 0 and 1 (1 being identical)
  */
-function getEquipmentTypeBonus(bacnetType: string, cxalloyType: string): number {
-  const bacnetTypeLower = bacnetType.toLowerCase();
-  const cxalloyTypeLower = cxalloyType.toLowerCase();
+function calculateStringSimilarity(str1: string, str2: string): number {
+  if (str1 === str2) return 1.0;
+  if (str1.length === 0 || str2.length === 0) return 0.0;
+
+  const distance = levenshteinDistance(str1, str2);
+  const maxLength = Math.max(str1.length, str2.length);
   
-  // Exact type match
-  if (bacnetTypeLower === cxalloyTypeLower) return 0.2;
-  
-  // Partial type match
-  if (bacnetTypeLower.includes(cxalloyTypeLower) || cxalloyTypeLower.includes(bacnetTypeLower)) {
-    return 0.1;
+  return 1 - (distance / maxLength);
+}
+
+/**
+ * Calculate Levenshtein distance between two strings
+ */
+function levenshteinDistance(str1: string, str2: string): number {
+  const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+
+  for (let i = 0; i <= str1.length; i++) {
+    matrix[0][i] = i;
   }
-  
-  // Known type mappings
-  const typeMapping: Record<string, string[]> = {
-    'air_handler_unit': ['air handler unit', 'ahu'],
-    'vav_controller': ['vav controller', 'vav', 'variable air volume'],
-    'rtu_controller': ['rtu controller', 'rtu', 'rooftop unit'],
-    'chiller': ['chiller', 'ch'],
-    'boiler': ['boiler', 'bl'],
-    'pump': ['pump', 'p'],
-    'fan': ['fan', 'exhaust fan', 'supply fan', 'return fan'],
-    'lab_air_valve': ['lab air valve', 'lab valve', 'fume hood']
-  };
-  
-  for (const [key, variants] of Object.entries(typeMapping)) {
-    if ((key === bacnetTypeLower || variants.includes(bacnetTypeLower)) &&
-        (key === cxalloyTypeLower || variants.includes(cxalloyTypeLower))) {
-      return 0.15;
+
+  for (let j = 0; j <= str2.length; j++) {
+    matrix[j][0] = j;
+  }
+
+  for (let j = 1; j <= str2.length; j++) {
+    for (let i = 1; i <= str1.length; i++) {
+      const substitutionCost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1, // deletion
+        matrix[j - 1][i] + 1, // insertion
+        matrix[j - 1][i - 1] + substitutionCost // substitution
+      );
     }
   }
-  
+
+  return matrix[str2.length][str1.length];
+}
+
+/**
+ * Calculate equipment type compatibility (enhanced version)
+ * Returns a value between 0 and 1
+ */
+function calculateTypeMatch(bacnetType: string, cxalloyType: string): number {
+  const normalizedBacnet = bacnetType.toLowerCase();
+  const normalizedCxAlloy = cxalloyType.toLowerCase();
+
+  // Direct type mappings
+  const typeMap: Record<string, string[]> = {
+    'air handler unit': ['ahu', 'air handler', 'air handling unit'],
+    'air_handler_unit': ['ahu', 'air handler', 'air handling unit'],
+    'ahu': ['air handler', 'air handling unit', 'air handler unit'],
+    'vav controller': ['vav', 'variable air volume', 'vvr'],
+    'vav_controller': ['vav', 'variable air volume', 'vvr'],
+    'chiller': ['ch', 'chiller', 'cooling', 'chw'],
+    'boiler': ['boiler', 'heating', 'blr', 'hhw'],
+    'rtu controller': ['rtu', 'rooftop unit'],
+    'rtu_controller': ['rtu', 'rooftop unit'],
+    'exhaust fan': ['ef', 'exhaust', 'fan', 'lab exhaust'],
+    'exhaust_fan': ['ef', 'exhaust', 'fan', 'lab exhaust'],
+    'supply fan': ['sf', 'supply', 'fan'],
+    'supply_fan': ['sf', 'supply', 'fan'],
+    'pump': ['pump', 'p', 'cwp', 'hwp'],
+    'valve': ['valve', 'vlv'],
+    'damper': ['damper', 'dmp'],
+    'lab-exhaust': ['lab air valve', 'lab valve', 'lab exhaust', 'fume hood']
+  };
+
+  // Check for exact match
+  if (normalizedBacnet === normalizedCxAlloy) {
+    return 1.0;
+  }
+
+  // Check mapped types
+  for (const [key, variants] of Object.entries(typeMap)) {
+    if (key === normalizedBacnet || variants.includes(normalizedBacnet)) {
+      if (key === normalizedCxAlloy || variants.includes(normalizedCxAlloy)) {
+        return 0.9;
+      }
+    }
+  }
+
+  // Check for partial matches (contains)
+  if (normalizedBacnet.includes(normalizedCxAlloy) || normalizedCxAlloy.includes(normalizedBacnet)) {
+    return 0.6;
+  }
+
   return 0;
 }
 
 /**
- * Find intelligent mapping suggestions for an unmapped data source
+ * Find intelligent mapping suggestions for an unmapped data source (enhanced version)
  */
 export function findMappingSuggestions(
   bacnetEquipmentName: string,
@@ -146,60 +201,44 @@ export function findMappingSuggestions(
   cxalloyEquipment: Array<{ id: number; name: string; type: string; description?: string; space?: string }>
 ): NameMatchSuggestion[] {
   const suggestions: NameMatchSuggestion[] = [];
-  const bacnetVariations = generateNameVariations(bacnetEquipmentName);
   
   for (const cxalloyEq of cxalloyEquipment) {
-    const cxalloyVariations = generateNameVariations(cxalloyEq.name);
-    
-    let bestScore = 0;
+    let confidence = 0;
     let matchReason = '';
     
-    // Check for exact matches in variations
-    for (const bacnetVar of bacnetVariations) {
-      for (const cxalloyVar of cxalloyVariations) {
-        if (bacnetVar === cxalloyVar) {
-          bestScore = Math.max(bestScore, 0.95);
-          matchReason = 'Exact name match with normalization';
-          break;
-        }
-      }
-      if (bestScore >= 0.95) break;
+    // Calculate advanced name similarity (80% weight)
+    const nameSimilarity = calculateAdvancedNameSimilarity(bacnetEquipmentName, cxalloyEq.name);
+    confidence += nameSimilarity * 0.8;
+    
+    if (nameSimilarity >= 0.95) {
+      matchReason = `Exact name match (${Math.round(nameSimilarity * 100)}%)`;
+    } else if (nameSimilarity >= 0.7) {
+      matchReason = `High name similarity (${Math.round(nameSimilarity * 100)}%)`;
+    } else if (nameSimilarity >= 0.5) {
+      matchReason = `Moderate name similarity (${Math.round(nameSimilarity * 100)}%)`;
     }
     
-    // If no exact match, calculate similarity scores
-    if (bestScore < 0.95) {
-      for (const bacnetVar of bacnetVariations) {
-        for (const cxalloyVar of cxalloyVariations) {
-          const similarity = calculateSimilarity(bacnetVar, cxalloyVar);
-          if (similarity > bestScore) {
-            bestScore = similarity;
-            if (similarity > 0.8) {
-              matchReason = 'High similarity match';
-            } else if (similarity > 0.6) {
-              matchReason = 'Moderate similarity match';
-            } else {
-              matchReason = 'Possible match';
-            }
-          }
-        }
+    // Equipment type matching bonus
+    const typeMatch = calculateTypeMatch(bacnetEquipmentType, cxalloyEq.type);
+    if (typeMatch > 0) {
+      confidence += typeMatch * 0.1; // 10% bonus for type compatibility
+      if (matchReason) {
+        matchReason += ` + equipment type compatibility (${Math.round(typeMatch * 100)}%)`;
+      } else {
+        matchReason = `Equipment type compatibility (${Math.round(typeMatch * 100)}%)`;
       }
     }
     
-    // Add equipment type bonus
-    const typeBonus = getEquipmentTypeBonus(bacnetEquipmentType, cxalloyEq.type);
-    bestScore = Math.min(1.0, bestScore + typeBonus);
+    // Ensure confidence doesn't exceed 1.0
+    confidence = Math.min(confidence, 1.0);
     
-    if (typeBonus > 0 && bestScore > 0.3) {
-      matchReason += ` (compatible equipment type)`;
-    }
-    
-    // Only include suggestions with reasonable confidence
-    if (bestScore >= 0.4) {
+    // Only include suggestions with reasonable confidence (same threshold as auto-mapping service)
+    if (confidence >= 0.6) {
       suggestions.push({
         equipmentId: cxalloyEq.id,
         equipmentName: cxalloyEq.name,
         equipmentType: cxalloyEq.type,
-        confidence: bestScore,
+        confidence,
         matchReason
       });
     }

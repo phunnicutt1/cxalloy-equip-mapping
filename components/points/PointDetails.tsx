@@ -255,7 +255,70 @@ export function PointDetails() {
 
   const handleCreateTemplate = () => {
     if (selectedPoints.size > 0) {
+      // If equipment is already mapped, also offer to create a MappingTemplate
+      if (isMappedEquipment) {
+        const shouldCreateMappingTemplate = confirm(
+          'This equipment is already mapped to CxAlloy. Would you like to create a Mapping Template for bulk operations?\n\n' +
+          'Click OK to create a Mapping Template (for bulk mapping)\n' +
+          'Click Cancel to create an Equipment Template (for point configuration)'
+        );
+        
+        if (shouldCreateMappingTemplate) {
+          createMappingTemplateFromCurrentMapping();
+          return;
+        }
+      }
+      
       setShowPointConfigModal(true);
+    }
+  };
+
+  const createMappingTemplateFromCurrentMapping = async () => {
+    if (!selectedEquipment || !isMappedEquipment) {
+      alert('Equipment must be mapped to create a mapping template');
+      return;
+    }
+
+    // Find the mapping for this equipment
+    const mapping = equipmentMappings?.find(m => m.bacnetEquipmentId === selectedEquipment.id);
+    if (!mapping) {
+      alert('Could not find equipment mapping');
+      return;
+    }
+
+    // Find the CxAlloy equipment
+    const { cxAlloyEquipment } = useAppStore.getState();
+    const cxAlloyEq = cxAlloyEquipment.find(eq => eq.id === mapping.cxAlloyEquipmentId);
+    if (!cxAlloyEq) {
+      alert('Could not find CxAlloy equipment');
+      return;
+    }
+
+    // Get selected points data
+    const selectedPointsData = getSelectedPointsData();
+
+    // Prompt for template name
+    const templateName = prompt('Enter a name for this mapping template:', `${cxAlloyEq.type} - ${cxAlloyEq.name} Template`);
+    if (!templateName?.trim()) return;
+
+    const templateDescription = prompt('Enter a description (optional):', `Template based on ${selectedEquipment.name} → ${cxAlloyEq.name} mapping with ${selectedPointsData.length} tracked points`);
+
+    try {
+      const { TemplateMappingService } = await import('../../lib/services/template-mapping-service');
+      const template = await TemplateMappingService.createTemplateFromMappedEquipment(
+        cxAlloyEq,
+        selectedEquipment,
+        selectedPointsData,
+        templateName,
+        templateDescription || undefined,
+        'user'
+      );
+
+      console.log('[PointDetails] Mapping template created:', template);
+      alert(`Mapping template "${templateName}" created successfully! You can now use it in Bulk Mapping.`);
+    } catch (error) {
+      console.error('[PointDetails] Error creating mapping template:', error);
+      alert('Failed to create mapping template. Please try again.');
     }
   };
 

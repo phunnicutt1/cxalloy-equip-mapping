@@ -11,7 +11,9 @@
       "Bash(cat:*)",
       "Bash(node:*)",
       "Bash(npm install:*)",
-      "Bash(brew services:*)"
+      "Bash(brew services:*)",
+      "Bash(npx tsx:*)",
+      "mcp__playwright__browser_navigate"
     ],
     "deny": [],
     "ask": []

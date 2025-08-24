@@ -68,10 +68,15 @@ export async function POST(request: NextRequest) {
     // Transform bacnet results to Equipment format, extracting description from metadata
     const bacnetEquipment: Equipment[] = bacnetResults.map((row: any) => {
       let description = '';
+      let vendor = 'Unknown';
+      let modelName = 'Unknown';
+      
       try {
         if (row.metadata) {
           const metadata = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;
           description = metadata.description || '';
+          vendor = metadata.vendor || 'Unknown';
+          modelName = metadata.model || 'Unknown';
         }
       } catch (e) {
         console.warn('[AUTO-MAP API] Failed to parse metadata for equipment', row.id);
@@ -80,12 +85,30 @@ export async function POST(request: NextRequest) {
       return {
         id: row.id,
         name: row.name,
+        displayName: row.name,
         type: row.type,
-        description,
         filename: row.filename,
+        vendor: vendor,
+        modelName: modelName,
+        model: modelName,
+        description: description,
+        location: '',
         totalPoints: row.totalPoints,
-        created_at: row.created_at,
-        updated_at: row.updated_at
+        processedPoints: 0,
+        status: 'ACTIVE' as any,
+        connectionState: 'UNKNOWN' as any,
+        connectionStatus: 'unknown',
+        bacnetAddress: '',
+        bacnetDeviceId: 0,
+        bacnetNetwork: 0,
+        classification: {
+          confidence: 0.8,
+          reasoning: 'Auto-mapped equipment',
+          alternatives: []
+        },
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        disabled: false
       };
     });
     

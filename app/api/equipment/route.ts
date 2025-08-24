@@ -11,6 +11,37 @@ interface EquipmentListResponse {
   error?: string;
 }
 
+// Map database enum types to simplified Haystack types (uppercase)
+function simplifyEquipmentType(dbType: string): string {
+  const typeMap: { [key: string]: string } = {
+    'AIR_HANDLER_UNIT': 'AHU',
+    'RTU_CONTROLLER': 'RTU',
+    'VAV_CONTROLLER': 'VAV',
+    'FAN_COIL_UNIT': 'FCU',
+    'LAB_AIR_VALVE': 'LAB-EXHAUST',
+    'EXHAUST_FAN': 'EXHAUST-FAN',
+    'SUPPLY_FAN': 'SUPPLY-FAN',
+    'RETURN_FAN': 'RETURN-FAN',
+    'FAN': 'FAN',
+    'CHILLER': 'CHILLER',
+    'BOILER': 'BOILER',
+    'COOLING_TOWER': 'COOLING-TOWER',
+    'HEAT_EXCHANGER': 'HEAT-PUMP',
+    'PUMP': 'PUMP',
+    'UNIT_HEATER': 'UNIT-HEATER',
+    'CONTROLLER': 'CONTROLLER',
+    'ZONE_CONTROLLER': 'CONTROLLER',
+    'FUME_HOOD': 'FUME-HOOD',
+    'SENSOR': 'SENSOR',
+    'VALVE': 'VALVE',
+    'DAMPER': 'DAMPER',
+    'ACTUATOR': 'ACTUATOR',
+    'UNKNOWN': 'UNKNOWN'
+  };
+  
+  return typeMap[dbType] || dbType.replace(/_/g, '-');
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse<EquipmentListResponse>> {
   try {
     const { searchParams } = new URL(request.url);
@@ -42,10 +73,16 @@ export async function GET(request: NextRequest): Promise<NextResponse<EquipmentL
 
     // Get equipment with filters - the store function returns { equipment, total }
     const result = await getAllEquipment(limit, offset, filters);
+    
+    // Transform equipment types to simplified format
+    const simplifiedEquipment = result.equipment.map(eq => ({
+      ...eq,
+      type: simplifyEquipmentType(eq.type)
+    }));
 
     return NextResponse.json({
       success: true,
-      equipment: result.equipment,
+      equipment: simplifiedEquipment,
       total: result.total,
       page,
       limit

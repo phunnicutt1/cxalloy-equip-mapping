@@ -2,29 +2,35 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-A comprehensive Next.js application for intelligent processing of BACnet files, equipment-point mapping, and template performance analytics, backed by a MySQL database.
-
-![Application Screenshot](https://user-images.githubusercontent.com/12345/67890.png)  
-_(Note: Replace with an actual screenshot of the application dashboard)_
+A comprehensive Next.js application for intelligent mapping between BACnet equipment points and CxAlloy equipment, featuring template-based bulk operations, automated point classification, and powerful analytics.
 
 ## 🚀 Overview
 
-This platform provides an end-to-end solution for building automation engineers to streamline the tedious process of mapping BACnet points. It ingests raw `.trio` and enhanced `.csv` files, intelligently classifies equipment, normalizes point data, and stores the structured information in a MySQL database.
+This platform streamlines the complex process of mapping building automation system (BAS) points between BACnet controllers and CxAlloy equipment definitions. It processes raw `.trio` files from BACnet systems and enhanced `.csv` files with vendor metadata, automatically classifies equipment types, normalizes point naming conventions, and provides intelligent mapping suggestions.
 
-The core of the system is a powerful **Equipment Template Engine** that allows users to create, manage, and automatically apply configuration templates to newly processed equipment. This dramatically reduces manual effort and ensures consistency across projects.
+The system's core innovation is its **Template-Based Mapping Engine** that learns from successful mappings to accelerate future work. Once you map equipment and points, the system creates reusable templates that can be applied to similar equipment with a single click through the **Bulk Mapping Wizard**.
 
-To close the loop, a comprehensive **Analytics Dashboard** provides deep insights into template performance, helping users optimize their configurations for maximum efficiency.
+A comprehensive **Analytics Dashboard** tracks template effectiveness, usage patterns, and provides optimization recommendations to continuously improve mapping accuracy and efficiency.
 
 ## ✨ Key Features
 
-*   🗂️ **Enhanced File Processing**: Ingests both standard BACnet `.trio` files and flexible, header-based `.csv` files.
-*   💾 **MySQL Database Integration**: All equipment, points, templates, and analytics data are stored persistently.
-*   🤖 **Intelligent Equipment Classification**: Automatically identifies equipment types (AHUs, VAVs, etc.) from file names and data patterns.
-*   ✍️ **Advanced Point Normalization**: Converts cryptic BACnet point names into human-readable descriptions and applies standardized Project Haystack tags.
-*   📄 **Equipment Template System**: Create reusable point configuration templates, which are automatically matched and applied to new equipment with a confidence score.
-*   📈 **Template Analytics Dashboard**: A rich visual dashboard built with `recharts` to track template application success rates, usage statistics, and optimization recommendations.
-*   🔌 **Comprehensive REST API**: A full suite of API endpoints for file processing, data management, and analytics.
-*   🖥️ **Modern & Responsive UI**: Built with `shadcn/ui` and a responsive three-panel layout for an intuitive user experience.
+### Core Functionality
+*   🗂️ **Multi-Format File Processing**: Processes BACnet `.trio` files and enhanced `.csv` files with vendor metadata
+*   🔄 **Equipment Mapping Interface**: Intuitive dual-panel interface for mapping BACnet equipment to CxAlloy definitions
+*   🎯 **Point Tracking System**: Select and track individual points for precise mapping control
+*   📋 **Template Creation**: Convert successful mappings into reusable templates for similar equipment
+
+### Advanced Features
+*   🚀 **Bulk Mapping Wizard**: 3-step wizard for applying templates to multiple equipment pairs simultaneously
+*   🤖 **Intelligent Auto-Mapping**: AI-powered suggestions based on equipment names, types, and point signatures
+*   ✍️ **Point Normalization**: Converts cryptic BACnet names to human-readable formats with Haystack tagging
+*   📊 **Analytics Dashboard**: Real-time insights into template performance, usage patterns, and optimization opportunities
+
+### Technical Capabilities
+*   💾 **MySQL Database**: Persistent storage for equipment, points, templates, and mapping history
+*   🔌 **RESTful API**: Comprehensive endpoints for all operations
+*   ⚡ **Real-time Processing**: Immediate feedback during file processing and mapping operations
+*   🎨 **Modern UI/UX**: Built with shadcn/ui components and responsive design patterns
 
 ## 🛠️ Technology Stack
 
@@ -111,12 +117,18 @@ For detailed schema information and setup instructions, see `DATABASE_SETUP.md`.
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `POST` | `/api/auto-process` | The primary endpoint for uploading and processing files. |
-| `GET` | `/api/equipment` | Fetches all processed equipment from the database. |
-| `GET` | `/api/templates` | Retrieves all saved equipment templates. |
-| `POST` | `/api/templates` | Creates a new equipment template. |
-| `PUT` | `/api/templates/{id}` | Updates an existing template. |
-| `GET` | `/api/analytics?type=...` | Fetches various analytics datasets for the dashboard. |
+| `GET` | `/api/auto-process` | Scans available files for processing |
+| `POST` | `/api/auto-process` | Processes TRIO and CSV files with enhancement |
+| `POST` | `/api/auto-map` | Performs automatic equipment mapping |
+| `GET` | `/api/equipment` | Fetches all processed equipment |
+| `GET` | `/api/templates` | Retrieves saved mapping templates |
+| `POST` | `/api/templates` | Creates new mapping template |
+| `PUT` | `/api/templates/{id}` | Updates existing template |
+| `DELETE` | `/api/templates/{id}` | Deletes a template |
+| `GET` | `/api/analytics` | Fetches analytics data for dashboard |
+| `GET` | `/api/analytics?type=effectiveness` | Template effectiveness metrics |
+| `GET` | `/api/analytics?type=usage` | Template usage statistics |
+| `GET` | `/api/analytics?type=optimization` | Optimization recommendations |
 
 ## 🚀 Getting Started
 
@@ -145,35 +157,90 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Usage Guide
 
-1.  **Upload Files**: Navigate to the dashboard and use the "Auto-Process Files" dialog to upload your `.trio` or `.csv` files.
-2.  **Browse Equipment**: Once processing is complete, the equipment will appear in the left-hand panel, grouped by type. Select a piece of equipment to view its points.
-3.  **Manage Templates**:
-    *   Switch to the "Templates" view using the wrench icon toggle in the equipment browser header.
-    *   Create new templates from scratch or by selecting points from an existing piece of equipment and using the "Create Template" action.
-4.  **Analyze Performance**: Click on the "Analytics" tab to view the Template Effectiveness Dashboard. Analyze which templates are performing well and identify opportunities for optimization.
-5.  **Export Data**: Use the export options to download processed data in various formats.
+### Step 1: Process Equipment Files
+1. Click **"Process All Files"** button in the dashboard
+2. The system will automatically scan and process all `.trio` files from `/public/sample_data/`
+3. Watch the progress as files are processed with CSV enhancement if available
 
-## 🧪 Testing
+### Step 2: Create Equipment Mappings
+1. **Select BACnet Equipment** from the left panel (Data Sources)
+2. **Select CxAlloy Equipment** from the right panel that corresponds to the BACnet equipment
+3. **Track Points** you want to include in the mapping using the "Track" button
+4. **Save Mapping** to establish the connection
 
-To run the automated tests for the project:
+### Step 3: Create Templates
+1. After successfully mapping equipment with tracked points
+2. Click **"Create Template"** to save the mapping pattern
+3. Give your template a descriptive name and description
+4. The template is now available for bulk operations
 
-```
+### Step 4: Bulk Mapping Operations
+1. Click **"Bulk Mapping"** button at the top of the interface
+2. **Select a Template** from your saved templates
+3. **Review Suggested Pairings** - the system automatically suggests equipment matches
+4. **Configure & Apply** to map multiple equipment pairs at once
+
+### Step 5: Monitor & Optimize
+1. Navigate to the **Analytics** tab
+2. Review template effectiveness metrics
+3. Identify high-performing templates and optimization opportunities
+4. Iterate on templates based on analytics insights
+
+## 🧪 Testing & Development
+
+### Run Tests
+```bash
 npm test
 ```
 
-```
+### Development Commands
+```bash
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Run linting
+npm run lint
+
+# Type checking
+npm run typecheck
 ```
 
-```
-DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
-```
+## 🔧 Troubleshooting
 
-```
-npm install
-```
+### Common Issues
 
-```
-git clone <repository-url>
-cd cxalloy-equip-mapping
-```
+**"No templates available" in Bulk Mapping**
+- This is expected behavior when no templates have been created yet
+- Solution: Create equipment mappings and save them as templates first
+
+**Database Connection Error**
+- Verify MySQL is running and accessible
+- Check DATABASE_URL in `.env.local` file
+- Ensure database and tables are created per `DATABASE_SETUP.md`
+
+**Processing Files Not Working**
+- Ensure `.trio` files are present in `/public/sample_data/`
+- Check browser console for specific error messages
+- Verify CSV enhancement files are properly formatted
+
+## 📚 Additional Resources
+
+- **CLAUDE.md** - AI assistant documentation for development
+- **DATABASE_SETUP.md** - Detailed database setup instructions
+- **CHANGES.md** - Changelog and version history
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
