@@ -42,6 +42,7 @@ interface AppState {
   
   // Point Selection State
   selectedPoints: Set<string>; // Point IDs selected for template creation
+  trackedPointsByEquipment: Record<string, Set<string>>; // equipmentId -> Set of tracked point IDs
   showPointConfigModal: boolean;
   
   // Panel State
@@ -168,6 +169,7 @@ export const useAppStore = create<AppState>()(
       
       // Point Selection State
       selectedPoints: new Set<string>(),
+      trackedPointsByEquipment: {},
       showPointConfigModal: false,
       
       leftPanelWidth: 380,
@@ -189,9 +191,12 @@ export const useAppStore = create<AppState>()(
             m => m.bacnetEquipmentId === equipment.id
           ) : false;
           
-          // Only clear points if the new equipment is NOT mapped
-          // This preserves tracked points for mapped equipment
-          if (!isNewEquipmentMapped) {
+          if (isNewEquipmentMapped && equipment) {
+            // Restore tracked points for this mapped equipment
+            const trackedPoints = currentState.trackedPointsByEquipment[equipment.id] || new Set();
+            set({ selectedPoints: new Set(trackedPoints) });
+          } else {
+            // Clear points for unmapped equipment or when no equipment selected
             set({ selectedPoints: new Set() });
           }
         }
@@ -294,21 +299,38 @@ export const useAppStore = create<AppState>()(
       
       // Equipment Mapping Actions
       addEquipmentMapping: (mapping) =>
-        set((state) => ({
-          equipmentMappings: [
+        set((state) => {
+          const newMappings = [
             ...state.equipmentMappings.filter(
               m => m.bacnetEquipmentId !== mapping.bacnetEquipmentId
             ),
             mapping
-          ]
-        })),
+          ];
+          
+          // Initialize tracked points for newly mapped equipment if there are selected points
+          const newTrackedByEquipment = { ...state.trackedPointsByEquipment };
+          if (state.selectedPoints.size > 0 && state.selectedEquipment?.id === mapping.bacnetEquipmentId) {
+            newTrackedByEquipment[mapping.bacnetEquipmentId] = new Set(state.selectedPoints);
+          }
+          
+          return {
+            equipmentMappings: newMappings,
+            trackedPointsByEquipment: newTrackedByEquipment
+          };
+        }),
       
       removeEquipmentMapping: (bacnetEquipmentId) =>
-        set((state) => ({
-          equipmentMappings: state.equipmentMappings.filter(
-            m => m.bacnetEquipmentId !== bacnetEquipmentId
-          )
-        })),
+        set((state) => {
+          const newTrackedByEquipment = { ...state.trackedPointsByEquipment };
+          delete newTrackedByEquipment[bacnetEquipmentId];
+          
+          return {
+            equipmentMappings: state.equipmentMappings.filter(
+              m => m.bacnetEquipmentId !== bacnetEquipmentId
+            ),
+            trackedPointsByEquipment: newTrackedByEquipment
+          };
+        }),
       
       // Auto-mapping Actions
       performAutoMapping: async () => {
@@ -472,12 +494,37 @@ export const useAppStore = create<AppState>()(
       togglePointSelection: (pointId) =>
         set((state) => {
           const newSelected = new Set(state.selectedPoints);
-          if (newSelected.has(pointId)) {
-            newSelected.delete(pointId);
-          } else {
+          const isSelecting = !newSelected.has(pointId);
+          
+          if (isSelecting) {
             newSelected.add(pointId);
+          } else {
+            newSelected.delete(pointId);
           }
-          return { selectedPoints: newSelected };
+          
+          // Also update per-equipment tracking for mapped equipment
+          const newTrackedByEquipment = { ...state.trackedPointsByEquipment };
+          if (state.selectedEquipment) {
+            const equipmentId = state.selectedEquipment.id;
+            const isMapped = state.equipmentMappings.some(m => m.bacnetEquipmentId === equipmentId);
+            
+            if (isMapped) {
+              if (!newTrackedByEquipment[equipmentId]) {
+                newTrackedByEquipment[equipmentId] = new Set();
+              }
+              
+              if (isSelecting) {
+                newTrackedByEquipment[equipmentId].add(pointId);
+              } else {
+                newTrackedByEquipment[equipmentId].delete(pointId);
+              }
+            }
+          }
+          
+          return { 
+            selectedPoints: newSelected,
+            trackedPointsByEquipment: newTrackedByEquipment
+          };
         }),
       
       clearPointSelection: () => set({ selectedPoints: new Set() }),

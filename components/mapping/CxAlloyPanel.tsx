@@ -194,7 +194,10 @@ export function CxAlloyPanel() {
     getUnmappedCxAlloyEquipment,
     recordEquipmentMapping,
     selectedPoints,
-    getSelectedPointsData
+    getSelectedPointsData,
+    trackedPointsByEquipment,
+    getSelectedTemplate,
+    equipmentTemplateMap
   } = useAppStore();
 
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -250,12 +253,40 @@ export function CxAlloyPanel() {
     const mapping = equipmentMappings.find(m => Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId));
     if (!mapping) return 0;
     
-    // Get the selected points for the mapped BACnet equipment
-    const trackedPoints = getSelectedPointsData().filter(point => 
-      point.equipmentId === mapping.bacnetEquipmentId
-    );
+    // Find the BACnet equipment for this mapping
+    const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
+    if (!bacnetEquipment) return 0;
     
-    return trackedPoints.length;
+    // Check if this equipment has a template applied
+    const templateId = equipmentTemplateMap[bacnetEquipment.id];
+    if (templateId) {
+      // If template is active, count all points in the equipment as tracked
+      // since template mode shows all points as "Tracked"
+      return bacnetEquipment.points?.length || 0;
+    }
+    
+    // If no template, count individually tracked points from persistent storage
+    const trackedPointsSet = trackedPointsByEquipment[mapping.bacnetEquipmentId] || new Set();
+    return trackedPointsSet.size;
+  };
+
+  // Get total tracked points across all equipment mappings
+  const getTotalTrackedPointsCount = (): number => {
+    return equipmentMappings.reduce((total, mapping) => {
+      const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
+      if (!bacnetEquipment) return total;
+      
+      // Check if this equipment has a template applied
+      const templateId = equipmentTemplateMap[bacnetEquipment.id];
+      if (templateId) {
+        // If template is active, count all points in the equipment as tracked
+        return total + (bacnetEquipment.points?.length || 0);
+      }
+      
+      // If no template, count individually tracked points from persistent storage
+      const trackedPointsSet = trackedPointsByEquipment[mapping.bacnetEquipmentId] || new Set();
+      return total + trackedPointsSet.size;
+    }, 0);
   };
 
   const getFilteredEquipment = () => {
@@ -535,6 +566,7 @@ export function CxAlloyPanel() {
             <span>Total: {cxAlloyEquipment.length}</span>
             <span>Mapped: {mappedEquipment.length}</span>
             <span>Unmapped: {unmappedEquipment.length}</span>
+            <span>Tracked: {getTotalTrackedPointsCount()}</span>
           </div>
         </div>
       </div>
