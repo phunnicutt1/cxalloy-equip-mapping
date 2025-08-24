@@ -24,6 +24,41 @@ export const BACNET_ACRONYMS: AcronymMapping[] = [
   { acronym: 'DMPR_POS', expansion: 'Damper Position', category: 'Control', priority: 10, tags: ['damper', 'position'], pointFunction: 'Sensor' },
   { acronym: 'VLV_POS', expansion: 'Valve Position', category: 'Control', priority: 10, tags: ['valve', 'position'], pointFunction: 'Sensor' },
   { acronym: 'SF_SPD', expansion: 'Supply Fan Speed', category: 'Control', priority: 10, tags: ['supply', 'fan', 'speed', 'cmd'], pointFunction: 'Command' },
+  
+  // --- Missing Acronyms Added (Dec 2024) ---
+  { acronym: 'TS', expansion: 'Temperature', category: 'Temperature', priority: 9, tags: ['temp'], pointFunction: 'Sensor' },
+  { acronym: 'HS', expansion: 'Humidity', category: 'Measurement', priority: 9, tags: ['humidity'], pointFunction: 'Sensor' },
+  { acronym: 'HGR', expansion: 'Hot Gas Reheat', category: 'Equipment', priority: 8, tags: ['hot', 'gas', 'reheat'], pointFunction: 'Command' },
+  { acronym: 'SIG', expansion: 'Signal', category: 'Control', priority: 8, tags: ['signal'], pointFunction: 'Command' },
+  
+  // --- Additional Abbreviations Found in TRIO Files (Dec 2024) ---
+  { acronym: 'LVG', expansion: 'Leaving', category: 'Direction', priority: 8, tags: ['leaving', 'discharge'] },
+  { acronym: 'LVNG', expansion: 'Leaving', category: 'Direction', priority: 8, tags: ['leaving', 'discharge'] },
+  { acronym: 'ENT', expansion: 'Entering', category: 'Direction', priority: 8, tags: ['entering', 'inlet'] },
+  { acronym: 'ENTR', expansion: 'Entering', category: 'Direction', priority: 8, tags: ['entering', 'inlet'] },
+  { acronym: 'DMP', expansion: 'Damper', category: 'Equipment', priority: 8, tags: ['damper'] },
+  { acronym: 'DMPR', expansion: 'Damper', category: 'Equipment', priority: 8, tags: ['damper'] },
+  { acronym: 'PRI', expansion: 'Primary', category: 'Priority', priority: 7, tags: ['primary', 'first'] },
+  { acronym: 'SEC', expansion: 'Secondary', category: 'Priority', priority: 7, tags: ['secondary', 'second'] },
+  { acronym: 'AUX', expansion: 'Auxiliary', category: 'Priority', priority: 7, tags: ['auxiliary', 'backup'] },
+  { acronym: 'AUXILLARY', expansion: 'Auxiliary', category: 'Priority', priority: 7, tags: ['auxiliary', 'backup'] },
+  { acronym: 'CFM', expansion: 'Cubic Feet per Minute', category: 'Unit', priority: 8, tags: ['airflow', 'volume'] },
+  { acronym: 'CCW', expansion: 'Counterclockwise', category: 'Direction', priority: 7, tags: ['counterclockwise', 'left'] },
+  { acronym: 'CW', expansion: 'Clockwise', category: 'Direction', priority: 7, tags: ['clockwise', 'right'] },
+  { acronym: 'CLR', expansion: 'Clear', category: 'Control', priority: 7, tags: ['clear', 'reset'] },
+  { acronym: 'CORR', expansion: 'Corrected', category: 'Calculation', priority: 7, tags: ['corrected', 'adjusted'] },
+  { acronym: 'CORRECTED', expansion: 'Corrected', category: 'Calculation', priority: 7, tags: ['corrected', 'adjusted'] },
+  
+  // --- Recently Discovered Abbreviations (Dec 2024 Analysis) ---
+  { acronym: 'DAT', expansion: 'Discharge Air Temperature', category: 'Temperature', priority: 8, tags: ['discharge', 'air', 'temp'], pointFunction: 'Sensor' },
+  { acronym: 'AHU', expansion: 'Air Handling Unit', category: 'Equipment', priority: 8, tags: ['air', 'handling', 'unit', 'equip'] },
+  { acronym: 'ERV', expansion: 'Energy Recovery Ventilator', category: 'Equipment', priority: 8, tags: ['energy', 'recovery', 'ventilator', 'equip'] },
+  { acronym: 'HRV', expansion: 'Heat Recovery Ventilator', category: 'Equipment', priority: 8, tags: ['heat', 'recovery', 'ventilator', 'equip'] },
+  { acronym: 'CALIB', expansion: 'Calibrate', category: 'Control', priority: 7, tags: ['calibrate', 'adjust'] },
+  { acronym: 'CALIBRATE', expansion: 'Calibrate', category: 'Control', priority: 7, tags: ['calibrate', 'adjust'] },
+  { acronym: 'STBY', expansion: 'Standby', category: 'State', priority: 7, tags: ['standby', 'ready'] },
+  { acronym: 'AUTO', expansion: 'Automatic', category: 'Mode', priority: 7, tags: ['automatic', 'auto'] },
+  { acronym: 'SCHED', expansion: 'Schedule', category: 'Control', priority: 7, tags: ['schedule', 'time'] },
 
   // --- Point Functions (High Priority) ---
   { acronym: 'CMD', expansion: 'Command', category: 'Control', priority: 9, tags: ['cmd'], pointFunction: 'Command' },

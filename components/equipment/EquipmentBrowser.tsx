@@ -368,7 +368,7 @@ export function EquipmentBrowser() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 pb-20">
         {viewMode.left === 'equipment' ? (
           <div className="space-y-3">
             {Object.entries(equipmentByType).length === 0 ? (

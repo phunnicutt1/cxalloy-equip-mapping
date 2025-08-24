@@ -170,8 +170,8 @@ export const useAppStore = create<AppState>()(
       selectedPoints: new Set<string>(),
       showPointConfigModal: false,
       
-      leftPanelWidth: 320,
-      rightPanelWidth: 350,
+      leftPanelWidth: 380,
+      rightPanelWidth: 420,
       showMobilePanels: {
         left: false,
         right: false

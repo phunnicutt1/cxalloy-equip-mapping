@@ -260,12 +260,17 @@ function mapCategoryToDbEnum(category: PointCategory | string | undefined): stri
 export class EquipmentDatabaseService {
   
   async clearAllData(): Promise<void> {
-    console.log('[DB SERVICE] Clearing all data from equipment and point tables');
-    // It's better to use TRUNCATE for speed, but DELETE is safer if there are foreign keys without ON DELETE CASCADE
-    // We will delete from points first, then equipment to respect foreign key constraints.
-    await executeQuery('DELETE FROM point_mapping', [], 'CLEAR_POINTS');
-    await executeQuery('DELETE FROM equipment_mapping', [], 'CLEAR_EQUIPMENT');
-    console.log('[DB SERVICE] All data cleared.');
+    console.log('\x1b[33m[DB SERVICE]\x1b[0m Clearing all data from equipment and point tables');
+    try {
+      // It's better to use TRUNCATE for speed, but DELETE is safer if there are foreign keys without ON DELETE CASCADE
+      // We will delete from points first, then equipment to respect foreign key constraints.
+      await executeQuery('DELETE FROM point_mapping', [], 'CLEAR_POINTS');
+      await executeQuery('DELETE FROM equipment_mapping', [], 'CLEAR_EQUIPMENT');
+      console.log('\x1b[32m[DB SERVICE]\x1b[0m All data cleared successfully');
+    } catch (error) {
+      console.error('\x1b[31m[DB SERVICE ERROR]\x1b[0m Failed to clear data:', error);
+      throw error;
+    }
   }
 
   // Store equipment and points in database
@@ -275,7 +280,7 @@ export class EquipmentDatabaseService {
     points: NormalizedPoint[],
     sessionId?: string
   ): Promise<{ equipmentId: string; pointIds: string[] }> {
-    console.log('[DB SERVICE] Storing equipment with points', {
+    console.log('\x1b[36m[DB SERVICE]\x1b[0m Storing equipment with points', {
       fileId,
       equipmentId: equipment.id,
       pointCount: points.length,
@@ -371,12 +376,19 @@ export class EquipmentDatabaseService {
         }
       }
 
-      console.log('[DB SERVICE] Equipment and points stored successfully', {
+      console.log('\x1b[32m[DB SERVICE SUCCESS]\x1b[0m Equipment and points stored', {
         equipmentId,
         pointCount: pointIds.length
       });
 
       return { equipmentId, pointIds };
+    }).catch(error => {
+      console.error('\x1b[31m[DB SERVICE ERROR]\x1b[0m Failed to store equipment with points:', {
+        equipmentId: equipment.id,
+        equipmentName: equipment.name,
+        error: error.message || error
+      });
+      throw error;
     });
   }
 

@@ -14,6 +14,7 @@ import { parse } from 'csv-parse/sync';
 import path from 'path';
 import { EnhancedCsvProcessor } from '../../../lib/processors/enhanced-csv-processor';
 import { EquipmentConfigManager } from '../../../lib/managers/equipment-config-manager';
+import { AbbreviationAnalysisService } from '../../../lib/services/abbreviation-analysis-service';
 
 // Initialize database service and config manager
 const databaseService = new EquipmentDatabaseService();
@@ -138,6 +139,13 @@ interface ProcessingResult {
     enhancedCsvFiles: number;
     templateApplications: number;
   };
+  abbreviationAnalysis: {
+    totalFilesAnalyzed: number;
+    totalPointsProcessed: number;
+    newAbbreviationsFound: number;
+    suggestedAdditions: number;
+    analysisTime: number;
+  };
   processedFiles: Array<{
     fileName: string;
     success: boolean;
@@ -173,6 +181,8 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
   let confidenceSum = 0;
   let confidenceCount = 0;
   let templateApplications = 0;
+  let abbreviationAnalysisData: any = null;
+  const analysisStartTime = Date.now();
   
   const equipmentMetadataMap = new Map<string, { type: string; location: string; description: string }>();
 
@@ -324,7 +334,28 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
     }
   }
   
-  // Step 4: Process TRIO files to add points to existing equipment
+  // Step 4: Run abbreviation analysis on TRIO files
+  if (scanResult.trioFiles.length > 0) {
+    console.log(`\x1b[36m[Auto Process]\x1b[0m Running abbreviation analysis on ${scanResult.trioFiles.length} TRIO files...`);
+    try {
+      const trioFilesWithContent = [];
+      for (const trioFile of scanResult.trioFiles) {
+        try {
+          const fileContent = await fileScannerService.readSampleFile(trioFile.name);
+          trioFilesWithContent.push({ name: trioFile.name, content: fileContent });
+        } catch (error) {
+          console.warn(`\x1b[33m[Auto Process]\x1b[0m Could not read ${trioFile.name} for abbreviation analysis:`, error);
+        }
+      }
+      
+      abbreviationAnalysisData = await AbbreviationAnalysisService.analyzeTrioData(trioFilesWithContent);
+      console.log(`\x1b[32m[Auto Process]\x1b[0m Abbreviation analysis complete: ${AbbreviationAnalysisService.getAnalysisSummary(abbreviationAnalysisData)}`);
+    } catch (error) {
+      console.error(`\x1b[31m[Auto Process]\x1b[0m Abbreviation analysis failed:`, error);
+    }
+  }
+  
+  // Step 5: Process TRIO files to add points to existing equipment
   console.log(`[Auto Process] Processing ${scanResult.trioFiles.length} TRIO files...`);
   
   for (const trioFile of scanResult.trioFiles) {
@@ -356,6 +387,11 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
             vendorName: equipment.vendor
           });
           confidenceSum += normResult.normalizedPoint?.confidenceScore || 0;
+          
+          // Log successful normalizations with acronym expansions
+          if (normResult.success && normResult.expandedAcronyms?.length > 0) {
+            console.log(`[AUTO-PROCESS] Normalized ${bacnetPoint.dis}: ${normResult.expandedAcronyms.map(a => `${a.original}→${a.expanded}`).join(', ')}`);
+          }
           confidenceCount++;
           return normResult.normalizedPoint;
         })
@@ -414,6 +450,8 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
     }
   }
   
+  const analysisEndTime = Date.now();
+  
   const summary = {
     totalFiles: scanResult.totalFiles,
     successfulFiles: processedFiles.filter(f => f.success).length,
@@ -433,6 +471,13 @@ async function processFilesInOrder(scanResult: any, sessionId: string): Promise<
       vendorRulesCount: 0, // Placeholder
       enhancedCsvFiles: enhancedCsvFiles.length,
       templateApplications: templateApplications,
+    },
+    abbreviationAnalysis: {
+      totalFilesAnalyzed: abbreviationAnalysisData?.totalFilesAnalyzed || 0,
+      totalPointsProcessed: abbreviationAnalysisData?.totalPointsProcessed || 0,
+      newAbbreviationsFound: abbreviationAnalysisData?.newAbbreviationsDiscovered || 0,
+      suggestedAdditions: abbreviationAnalysisData?.suggestedDictionaryAdditions?.length || 0,
+      analysisTime: analysisEndTime - analysisStartTime,
     },
     processedFiles,
     summary,

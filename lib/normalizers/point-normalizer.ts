@@ -110,20 +110,30 @@ export class PointNormalizer {
       const contextAnalysis = this.analyzeContext(point, context);
       result.rulesEvaluated++;
 
-      // Step 5: Determine point function first
-      const pointFunction = this.determinePointFunction(tokenAnalyses);
+      // Step 5: Determine point function first (pass the point for context)
+      const pointFunction = this.determinePointFunction(tokenAnalyses, point);
 
-      // Step 6: Generate human-readable description with context
-      const description = this.generateDescription(tokenAnalyses, context, pointFunction);
+      // Step 6: Generate human-readable name (without function suffix)
+      const normalizedName = this.generateNormalizedName(tokenAnalyses);
+      
+      // Step 7: Generate description with function suffix when appropriate
+      const expandedDescription = this.generateExpandedDescription(tokenAnalyses, context, pointFunction, point);
       result.appliedRules.push('token_analysis', 'acronym_expansion', 'context_analysis');
       
-      // Step 7: Generate Haystack tags
-      const haystackTags = this.generateHaystackTags(tokenAnalyses, contextAnalysis, pointFunction, description);
+      // Debug logging for normalization results
+      if (process.env.NODE_ENV !== 'production' && result.expandedAcronyms.length > 0) {
+        console.log(`[NORMALIZATION] ${point.dis || point.objectName} → ${normalizedName}`);
+        console.log(`  Description: ${expandedDescription}`);
+        console.log(`  Expansions: ${result.expandedAcronyms.map(a => `${a.original}→${a.expanded}`).join(', ')}`);
+      }
+      
+      // Step 8: Generate Haystack tags
+      const haystackTags = this.generateHaystackTags(tokenAnalyses, contextAnalysis, pointFunction, expandedDescription);
 
-      // Step 8: Calculate overall confidence
+      // Step 9: Calculate overall confidence
       const confidence = this.calculateConfidence(tokenAnalyses, contextAnalysis);
 
-      // Step 9: Create normalized point
+      // Step 10: Create normalized point
       const normalizedPoint: NormalizedPoint = {
         originalPointId: point.objectName,
         equipmentId: context.equipmentName || 'unknown',
@@ -131,8 +141,8 @@ export class PointNormalizer {
         originalDescription: point.description || '',
         objectName: point.objectName,
         objectType: point.objectType,
-        normalizedName: this.formatNormalizedName(description),
-        expandedDescription: description,
+        normalizedName: this.formatNormalizedName(normalizedName),
+        expandedDescription: expandedDescription,
         pointFunction,
         category: point.category,
         dataType: point.dataType,
@@ -218,6 +228,11 @@ export class PointNormalizer {
       analysis.source = 'general';
       analysis.matchedAcronym = matchedAcronym.acronym;
       analysis.expansion = matchedAcronym.expansion;
+      
+      // Debug logging for acronym expansion
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`[ACRONYM EXPANSION] ${token} → ${matchedAcronym.expansion} (confidence: ${analysis.confidence.toFixed(2)}, priority: ${matchedAcronym.priority})`);
+      }
     }
 
     return analysis;
@@ -273,32 +288,115 @@ export class PointNormalizer {
   }
 
   /**
-   * Generate human-readable description with context enhancement
+   * Generate normalized name WITHOUT function suffix
+   * This is the clean, human-readable name for the point
    */
-  private static generateDescription(
-    tokenAnalyses: TokenAnalysis[],
-    context?: NormalizationContext,
-    pointFunction?: PointFunction
-  ): string {
-    const functionText = pointFunction ? ` ${pointFunction.toString()}` : '';
+  private static generateNormalizedName(tokenAnalyses: TokenAnalysis[]): string {
+    // Build the base description from tokens
     const description = tokenAnalyses
       .map(t => t.expansion || t.normalizedToken)
       .filter(t => !['sensor', 'command', 'setpoint', 'status'].includes(t.toLowerCase()))
       .filter(t => isNaN(parseInt(t, 10))) // Filter out numeric tokens
       .join(' ');
     
-    // Capitalize first letter of the entire string
-    const finalDescription = description.charAt(0).toUpperCase() + description.slice(1).toLowerCase();
+    // Use the same formatting as formatNormalizedName for consistency
+    return this.formatNormalizedName(description);
+  }
 
-    return `${finalDescription}${functionText}`;
+  /**
+   * Generate expanded description WITH function suffix when appropriate
+   * This provides additional context about the point's function
+   */
+  private static generateExpandedDescription(
+    tokenAnalyses: TokenAnalysis[],
+    context?: NormalizationContext,
+    pointFunction?: PointFunction,
+    point?: BACnetPoint
+  ): string {
+    // Get the base name first
+    const baseName = this.generateNormalizedName(tokenAnalyses);
+    
+    // Decide whether to append function suffix to the description
+    let functionSuffix = '';
+    
+    if (pointFunction) {
+      // Always append for setpoint, command, and status
+      if (pointFunction === PointFunction.Setpoint) {
+        functionSuffix = ' Setpoint';
+      } else if (pointFunction === PointFunction.Command) {
+        functionSuffix = ' Command';
+      } else if (pointFunction === PointFunction.Status) {
+        functionSuffix = ' Status';
+      }
+      // Only append "Sensor" for actual input types (AI, BI, MSI)
+      else if (pointFunction === PointFunction.Sensor) {
+        const objType = point?.objectType?.toUpperCase();
+        // Only add "Sensor" for actual input types
+        if (objType === 'AI' || objType === 'BI' || objType === 'MSI') {
+          functionSuffix = ' Sensor';
+        }
+        // Don't add "Sensor" for AV, BV, AO, BO, etc.
+      }
+      // Unknown function gets no suffix - return exact same string as normalized name
+      else if (pointFunction === PointFunction.Unknown) {
+        return baseName; // Return exactly the same as normalized name
+      }
+    }
+    
+    return `${baseName}${functionSuffix}`;
   }
 
   /**
    * Determine the primary function of the point (Sensor, Setpoint, Command, Status)
+   * Takes into account BACnet object type and writable status
    */
   private static determinePointFunction(
-    tokenAnalyses: TokenAnalysis[]
+    tokenAnalyses: TokenAnalysis[],
+    point?: BACnetPoint
   ): PointFunction {
+    // First prioritize BACnet object type over name tokens for accuracy
+    if (point?.objectType) {
+      const objType = point.objectType.toUpperCase();
+      
+      // Output types (AO, BO) are always commands
+      if (objType === 'AO' || objType === 'BO' || objType === 'MSO') {
+        return PointFunction.Command;
+      }
+      
+      // Input types - but check for status indicators first
+      if (objType === 'AI' || objType === 'BI' || objType === 'MSI') {
+        // Check for status tokens first for BI/MSI types
+        if (objType === 'BI' || objType === 'MSI') {
+          for (const analysis of tokenAnalyses) {
+            const matchedAcronym = BACNET_ACRONYMS.find(a => a.acronym.toLowerCase() === analysis.originalToken.toLowerCase());
+            if (matchedAcronym && matchedAcronym.pointFunction === 'Status') {
+              return PointFunction.Status;
+            }
+          }
+        }
+        // Default to sensor for input types
+        return PointFunction.Sensor;
+      }
+      
+      // Value types (AV, BV, MSV) depend on writable status
+      if (objType === 'AV' || objType === 'BV' || objType === 'MSV') {
+        // Check for explicit setpoint tokens first
+        for (const analysis of tokenAnalyses) {
+          const matchedAcronym = BACNET_ACRONYMS.find(a => a.acronym.toLowerCase() === analysis.originalToken.toLowerCase());
+          if (matchedAcronym && matchedAcronym.pointFunction === 'Setpoint') {
+            return PointFunction.Setpoint;
+          }
+        }
+        
+        if (point.isWritable || point.isCommand) {
+          return PointFunction.Command;
+        }
+        // Non-writable values should not get any function suffix
+        return PointFunction.Unknown;
+      }
+    }
+    
+    // Then check for explicit function indicators in tokens
     for (const analysis of tokenAnalyses) {
       const matchedAcronym = BACNET_ACRONYMS.find(a => a.acronym.toLowerCase() === analysis.originalToken.toLowerCase());
       if (matchedAcronym && matchedAcronym.pointFunction) {
@@ -310,7 +408,13 @@ export class PointNormalizer {
         }
       }
     }
-    // Default to Sensor if no other function is identified
+    
+    // Check if point is writable - writable points are commands
+    if (point?.isWritable || point?.isCommand) {
+      return PointFunction.Command;
+    }
+    
+    // Default to sensor for unknowns
     return PointFunction.Sensor;
   }
 
@@ -432,12 +536,12 @@ export class PointNormalizer {
    * Format normalized name for display
    */
   private static formatNormalizedName(description: string): string {
-    if (!description) return 'Unknown Point';
+    if (!description || description.trim() === '') return 'Unknown Point';
     
     // Capitalize first letter of each word and join
     return description
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   }
 

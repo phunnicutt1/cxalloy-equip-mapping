@@ -28,7 +28,7 @@ let pool: mysql.Pool | null = null;
 
 export function getConnectionPool(): mysql.Pool {
   if (!pool) {
-    console.log('[DATABASE] Creating connection pool', {
+    console.log('\x1b[36m[DATABASE]\x1b[0m Creating connection pool', {
       host: databaseConfig.host,
       port: databaseConfig.port,
       database: databaseConfig.database,
@@ -63,7 +63,7 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
     const pool = getConnectionPool();
     const connection = await pool.getConnection();
     
-    console.log('[DATABASE] Testing connection...');
+    console.log('\x1b[33m[DATABASE]\x1b[0m Testing connection...');
     
     // Test basic connectivity
     await connection.execute('SELECT 1 as test');
@@ -80,7 +80,7 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
     
     const dbInfo = rows.length > 0 ? rows[0] : undefined;
 
-    console.log('[DATABASE] Connection test successful', dbInfo);
+    console.log('\x1b[32m[DATABASE]\x1b[0m Connection test successful', dbInfo);
     
     return {
       success: true,
@@ -88,7 +88,7 @@ export async function testConnection(): Promise<{ success: boolean; error?: stri
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
-    console.error('[DATABASE] Connection test failed:', error);
+    console.error('\x1b[31m[DATABASE ERROR]\x1b[0m Connection test failed:', error);
     
     return {
       success: false,
@@ -117,7 +117,7 @@ export async function executeQuery<T>(
   try {
     const pool = getConnectionPool();
     
-    console.log(`[DATABASE ${debugName}] Executing query`, {
+    console.log(`\x1b[36m[DATABASE ${debugName}]\x1b[0m Executing query`, {
       query: query.replace(/\s+/g, ' ').trim(),
       params: params.length > 0 ? params : undefined,
       timestamp: new Date().toISOString()
@@ -126,7 +126,7 @@ export async function executeQuery<T>(
     const [rows] = await pool.execute(query, params);
     const duration = Date.now() - startTime;
     
-    console.log(`[DATABASE ${debugName}] Query completed`, {
+    console.log(`\x1b[32m[DATABASE ${debugName}]\x1b[0m Query completed`, {
       duration: `${duration}ms`,
       rowCount: Array.isArray(rows) ? rows.length : 'N/A'
     });
@@ -136,7 +136,7 @@ export async function executeQuery<T>(
     const duration = Date.now() - startTime;
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    console.error(`[DATABASE ${debugName}] Query failed`, {
+    console.error(`\x1b[31m[DATABASE ${debugName} ERROR]\x1b[0m Query failed`, {
       error: errorMessage,
       query: query.replace(/\s+/g, ' ').trim(),
       params: params.length > 0 ? params : undefined,
@@ -156,17 +156,17 @@ export async function executeTransaction<T>(
   
   try {
     await connection.beginTransaction();
-    console.log('[DATABASE TRANSACTION] Started');
+    console.log('\x1b[36m[DATABASE TRANSACTION]\x1b[0m Started');
     
     const result = await callback(connection);
     
     await connection.commit();
-    console.log('[DATABASE TRANSACTION] Committed');
+    console.log('\x1b[32m[DATABASE TRANSACTION]\x1b[0m Committed');
     
     return result;
   } catch (error) {
     await connection.rollback();
-    console.error('[DATABASE TRANSACTION] Rolled back due to error:', error);
+    console.error('\x1b[31m[DATABASE TRANSACTION ERROR]\x1b[0m Rolled back:', error);
     throw error;
   } finally {
     connection.release();
