@@ -145,7 +145,7 @@ export class UnifiedTemplateService {
       points: bacnetPoints.map(point => ({
         name: point.normalizedName || point.originalName,
         description: point.expandedDescription || point.originalDescription || '',
-        pointFunction: (point.category || 'unknown') as any,
+        pointFunction: (point.pointFunction || PointFunction.Sensor) as any,
         objectType: point.objectType as any,
         units: point.units,
         required: true,
@@ -159,19 +159,30 @@ export class UnifiedTemplateService {
       }))
     };
     
-    const response = await fetch('/api/templates', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request)
-    });
-    
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Failed to create template');
+    // Add a timeout guard to avoid hanging requests
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+        signal: controller.signal
+      });
+      const data = await response.json().catch(() => ({ success: false, error: 'Invalid JSON from server' }));
+      if (!response.ok || !data.success) {
+        const message = data?.error || `HTTP ${response.status}`;
+        throw new Error(`Template creation failed: ${message}`);
+      }
+      return data.template;
+    } catch (err) {
+      // Surface a clearer error to the UI
+      const message = err instanceof Error ? err.message : 'Unknown error creating template';
+      console.error('[UnifiedTemplateService] createTemplateFromMappedEquipment error:', message);
+      throw new Error(message);
+    } finally {
+      clearTimeout(timeout);
     }
-    
-    return data.template;
   }
   
   /**

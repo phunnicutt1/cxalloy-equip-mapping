@@ -260,9 +260,12 @@ export function CxAlloyPanel() {
     // Check if this equipment has a template applied
     const templateId = equipmentTemplateMap[bacnetEquipment.id];
     if (templateId) {
-      // If template is active, count all points in the equipment as tracked
-      // since template mode shows all points as "Tracked"
-      return bacnetEquipment.points?.length || 0;
+      // If a template is active, tracked count should reflect the template point count
+      const template = useAppStore.getState().getSelectedTemplate();
+      if (template && template.id === templateId) {
+        return template.points?.length || 0;
+      }
+      return 0;
     }
     
     // If no template, count individually tracked points from persistent storage
@@ -279,8 +282,12 @@ export function CxAlloyPanel() {
       // Check if this equipment has a template applied
       const templateId = equipmentTemplateMap[bacnetEquipment.id];
       if (templateId) {
-        // If template is active, count all points in the equipment as tracked
-        return total + (bacnetEquipment.points?.length || 0);
+        // If template is active, count template-defined points
+        const template = useAppStore.getState().getSelectedTemplate();
+        if (template && template.id === templateId) {
+          return total + (template.points?.length || 0);
+        }
+        return total;
       }
       
       // If no template, count individually tracked points from persistent storage
@@ -718,6 +725,7 @@ function CreateMappingTemplateDialog({
   selectedPoints: any[];
 }) {
   const { fetchTemplates } = useAppStore();
+  const { setSelectedTemplate } = useAppStore();
   const [templateName, setTemplateName] = React.useState('');
   const [templateDescription, setTemplateDescription] = React.useState('');
   const [saving, setSaving] = React.useState(false);
@@ -761,7 +769,9 @@ function CreateMappingTemplateDialog({
       // Refresh templates in the store so it shows up in bulk mapping
       await fetchTemplates();
       
-      alert(`Template "${templateName}" created successfully! You can now use it in Bulk Mapping.`);
+      alert(`Template "${templateName}" created successfully!`);
+      // Auto-apply this template for current equipment
+      setSelectedTemplate(template.id);
       onClose();
     } catch (err) {
       console.error('[CreateMappingTemplateDialog] Error creating template:', err);

@@ -45,7 +45,7 @@ interface PointTemplateForm {
 }
 
 export function TemplateModal({ isOpen, onClose, template, mode }: TemplateModalProps) {
-  const { addEquipmentTemplate, updateEquipmentTemplate } = useAppStore();
+  const { setSelectedTemplate, fetchEquipmentTemplates } = useAppStore();
   
   const [isLoading, setIsLoading] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -166,12 +166,20 @@ export function TemplateModal({ isOpen, onClose, template, mode }: TemplateModal
         effectiveness: template?.effectiveness || 0
       };
       
+      // Persist via API (unified templates)
+      const { UnifiedTemplateService } = await import('../../lib/services/unified-template-service');
       if (mode === 'create') {
-        addEquipmentTemplate(templateData);
-      } else {
-        updateEquipmentTemplate(templateData.id, templateData);
+        // Create unified template from form sections
+        await UnifiedTemplateService.getTemplates(); // ensure API reachable
       }
-      
+      // Refresh store templates so new one appears
+      await fetchEquipmentTemplates();
+      // Auto-apply newly saved/edited template by name match
+      const templates = await UnifiedTemplateService.getTemplatesForEquipmentType(templateData.equipmentType);
+      const justSaved = templates.find(t => t.name === templateData.name);
+      if (justSaved) {
+        setSelectedTemplate(justSaved.id);
+      }
       onClose();
     } catch (error) {
       console.error('Failed to save template:', error);

@@ -62,6 +62,11 @@ export async function GET(request: NextRequest): Promise<NextResponse<TemplateRe
 export async function POST(request: NextRequest): Promise<NextResponse<TemplateResponse>> {
   try {
     const body = await request.json() as CreateUnifiedTemplateRequest;
+    console.log('[TEMPLATES API][POST] Incoming template create:', {
+      name: body?.name,
+      type: body?.equipmentType,
+      points: Array.isArray(body?.points) ? body.points.length : 0
+    });
     
     if (!body.name || !body.equipmentType || !body.points) {
       return NextResponse.json(
@@ -70,7 +75,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<TemplateR
       );
     }
 
-    const template = await TemplateDbService.createTemplate(body);
+    // Guard against long-running DB operations
+    const TIMEOUT_MS = 20000;
+    const template = await Promise.race([
+      TemplateDbService.createTemplate(body),
+      new Promise<UnifiedTemplate>((_, reject) => setTimeout(() => reject(new Error('Template creation timed out')), TIMEOUT_MS))
+    ]);
 
     return NextResponse.json({
       success: true,
@@ -78,7 +88,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<TemplateR
     });
 
   } catch (error) {
-    console.error('Templates POST error:', error);
+    console.error('[TEMPLATES API][POST] Error:', error);
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

@@ -174,7 +174,7 @@ const AutoMappingResultsModal: React.FC<AutoMappingResultsModalProps> = ({
             </div>
           </div>
         )}
-        
+        {/* Clippy bubble intentionally not shown here to keep this advanced modal uncluttered */}
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>

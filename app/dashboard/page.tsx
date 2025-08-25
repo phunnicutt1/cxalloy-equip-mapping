@@ -11,7 +11,7 @@ import { BulkMappingModal } from '../../components/templates/BulkMappingModal';
 import { useAppStore } from '../../store/app-store';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RefreshCw, Download, Save, TestTube, Upload, BarChart3, Zap, Copy, Layers } from 'lucide-react';
+import { RefreshCw, Download, Save, TestTube, Upload, BarChart3, Zap, Copy, Layers, Paperclip } from 'lucide-react';
 import { EquipmentMapping } from '../../types/auto-mapping';
 
 function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping, onSaveMappings, savingMappings }: { 
@@ -395,14 +395,36 @@ export default function DashboardPage() {
 
       {/* Exact Matches Prompt */}
       <Dialog open={showExactPrompt} onOpenChange={setShowExactPrompt}>
-        <DialogContent>
+        <DialogContent
+          style={{
+            backgroundImage: "url('/clippy.webp')",
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right -10px bottom -10px',
+            backgroundSize: '220px auto'
+          }}
+          className="pr-8"
+        >
           <DialogHeader>
             <DialogTitle>Apply Exact Matches?</DialogTitle>
             <DialogDescription>
               We detected exact equipment name matches. Would you like to apply them now?
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          {/* Clippy mini-helper */}
+          <div className="relative mb-3">
+            <div className="flex items-start gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-xl shadow-sm max-w-[16rem] w-fit mr-auto gentle-pulse text-[12px] leading-snug">
+              <div className="shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center border border-amber-200 clippy-wink">
+                  <Paperclip className="w-4 h-4 text-amber-700" />
+                </div>
+              </div>
+              <div className="text-amber-800 pr-1">
+                <div className="font-semibold mb-0.5 text-[13px]">It looks like you're mapping some equipment…</div>
+                <div>Click “Sure” to auto-apply exact matches, or "No Thanks" to review later.</div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-2 flex gap-2 justify-start">
             <Button
               variant="ghost"
               onClick={() => setShowExactPrompt(false)}
@@ -422,7 +444,7 @@ export default function DashboardPage() {
             >
               Sure
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
