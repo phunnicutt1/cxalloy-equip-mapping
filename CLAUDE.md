@@ -3,23 +3,28 @@
 ## Project Overview
 CxAlloy Equipment Mapping & Analytics Platform - A Next.js application for mapping BACnet equipment points to CxAlloy equipment with template-based bulk operations and comprehensive analytics.
 
-## Current State (January 2025)
+## Current State (August 2025)
 
 ### ✅ Working Features
-- **Auto-Process System**: Processes TRIO files from `/public/sample_data/` directory
-- **Equipment Mapping**: Maps BACnet equipment to CxAlloy equipment with point tracking
-- **Template System**: Create templates from mapped equipment for reuse
+- **Auto-Process System**: Processes 23 TRIO files (~31,400 lines) from `/public/sample_data/` directory
+- **Equipment Mapping Interface**: Dual-panel UI for mapping BACnet to CxAlloy equipment
+- **Point Tracking System**: Select and manage individual points within mappings
+- **Template System**: Create and manage reusable templates from successful mappings
 - **Bulk Mapping Wizard**: 3-step wizard for applying templates to multiple equipment pairs
-- **Analytics Dashboard**: Comprehensive analytics for template effectiveness and usage patterns
-- **Database Integration**: MySQL database storing equipment, points, templates, and mappings
-- **CSV Enhancement**: Processes ConnectorData.csv for enhanced point classification
+- **Analytics Dashboard**: Comprehensive insights into template effectiveness and usage
+- **Database Integration**: Full MySQL persistence with proper relationships
+- **CSV Enhancement**: ConnectorData.csv integration for improved classification
+- **Auto-Classification**: Automatic equipment type detection (AHU, VAV, CV, etc.)
+- **Point Normalization**: Converts BACnet names to human-readable formats
 
 ### 🔧 Recent Work Completed
 - Fixed and verified bulk mapping functionality (wizard is fully operational)
-- Processed 9 equipment items with 368 total points successfully
-- Implemented template creation from mapped equipment
-- Added analytics system for tracking template performance
-- Enhanced CSV processing integrated into auto-process workflow
+- Successfully processing 23 TRIO files with ~31,400 lines of BACnet data
+- Implemented comprehensive template creation and application system
+- Added analytics system for tracking template performance and usage
+- Enhanced CSV processing with ConnectorData.csv integration
+- Expanded API endpoints to 15 different routes for full functionality
+- Implemented MySQL database with proper schema and relationships
 
 ### 📁 Key Files & Locations
 
@@ -43,10 +48,17 @@ CxAlloy Equipment Mapping & Analytics Platform - A Next.js application for mappi
 - `/types/normalized.ts` - Normalized point types
 - `/types/auto-mapping.ts` - Auto-mapping configuration types
 
-#### API Routes
-- `/app/api/auto-process/route.ts` - Main processing endpoint
-- `/app/api/auto-map/route.ts` - Auto-mapping endpoint
-- `/app/api/analytics/route.ts` - Analytics data endpoint
+#### API Routes (15 endpoints)
+- `/app/api/auto-process/route.ts` - Main file processing endpoint
+- `/app/api/auto-map/route.ts` - Auto-mapping functionality
+- `/app/api/analytics/route.ts` - Analytics data and insights
+- `/app/api/templates/route.ts` - Template CRUD operations
+- `/app/api/equipment/route.ts` - Equipment data management
+- `/app/api/cxalloy/equipment/route.ts` - CxAlloy integration
+- `/app/api/save-mappings/route.ts` - Mapping persistence
+- `/app/api/database/route.ts` - Database operations
+- `/app/api/refresh/route.ts` - Data refresh utilities
+- Plus additional endpoints for comprehensive functionality
 
 ### 🎯 Workflow
 
@@ -59,10 +71,11 @@ CxAlloy Equipment Mapping & Analytics Platform - A Next.js application for mappi
 
 ### 🐛 Known Issues & Considerations
 
-1. **Template Availability**: Bulk mapping requires existing templates (shows "No templates available" when none exist - this is expected behavior)
-2. **Local Storage**: Templates currently stored in localStorage (not persistent across browsers)
-3. **Database Connection**: Requires MySQL database configuration in `.env.local`
-4. **Sample Data**: Located in `/public/sample_data/` directory
+1. **Template Creation Workflow**: Bulk mapping requires creating templates from mapped equipment first
+2. **Database Dependency**: Requires active MySQL connection configured in `.env.local`
+3. **Sample Data Processing**: 23 TRIO files in `/public/sample_data/` totaling ~31,400 lines
+4. **Processing Performance**: Large file processing may take several seconds
+5. **Template Persistence**: Templates stored in database, not localStorage
 
 ### 💡 Commands & Testing
 
@@ -91,12 +104,16 @@ npm run typecheck
 
 ### 📊 Database Schema
 ```sql
--- Key tables
-equipment (id, name, type, totalPoints, ...)
-equipment_points (id, equipment_id, originalName, normalizedName, ...)
-equipment_templates (id, name, equipment_type, point_signatures, ...)
-template_applications (id, template_id, equipment_id, confidence_score, ...)
-mapping_templates (id, name, sourceEquipmentId, pointMappings, ...)
+-- Core tables for equipment and point management
+equipment (id, name, type, totalPoints, processed_at, ...)
+equipment_points (id, equipment_id, originalName, normalizedName, haystackTags, ...)
+equipment_templates (id, name, equipment_type, point_signatures, created_at, ...)
+template_applications (id, template_id, equipment_id, confidence_score, applied_at, ...)
+mapping_templates (id, name, sourceEquipmentId, pointMappings, metadata, ...)
+
+-- Analytics and tracking
+audit_trail (id, entity_type, entity_id, action, changes, timestamp, ...)
+processing_logs (id, file_name, status, processed_count, errors, ...)
 ```
 
 ### 🚀 Next Steps Recommendations
@@ -109,11 +126,13 @@ mapping_templates (id, name, sourceEquipmentId, pointMappings, ...)
 7. Create comprehensive test suite
 
 ### 📝 Notes for Future Development
-- The bulk mapping wizard is fully functional but requires templates to be created first
-- Templates are created from successfully mapped equipment pairs
-- The system uses confidence scoring for automatic matching
-- Analytics provide insights into template effectiveness
-- CSV enhancement adds vendor-specific rules and metadata
+- Bulk mapping wizard requires template creation workflow to be completed first
+- Template system supports confidence scoring for automatic application
+- Analytics engine tracks template effectiveness and optimization opportunities
+- CSV enhancement provides vendor-specific classification rules
+- System supports 23 TRIO files with comprehensive equipment type detection
+- Point normalization converts BACnet naming to human-readable formats
+- Database persistence ensures all mappings and templates survive browser sessions
 
 ## Environment Variables
 ```env

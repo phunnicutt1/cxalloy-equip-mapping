@@ -120,3 +120,115 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Animation Enhancements */
+@layer utilities {
+  /* Smooth hover scale with shadow */
+  .hover-lift {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-lg;
+  }
+  
+  /* Button press animation */
+  .button-press {
+    @apply active:scale-95 transition-transform duration-150;
+  }
+  
+  /* Gentle pulse for important elements */
+  .gentle-pulse {
+    animation: gentlePulse 3s ease-in-out infinite;
+  }
+  
+  /* Success checkmark animation */
+  .success-pop {
+    animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  /* Smooth slide entrance */
+  .slide-up-entrance {
+    animation: slideUpEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Loading shimmer effect */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+}
+
+/* Keyframe definitions */
+@keyframes gentlePulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+}
+
+@keyframes successPop {
+  0% { 
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% { 
+    transform: scale(1.1) rotate(180deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpEntrance {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Micro-interaction improvements */
+@layer components {
+  /* Enhanced button base */
+  .btn-enhanced {
+    @apply transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-lg;
+  }
+  
+  /* Card hover effect */
+  .card-interactive {
+    @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.01] cursor-pointer;
+  }
+  
+  /* Input focus enhancement */
+  .input-enhanced {
+    @apply transition-all duration-300 focus:scale-[1.02] focus:shadow-md focus:ring-2 focus:ring-primary/20;
+  }
+  
+  /* Icon spin on hover */
+  .icon-spin-hover {
+    @apply transition-transform duration-300 hover:rotate-12 hover:scale-110;
+  }
+  
+  /* Stagger animation delay utilities */
+  .stagger-1 { animation-delay: 100ms; }
+  .stagger-2 { animation-delay: 200ms; }
+  .stagger-3 { animation-delay: 300ms; }
+  .stagger-4 { animation-delay: 400ms; }
+  .stagger-5 { animation-delay: 500ms; }
+}

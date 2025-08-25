@@ -132,12 +132,12 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
   const readyToProcess = hasTrioFiles;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Auto Process Button and Status */}
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5" />
+            <Zap className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
             Auto Re-process Data
           </CardTitle>
           <CardDescription>
@@ -147,29 +147,29 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
         <CardContent className="space-y-4">
           {/* File Status */}
           {scanResult && (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
+            <div className="grid grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="text-center transition-all duration-200 hover:scale-105">
                 <div className="flex items-center justify-center gap-2">
-                  <FileText className="h-4 w-4 text-blue-500" />
-                  <span className="font-medium">{scanResult.scan?.trioFiles?.length || 0}</span>
+                  <FileText className="h-4 w-4 text-blue-500 transition-transform duration-300 hover:scale-110" />
+                  <span className="font-medium animate-in fade-in scale-in-50 duration-500">{scanResult.scan?.trioFiles?.length || 0}</span>
                 </div>
                 <p className="text-xs text-gray-500">TRIO Files</p>
               </div>
-              <div className="text-center">
+              <div className="text-center transition-all duration-200 hover:scale-105">
                 <div className="flex items-center justify-center gap-2">
-                  <Database className="h-4 w-4 text-green-500" />
-                  <span className="font-medium">{Object.keys(scanResult.scan?.csvFiles || {}).length}</span>
+                  <Database className="h-4 w-4 text-green-500 transition-transform duration-300 hover:scale-110" />
+                  <span className="font-medium animate-in fade-in scale-in-50 duration-500 delay-75">{Object.keys(scanResult.scan?.csvFiles || {}).length}</span>
                 </div>
                 <p className="text-xs text-gray-500">CSV Files</p>
               </div>
-              <div className="text-center">
+              <div className="text-center transition-all duration-200 hover:scale-105">
                 <div className="flex items-center justify-center gap-2">
                   {csvEnhancementReady ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-green-500 transition-all duration-300 hover:scale-110 animate-pulse" />
                   ) : (
-                    <AlertCircle className="h-4 w-4 text-yellow-500" />
+                    <AlertCircle className="h-4 w-4 text-yellow-500 transition-all duration-300 hover:scale-110" />
                   )}
-                  <span className="font-medium">
+                  <span className="font-medium animate-in fade-in scale-in-50 duration-500 delay-150">
                     {csvEnhancementReady ? 'Ready' : 'Basic'}
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
 
           {/* Enhancement Status */}
           {csvEnhancementReady && (
-            <Alert>
+            <Alert className="animate-in fade-in slide-in-from-left-2 duration-500 hover:scale-[1.01] transition-transform">
               <Zap className="h-4 w-4" />
               <AlertDescription>
                 <strong>CSV Enhancement Available:</strong> Found equipment metadata files. 
@@ -191,18 +191,18 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
 
           {/* Processing Status */}
           {isProcessing && (
-            <div className="space-y-2">
+            <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex justify-between text-sm">
                 <span>Processing files...</span>
                 <span>Please wait</span>
               </div>
-              <Progress value={undefined} className="w-full" />
+              <Progress value={undefined} className="w-full animate-pulse" />
             </div>
           )}
 
           {/* Error Display */}
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="animate-in fade-in slide-in-from-bottom-2 shake duration-500">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -213,15 +213,16 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
             <Button 
               onClick={processFiles} 
               disabled={isProcessing || !readyToProcess}
-              className="flex-1"
+              className="flex-1 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:hover:scale-100"
             >
-              <Zap className={`h-4 w-4 mr-2 ${isProcessing ? 'animate-pulse' : ''}`} />
+              <Zap className={`h-4 w-4 mr-2 transition-transform duration-300 ${isProcessing ? 'animate-pulse rotate-12' : 'group-hover:rotate-12 group-hover:scale-110'}`} />
               {isProcessing ? 'Processing...' : 'Process All Files'}
             </Button>
             <Button 
               variant="outline"
               onClick={scanFiles}
               disabled={isProcessing}
+              className="transition-all duration-300 hover:scale-105 hover:shadow-md disabled:hover:scale-100"
             >
               Refresh
             </Button>
@@ -229,7 +230,7 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
 
           {/* No Files Warning */}
           {scanResult && !hasTrioFiles && (
-            <Alert>
+            <Alert className="animate-in fade-in slide-in-from-bottom-2 duration-500">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 No TRIO files found in the sample_data directory. Please add .trio files to get started.
@@ -241,7 +242,7 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
 
       {/* Processing Results */}
       {result && (
-        <Card>
+        <Card className="animate-in slide-in-from-bottom-4 fade-in duration-700 hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
@@ -250,28 +251,28 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{result.summary.successfulFiles}</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="text-center transition-all duration-200 hover:scale-110">
+                <p className="text-2xl font-bold text-green-600 animate-in fade-in scale-in-50 duration-500">{result.summary.successfulFiles}</p>
                 <p className="text-sm text-gray-600">Successful</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">{result.summary.failedFiles}</p>
+              <div className="text-center transition-all duration-200 hover:scale-110">
+                <p className="text-2xl font-bold text-red-600 animate-in fade-in scale-in-50 duration-500 delay-75">{result.summary.failedFiles}</p>
                 <p className="text-sm text-gray-600">Failed</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{result.summary.totalPoints}</p>
+              <div className="text-center transition-all duration-200 hover:scale-110">
+                <p className="text-2xl font-bold text-blue-600 animate-in fade-in scale-in-50 duration-500 delay-150">{result.summary.totalPoints}</p>
                 <p className="text-sm text-gray-600">Total Points</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-yellow-600">{result.summary.averageConfidence.toFixed(1)}%</p>
+              <div className="text-center transition-all duration-200 hover:scale-110">
+                <p className="text-2xl font-bold text-yellow-600 animate-in fade-in scale-in-50 duration-500 delay-225">{result.summary.averageConfidence.toFixed(1)}%</p>
                 <p className="text-sm text-gray-600">Avg Confidence</p>
               </div>
             </div>
 
             {/* CSV Enhancement Results */}
             {result.csvEnhancement.enabled && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg animate-in fade-in slide-in-from-left-2 duration-500 hover:bg-blue-100 transition-colors">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="h-4 w-4 text-blue-500" />
                   <span className="font-medium text-blue-700">CSV Enhancement Applied</span>
@@ -294,7 +295,7 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
             <div className="space-y-2">
               <h5 className="font-medium">Processing Results (showing first 5):</h5>
               {result.processedFiles.slice(0, 5).map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded">
+                <div key={index} className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 transition-all duration-200 hover:scale-[1.01] animate-in fade-in slide-in-from-bottom-1 duration-300" style={{animationDelay: `${index * 100}ms`}}>
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
                     <div>
@@ -317,9 +318,9 @@ export function AutoProcessButton({ onProcessingComplete }: AutoProcessButtonPro
                       </Badge>
                     )}
                     {file.success ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-green-500 animate-in fade-in scale-in-95 duration-300" />
                     ) : (
-                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <AlertCircle className="h-4 w-4 text-red-500 animate-in fade-in shake duration-500" />
                     )}
                   </div>
                 </div>

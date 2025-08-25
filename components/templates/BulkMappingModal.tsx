@@ -219,8 +219,8 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden animate-in zoom-in-95 fade-in duration-500 slide-in-from-bottom-8">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>
@@ -229,31 +229,31 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-300 hover:scale-110 hover:rotate-90"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center p-4 bg-gray-50 border-b">
+        <div className="flex items-center justify-center p-4 bg-gray-50 border-b animate-in slide-in-from-top-4 duration-500">
           <div className="flex items-center space-x-8">
-            <div className={`flex items-center ${currentStep === 'template' ? 'text-blue-600' : currentStep === 'pairs' || currentStep === 'options' || currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${currentStep === 'template' ? 'bg-blue-100' : currentStep === 'pairs' || currentStep === 'options' || currentStep === 'results' ? 'bg-green-100' : 'bg-gray-100'}`}>
+            <div className={`flex items-center transition-all duration-500 ${currentStep === 'template' ? 'text-blue-600 scale-110' : currentStep === 'pairs' || currentStep === 'options' || currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-500 hover:scale-110 ${currentStep === 'template' ? 'bg-blue-100 animate-pulse' : currentStep === 'pairs' || currentStep === 'options' || currentStep === 'results' ? 'bg-green-100' : 'bg-gray-100'}`}>
                 1
               </div>
               <span className="ml-2 text-sm font-medium">Select Template</span>
             </div>
-            <div className={`w-16 h-0.5 ${currentStep === 'pairs' || currentStep === 'options' || currentStep === 'results' ? 'bg-green-300' : 'bg-gray-300'}`} />
-            <div className={`flex items-center ${currentStep === 'pairs' ? 'text-blue-600' : currentStep === 'options' || currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${currentStep === 'pairs' ? 'bg-blue-100' : currentStep === 'options' || currentStep === 'results' ? 'bg-green-100' : 'bg-gray-100'}`}>
+            <div className={`w-16 h-0.5 transition-all duration-700 ${currentStep === 'pairs' || currentStep === 'options' || currentStep === 'results' ? 'bg-green-300 animate-in slide-in-from-left duration-500' : 'bg-gray-300'}`} />
+            <div className={`flex items-center transition-all duration-500 ${currentStep === 'pairs' ? 'text-blue-600 scale-110' : currentStep === 'options' || currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-500 hover:scale-110 ${currentStep === 'pairs' ? 'bg-blue-100 animate-pulse' : currentStep === 'options' || currentStep === 'results' ? 'bg-green-100' : 'bg-gray-100'}`}>
                 2
               </div>
               <span className="ml-2 text-sm font-medium">Select Pairings</span>
             </div>
-            <div className={`w-16 h-0.5 ${currentStep === 'options' || currentStep === 'results' ? 'bg-green-300' : 'bg-gray-300'}`} />
-            <div className={`flex items-center ${currentStep === 'options' ? 'text-blue-600' : currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${currentStep === 'options' ? 'bg-blue-100' : currentStep === 'results' ? 'bg-green-100' : 'bg-gray-100'}`}>
+            <div className={`w-16 h-0.5 transition-all duration-700 ${currentStep === 'options' || currentStep === 'results' ? 'bg-green-300 animate-in slide-in-from-left duration-500 delay-300' : 'bg-gray-300'}`} />
+            <div className={`flex items-center transition-all duration-500 ${currentStep === 'options' ? 'text-blue-600 scale-110' : currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-500 hover:scale-110 ${currentStep === 'options' ? 'bg-blue-100 animate-pulse' : currentStep === 'results' ? 'bg-green-100' : 'bg-gray-100'}`}>
                 3
               </div>
               <span className="ml-2 text-sm font-medium">Configure & Apply</span>
@@ -264,13 +264,13 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
         <div className="h-[600px] overflow-y-auto">
           {/* Step 1: Template Selection */}
           {currentStep === 'template' && (
-            <div className="p-6">
+            <div className="p-6 animate-in slide-in-from-right fade-in duration-500">
               <h3 className="text-lg font-medium mb-4">Select a Template to Apply</h3>
               
               <div className="space-y-4">
                 {templates.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <Copy className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <div className="text-center py-8 text-gray-500 animate-in fade-in zoom-in-50 duration-700">
+                    <Copy className="h-12 w-12 mx-auto mb-3 text-gray-300 animate-bounce" />
                     <p>No templates available</p>
                     <p className="text-sm">Create templates first from mapped equipment</p>
                   </div>
@@ -279,10 +279,11 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                     {templates.map((template) => (
                       <div
                         key={template.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          selectedTemplateId === template.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                        className={`p-4 border rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-md animate-in fade-in slide-in-from-bottom-4 duration-500 ${
+                          selectedTemplateId === template.id ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200 scale-[1.02] shadow-md' : 'hover:bg-gray-50 hover:border-gray-300'
                         }`}
                         onClick={() => handleTemplateSelect(template.id)}
+                        style={{animationDelay: `${templates.indexOf(template) * 100}ms`}}
                       >
                         <div className="font-medium">{template.name}</div>
                         <div className="text-sm text-gray-600 mt-1">{template.description}</div>
@@ -303,7 +304,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
 
           {/* Step 2: Equipment Pairings */}
           {currentStep === 'pairs' && (
-            <div className="p-6">
+            <div className="p-6 animate-in slide-in-from-left fade-in duration-500">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Select Equipment Pairings</h3>
                 <div className="flex items-center space-x-2">
@@ -311,12 +312,14 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                     onClick={handleSelectAll}
                     variant="outline"
                     size="sm"
+                    className="transition-all duration-300 hover:scale-105"
                   >
                     {selectedPairs.size === suggestedPairs.length ? 'Deselect All' : 'Select All'}
                   </Button>
                   <Button
                     onClick={() => setCurrentStep('options')}
                     disabled={selectedPairs.size === 0}
+                    className="transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
                   >
                     Continue ({selectedPairs.size} selected)
                   </Button>
@@ -352,7 +355,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
               </div>
 
               {selectedTemplate && (
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg animate-in fade-in slide-in-from-top-2 duration-500">
                   <div className="text-sm font-medium text-blue-900">
                     Template: {selectedTemplate.name}
                   </div>
@@ -364,8 +367,8 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
 
               <div className="space-y-2">
                 {suggestedPairs.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <MapPin className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                  <div className="text-center py-8 text-gray-500 animate-in fade-in zoom-in-50 duration-700">
+                    <MapPin className="h-12 w-12 mx-auto mb-3 text-gray-300 animate-bounce" />
                     <p>No equipment pairings found</p>
                     <p className="text-sm">
                       {selectedEquipmentType === 'all' 
@@ -375,12 +378,13 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                     </p>
                   </div>
                 ) : (
-                  suggestedPairs.map((pair) => (
+                  suggestedPairs.map((pair, index) => (
                     <div
                       key={pair.id}
-                      className={`flex items-center space-x-3 p-3 border rounded-lg ${
-                        selectedPairs.has(pair.id) ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
+                      className={`flex items-center space-x-3 p-3 border rounded-lg transition-all duration-300 hover:scale-[1.01] hover:shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500 ${
+                        selectedPairs.has(pair.id) ? 'border-blue-300 bg-blue-50 ring-2 ring-blue-200 scale-[1.01] shadow-sm' : 'border-gray-200 hover:border-gray-300'
                       }`}
+                      style={{animationDelay: `${index * 75}ms`}}
                     >
                       <Checkbox
                         checked={selectedPairs.has(pair.id)}
@@ -411,13 +415,13 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
 
           {/* Step 3: Configuration & Apply */}
           {currentStep === 'options' && (
-            <div className="p-6">
+            <div className="p-6 animate-in slide-in-from-right fade-in duration-500">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Configure Template Application</h3>
                 <Button
                   onClick={handleApplyBulkMapping}
                   disabled={isProcessing}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
                 >
                   <Play size={16} />
                   <span>{isProcessing ? 'Processing...' : 'Apply Template'}</span>
@@ -522,7 +526,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
 
           {/* Step 4: Results */}
           {currentStep === 'results' && (
-            <div className="p-6">
+            <div className="p-6 animate-in slide-in-from-left fade-in duration-500">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Bulk Mapping Results</h3>
                 {!isProcessing && (
@@ -533,8 +537,8 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
               </div>
 
               {isProcessing ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <div className="text-center py-8 animate-in fade-in zoom-in-50 duration-500">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4 hover:animate-pulse"></div>
                   <p className="text-gray-600">Applying templates to selected equipment...</p>
                 </div>
               ) : (

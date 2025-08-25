@@ -110,33 +110,33 @@ function EquipmentGroup({
     <div className="border border-border rounded-lg bg-card">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors rounded-t-lg"
+        className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.01] hover:shadow-sm rounded-t-lg group"
       >
         <div className="flex items-center gap-2">
           {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:text-primary" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:text-primary group-hover:translate-x-0.5" />
           )}
-          <Package className="h-4 w-4 text-primary" />
+          <Package className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
           <span className="font-medium text-foreground">{type}</span>
         </div>
-        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded transition-all duration-300 group-hover:bg-primary/10 group-hover:text-primary group-hover:scale-105">
           {equipment.length}
         </span>
       </button>
       
       {isExpanded && (
-        <div className="border-t border-border">
+        <div className="border-t border-border animate-in slide-in-from-top-2 duration-500">
           {equipment.map((item) => (
             <button
               key={item.id}
               onClick={() => onSelectEquipment(item)}
               className={cn(
-                "w-full text-left p-3 hover:bg-muted/50 transition-all duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative group",
-                selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-500 ring-offset-1",
-                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId === item.id && "bg-green-50/70 ring-2 ring-green-500 ring-offset-1",
-                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400"
+                "w-full text-left p-3 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md border-b border-border last:border-b-0 last:rounded-b-lg relative group hover:border-l-4 hover:border-l-primary/30",
+                selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-500 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
+                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId === item.id && "bg-green-50/70 ring-2 ring-green-500 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
+                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400 animate-in fade-in duration-700"
               )}
             >
               {/* Unmap button - only visible on hover, upper left corner */}
@@ -146,9 +146,9 @@ function EquipmentGroup({
                     e.stopPropagation();
                     removeEquipmentMapping(item.id);
                   }}
-                  className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                  className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer hover:scale-110 transform hover:-translate-y-0.5"
                 >
-                  <span className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                  <span className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 transition-all duration-200 hover:shadow-lg animate-in fade-in slide-in-from-top-1">
                     <X className="h-2.5 w-2.5" />
                     UNMAP
                   </span>
@@ -157,8 +157,8 @@ function EquipmentGroup({
               
               {/* MAPPED Badge */}
               {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
-                <div className="absolute top-2 right-2">
-                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">MAPPED</span>
+                <div className="absolute top-2 right-2 animate-in fade-in slide-in-from-right-2 duration-500">
+                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse hover:animate-none hover:scale-110 transition-transform duration-200">MAPPED</span>
                 </div>
               )}
               <div className="space-y-1">
@@ -166,7 +166,7 @@ function EquipmentGroup({
                   <div className="flex items-center gap-2">
                     <div className="font-semibold text-base text-foreground">{item.name}</div>
                     {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 animate-in fade-in scale-in-50 duration-500" />
                     )}
                   </div>
                 </div>
@@ -210,7 +210,7 @@ function EquipmentGroup({
                   return (
                     <div
                       onClick={(e) => handleSuggestionClick(e, item, topSuggestion)}
-                      className="mt-2 w-full p-2 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors group cursor-pointer"
+                      className="mt-2 w-full p-2 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-700"
                     >
                       <div className="flex items-center gap-1 text-xs text-blue-700 mb-1">
                         <Lightbulb className="h-3 w-3" />
@@ -221,7 +221,7 @@ function EquipmentGroup({
                           <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
                           <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
                         </div>
-                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors" />
+                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" />
                       </div>
                       {suggestions.length > 1 && (
                         <div className="text-xs text-blue-600 mt-1">
@@ -338,12 +338,12 @@ export function EquipmentBrowser() {
             variant="ghost"
             size="sm"
             onClick={() => setViewMode('left', viewMode.left === 'equipment' ? 'templates' : 'equipment')}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-110 hover:bg-primary/10"
           >
             {viewMode.left === 'equipment' ? (
-              <Wrench className="h-4 w-4" />
+              <Wrench className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
             ) : (
-              <Package className="h-4 w-4" />
+              <Package className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
             )}
           </Button>
         </div>
@@ -356,13 +356,13 @@ export function EquipmentBrowser() {
         </p>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110" />
           <Input
             placeholder={viewMode.left === 'equipment' ? 'Search equipment...' : 'Search templates...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 transition-all duration-300 focus:scale-[1.02] focus:shadow-md"
           />
         </div>
       </div>
@@ -372,10 +372,10 @@ export function EquipmentBrowser() {
         {viewMode.left === 'equipment' ? (
           <div className="space-y-3">
             {Object.entries(equipmentByType).length === 0 ? (
-              <div className="text-center py-8">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No equipment detected</p>
-                <p className="text-sm text-muted-foreground">Upload trio files to get started</p>
+              <div className="text-center py-8 animate-in fade-in zoom-in-50 duration-700">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3 animate-bounce" />
+                <p className="text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">No equipment detected</p>
+                <p className="text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500">Upload trio files to get started</p>
               </div>
             ) : (
               Object.entries(equipmentByType).map(([type, equipment]) => {
@@ -414,20 +414,20 @@ export function EquipmentBrowser() {
 
       {/* Footer Stats */}
       {viewMode.left === 'equipment' && Object.keys(equipmentByType).length > 0 && (
-        <div className="p-4 border-t border-border bg-muted/30">
+        <div className="p-4 border-t border-border bg-muted/30 animate-in slide-in-from-bottom duration-500">
           <div className="text-sm text-muted-foreground">
-            <div className="flex justify-between">
+            <div className="flex justify-between hover:scale-105 transition-transform duration-200">
               <span>Equipment Types</span>
-              <span>{Object.keys(equipmentByType).length}</span>
+              <span className="font-semibold animate-in fade-in scale-in-50 duration-300">{Object.keys(equipmentByType).length}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between hover:scale-105 transition-transform duration-200">
               <span>Total Equipment</span>
-              <span>{Object.values(equipmentByType).flat().length}</span>
+              <span className="font-semibold animate-in fade-in scale-in-50 duration-300 delay-75">{Object.values(equipmentByType).flat().length}</span>
             </div>
             {searchTerm && (
-              <div className="flex justify-between text-primary">
+              <div className="flex justify-between text-primary hover:scale-105 transition-transform duration-200 animate-in fade-in slide-in-from-bottom-2 duration-400">
                 <span>Filtered Results</span>
-                <span>{filteredEquipment.length}</span>
+                <span className="font-semibold animate-in fade-in scale-in-50 duration-300 delay-150">{filteredEquipment.length}</span>
               </div>
             )}
           </div>

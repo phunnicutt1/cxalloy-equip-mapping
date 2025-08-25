@@ -47,27 +47,34 @@ A comprehensive **Analytics Dashboard** tracks template effectiveness, usage pat
 ```
 cxalloy-equip-mapping/
 ├── app/                          # Next.js App Router
-│   ├── api/                      # API Routes
+│   ├── api/                      # API Routes (15 endpoints)
 │   │   ├── auto-process/         # Main file processing endpoint
+│   │   ├── auto-map/             # Auto-mapping functionality
 │   │   ├── analytics/            # Template analytics data
 │   │   ├── templates/            # Template CRUD operations
-│   │   └── equipment/            # Equipment data
-│   └── (dashboard)/              # Main application UI pages
+│   │   ├── equipment/            # Equipment data management
+│   │   ├── cxalloy/              # CxAlloy integration
+│   │   ├── save-mappings/        # Mapping persistence
+│   │   ├── database/             # Database operations
+│   │   └── refresh/              # Data refresh utilities
+│   ├── dashboard/                # Main application page
+│   └── test/                     # Testing interface
 ├── components/                   # React Components
 │   ├── analytics/                # Analytics dashboard components
-│   ├── templates/                # Template list and creation modals
-│   ├── equipment/                # Equipment browser and details
-│   └── points/                   # Point list and configuration
+│   ├── templates/                # Template management UI
+│   ├── equipment/                # Equipment browser and mapping
+│   ├── points/                   # Point tracking and display
+│   └── auto-process/             # File processing UI
 ├── lib/                          # Core Business Logic
-│   ├── analytics/                # Template analytics engine
 │   ├── database/                 # MySQL database service
 │   ├── services/                 # High-level service orchestration
-│   ├── processors/               # File-specific processors (Trio, CSV)
-│   ├── engines/                  # Point signature and template matching
-│   └── classifiers/              # Equipment classification logic
-├── store/                        # Zustand application state management
-├── types/                        # TypeScript type definitions
-└── DATABASE_SETUP.md             # Instructions for setting up the database
+│   ├── processors/               # File processors (TRIO, CSV)
+│   ├── engines/                  # Matching and classification
+│   └── utils/                    # Utility functions
+├── store/                        # Zustand state management
+├── types/                        # TypeScript definitions (11 type files)
+├── public/sample_data/           # 23 TRIO files + CSV data
+└── DATABASE_SETUP.md             # Database setup instructions
 ```
 
 ## 🧠 System Architecture & Processing Pipeline
@@ -76,31 +83,34 @@ The application follows a robust, multi-stage processing pipeline:
 
 ```
 graph TD
-    A[1. File Upload <br> .trio / .csv] --> B{2. File Scanner};
-    B --> C[3. Trio Processor];
-    B --> D[4. Enhanced CSV Processor];
-    subgraph "Backend Processing"
-        C --> E{5. Database Service};
-        D --> E;
-        E --> F[6. Equipment Classifier];
-        F --> G[7. Point Normalizer & Tagger];
-        G --> H[8. Template Matching Engine];
+    A[Auto-Process Trigger] --> B[File Scanner];
+    B --> C{File Type Detection};
+    C --> D[TRIO Processor];
+    C --> E[CSV Enhancement];
+    subgraph "Processing Layer"
+        D --> F[Equipment Extraction];
+        E --> F;
+        F --> G[Point Normalization];
+        G --> H[Database Storage];
+        H --> I[Type Classification];
     end
-    H --> I[9. Data Ready];
-    I --> J[UI & Analytics Dashboard];
+    I --> J[Template Matching];
+    J --> K[Analytics Engine];
+    K --> L[UI Dashboard];
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
-    style J fill:#ccf,stroke:#333,stroke-width:2px
+    style L fill:#ccf,stroke:#333,stroke-width:2px
 ```
 
-1.  **File Upload**: User uploads `.trio` or `.csv` files via the UI.
-2.  **File Scanner**: The `auto-process` API scans the file to determine its type.
-3.  **File Processor**: The appropriate processor (`TrioProcessor` or `EnhancedCsvProcessor`) parses the file.
-4.  **Database Service**: The parsed data is written to the MySQL database.
-5.  **Equipment Classifier**: Equipment is assigned a type based on its name and contents.
-6.  **Point Normalizer**: Point names are cleaned up and standardized.
-7.  **Template Matching Engine**: The system searches for matching `EquipmentTemplates` based on the equipment type and point signatures. The best match is applied if it exceeds a confidence threshold.
-8.  **Data Ready**: The fully processed data is now available in the UI and for the analytics engine.
+**Processing Flow:**
+1. **Auto-Process**: System automatically scans `/public/sample_data/` for 23 TRIO files
+2. **File Processing**: Each file is parsed to extract equipment and point data
+3. **CSV Enhancement**: `ConnectorData.csv` provides additional point metadata and classification rules
+4. **Equipment Classification**: Automatic type detection (AHU, VAV, CV, etc.) based on naming patterns
+5. **Point Normalization**: Raw BACnet names converted to human-readable formats
+6. **Database Persistence**: All data stored in MySQL with proper relationships
+7. **Template System**: Successful mappings become reusable templates for bulk operations
+8. **Analytics**: Real-time insights into template effectiveness and usage patterns
 
 ## 🗃️ Database Schema
 
@@ -123,12 +133,11 @@ For detailed schema information and setup instructions, see `DATABASE_SETUP.md`.
 | `GET` | `/api/equipment` | Fetches all processed equipment |
 | `GET` | `/api/templates` | Retrieves saved mapping templates |
 | `POST` | `/api/templates` | Creates new mapping template |
-| `PUT` | `/api/templates/{id}` | Updates existing template |
-| `DELETE` | `/api/templates/{id}` | Deletes a template |
 | `GET` | `/api/analytics` | Fetches analytics data for dashboard |
-| `GET` | `/api/analytics?type=effectiveness` | Template effectiveness metrics |
-| `GET` | `/api/analytics?type=usage` | Template usage statistics |
-| `GET` | `/api/analytics?type=optimization` | Optimization recommendations |
+| `POST` | `/api/save-mappings` | Saves equipment mappings |
+| `GET` | `/api/cxalloy/equipment` | Fetches CxAlloy equipment definitions |
+| `POST` | `/api/database` | Database operations and queries |
+| `POST` | `/api/refresh` | Refreshes cached data |
 
 ## 🚀 Getting Started
 
@@ -140,27 +149,40 @@ For detailed schema information and setup instructions, see `DATABASE_SETUP.md`.
 
 ### Installation & Setup
 
-**Clone the repository:**
+**1. Clone the repository:**
+```bash
+git clone <repository-url>
+cd cxalloy-equip-mapping
+```
 
-**Install dependencies:**
+**2. Install dependencies:**
+```bash
+npm install
+```
 
-**Set up the database:**
+**3. Set up the database:**
+- Make sure your MySQL server is running
+- Follow the instructions in `DATABASE_SETUP.md` to create the database and tables
+- Create a `.env.local` file in the root of the project:
+```env
+DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
+```
 
-*   Make sure your MySQL server is running.
-*   Follow the instructions in `DATABASE_SETUP.md` to create the database and tables.
-*   Create a `.env.local` file in the root of the project and add your database connection string:
+**4. Run the development server:**
+```bash
+npm run dev
+```
 
-**Run the development server:**
-
-**Open in browser:**  
+**5. Open in browser:**  
 Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Usage Guide
 
 ### Step 1: Process Equipment Files
 1. Click **"Process All Files"** button in the dashboard
-2. The system will automatically scan and process all `.trio` files from `/public/sample_data/`
-3. Watch the progress as files are processed with CSV enhancement if available
+2. The system will automatically scan and process all 23 `.trio` files from `/public/sample_data/` (containing ~31,400 lines of BACnet data)
+3. CSV enhancement is applied using `ConnectorData.csv` for improved point classification
+4. Watch the progress as files are processed and equipment is automatically classified
 
 ### Step 2: Create Equipment Mappings
 1. **Select BACnet Equipment** from the left panel (Data Sources)
@@ -195,17 +217,23 @@ npm test
 
 ### Development Commands
 ```bash
-# Start development server
+# Start development server with Turbopack
 npm run dev
 
 # Build for production
 npm run build
 
+# Start production server
+npm start
+
 # Run linting
 npm run lint
 
-# Type checking
-npm run typecheck
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
 ```
 
 ## 🔧 Troubleshooting
