@@ -1,0 +1,72 @@
+Equip/Connector Name	Local  IP	OTTO  IP	BACnet ID	Network Number	MAC (decimal)	OTTO Notes	Description From Vendor
+RTR_1	172.16.10.2	10.92.26.2	1011002	-	-		Network BACnet Router
+RTU_2	172.16.10.50	10.92.26.50	1011003	-	-		RTU Controller.
+RTU_8	172.16.10.51	10.92.26.51	1011004	-	-		RTU Controller.
+RTU_9	172.16.10.52	10.92.26.52	1011005	-	-		RTU Controller.
+RTU_10	172.16.10.53	10.92.26.53	1011006	-	-		RTU Controller.
+RTU_11	172.16.10.54	10.92.26.54	1011007	-	-		RTU Controller.
+RTU_12	172.16.10.55	10.92.26.55	1011008	-	-		RTU Controller.
+RTU_13	172.16.10.56	10.92.26.56	1011009	-	-		RTU Controller, OEMCtrl OptiCORE LS-1628u (by others). BACnet/IP Integration.
+RTU_14	172.16.10.57	10.92.26.57	1011010	-	-		RTU Controller, OEMCtrl OptiCORE LS-1628u (by others). BACnet/IP Integration.
+MISC1_EF	172.16.10.58	10.92.26.58	1011011	-	-		Exhaust Fans Controller - Miscallaneous
+L_5	172.16.10.100	10.92.26.100	1011012	-	-		General Exhaust Lab Air Valve
+VVR_2.1	172.16.10.101	10.92.26.101	1011013	-	-		VAV Controller
+VVR_2.2	172.16.10.102	10.92.26.102	1011014	-	-		VAV Controller
+VVR_2.3	172.16.10.103	10.92.26.103	1011015	-	-		VAV Controller
+VVR_2.4	172.16.10.104	10.92.26.104	1011016	-	-		VAV Controller
+VVR_2.5	172.16.10.105	10.92.26.105	1011017	-	-		VAV Controller
+VVR_E8	172.16.10.106	10.92.26.106	1011018	-	-		VAV Controller
+VVR_2.6	172.16.10.107	10.92.26.107	1011019	-	-		VAV Controller
+VVR_E9	172.16.10.108	10.92.26.108	1011020	-	-		VAV Controller
+VVR_E17	172.16.10.109	10.92.26.109	1011021	-	-		VAV Controller
+VVR_E21	172.16.10.110	10.92.26.110	1011022	-	-		VAV Controller
+VVR_E26	172.16.10.111	10.92.26.111	1011023	-	-		VAV Controller
+VVR_E18	172.16.10.112	10.92.26.112	1011024	-	-		VAV Controller
+VVR_2.7	172.16.10.113	10.92.26.113	1011025	-	-		VAV Controller
+VVR_E24	172.16.10.114	10.92.26.114	1011026	-	-		VAV Controller
+VVR_2.8	172.16.10.115	10.92.26.115	1011027	-	-		VAV Controller
+VVR_2.9	172.16.10.116	10.92.26.116	1011028	-	-		VAV Controller
+VVR_2.10	172.16.10.117	10.92.26.117	1011029	-	-		VAV Controller
+VVR_2.11	172.16.10.118	10.92.26.118	1011030	-	-		VAV Controller
+VVR_E14	172.16.10.119	10.92.26.119	1011031	-	-		VAV Controller
+VVR_2.12	172.16.10.120	10.92.26.120	1011032	-	-		VAV Controller
+VVR_E5	172.16.10.121	10.92.26.121	1011033	-	-		VAV Controller
+VVR_2.13	172.16.10.122	10.92.26.122	1011034	-	-		VAV Controller
+VVR_2.14	172.16.10.123	10.92.26.123	1011035	-	-		VAV Controller
+VVR_2.15	172.16.10.124	10.92.26.124	1011036	-	-		VAV Controller
+VVR_2.16	172.16.10.125	10.92.26.125	1011037	-	-		VAV Controller
+VVR_2.20	172.16.10.126	10.92.26.126	1011038	-	-		VAV Controller
+VVR_2.21	172.16.10.127	10.92.26.127	1011039	-	-		VAV Controller
+VV_5_R3	172.16.10.128	10.92.26.128	1011040	-	-		VAV Controller, Return.
+RTU_3	172.16.10.59	10.92.26.59	1011041	-	-		RTU Controller.
+RTU_4	172.16.10.60	10.92.26.60	1011042	-	-		RTU Controller.
+RTU_5	172.16.10.61	10.92.26.61	1011043	-	-		RTU Controller.
+RTU_6	172.16.10.62	10.92.26.62	1011044	-	-		RTU Controller.
+RTU_7	172.16.10.63	10.92.26.63	1011045	-	-		RTU Controller.
+RTU_15	172.16.10.64	10.92.26.64	1011046	-	-		RTU Controller, OEMCtrl OptiCORE LS-1628u (by others). BACnet/IP Integration.
+MISC2_EF	172.16.10.65	10.92.26.65	1011047	-	-		Exhaust Fans Controller - Miscallaneous
+L-1_L-2	172.16.10.129	10.92.26.129	1011048	-	-		Supply+Exhaust Lab Air Valve
+L-3	172.16.10.130	10.92.26.130	1011049	-	-		Fume Hood Exhaust Air Valve
+L-4	172.16.10.131	10.92.26.131	1011050	-	-		Snorkel Exhaust Air Valve
+L-6_L-8	172.16.10.132	10.92.26.132	1011051	-	-		Supply+Exhaust Lab Air Valve
+L-7	172.16.10.133	10.92.26.133	1011052	-	-		Fume Hood Exhaust Air Valve
+L-9_L-11	172.16.10.134	10.92.26.134	1011053	-	-		Supply+Exhaust Lab Air Valve
+L-10_L-12	172.16.10.135	10.92.26.135	1011054	-	-		Supply+Exhaust Lab Air Valve
+L-15_L-13	172.16.10.136	10.92.26.136	1011055	-	-		Supply+Exhaust Lab Air Valve
+L-16_L-14	172.16.10.137	10.92.26.137	1011056	-	-		Supply+Exhaust Lab Air Valve
+L-17	172.16.10.138	10.92.26.138	1011057	-	-		Fume Hood Exhaust Air Valve
+L-18	172.16.10.139	10.92.26.139	1011058	-	-		Fume Hood Exhaust Air Valve
+L-19	172.16.10.140	10.92.26.140	1011059	-	-		Fume Hood Exhaust Air Valve
+L-20	172.16.10.141	10.92.26.141	1011060	-	-		Snorkel Exhaust Air Valve
+VVR-E22	172.16.10.142	10.92.26.142	1011061	-	-		VAV Controller
+VVR-2.17	172.16.10.143	10.92.26.143	1011062	-	-		VAV Controller
+VVR-2.18	172.16.10.144	10.92.26.144	1011063	-	-		VAV Controller
+VVR-2.19	172.16.10.145	10.92.26.145	1011064	-	-		VAV Controller
+VVR-2.23	172.16.10.146	10.92.26.146	1011065	-	-		VAV Controller
+VV-1-R8	172.16.10.147	10.92.26.147	1011066	-	-		VAV Controller, Return.
+VV-2-R5	172.16.10.148	10.92.26.148	1011067	-	-		VAV Controller, Return.
+VV-3-R6	172.16.10.149	10.92.26.149	1011068	-	-		VAV Controller, Return.
+VV-4-R10	172.16.10.150	10.92.26.150	1011069	-	-		VAV Controller, Return.
+VV-6-R6	172.16.10.151	10.92.26.151	1011070	-	-		VAV Controller, Return.
+H-1	172.16.10.152	10.92.26.152	1011071	-	-		Humidifier, IC Board (by others). BACnet/IP Integration.
+H-2	172.16.10.153	10.92.26.153	1011072	-	-		Humidifier, IC Board (by others). BACnet/IP Integration.

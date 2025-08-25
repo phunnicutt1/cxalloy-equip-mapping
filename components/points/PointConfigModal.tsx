@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useAppStore } from '../../store/app-store';
-import { EquipmentType, type EquipmentTemplate } from '../../types/equipment';
+import { EquipmentType } from '../../types/equipment';
 import { NormalizedPoint, PointFunction } from '../../types/normalized';
 import { BACnetObjectType } from '../../types/point';
 import { 
@@ -49,11 +49,11 @@ interface PointConfig {
 
 export function PointConfigModal({ isOpen, onClose, selectedPoints }: PointConfigModalProps) {
   const { 
-    addEquipmentTemplate, 
     selectedEquipment,
     clearPointSelection,
     setShowPointConfigModal,
-    setSelectedTemplate 
+    setSelectedTemplate,
+    fetchEquipmentTemplates 
   } = useAppStore();
   
   const [isLoading, setIsLoading] = React.useState(false);
@@ -131,41 +131,30 @@ export function PointConfigModal({ isOpen, onClose, selectedPoints }: PointConfi
     
     try {
       const includedPoints = pointConfigs.filter(config => config.isIncluded);
-      const requiredPoints = includedPoints.filter(config => config.isRequired);
-      const optionalPoints = includedPoints.filter(config => !config.isRequired);
       
-      const templateData: EquipmentTemplate = {
-        id: `template_${Date.now()}`,
-        name: templateForm.name,
-        description: templateForm.description,
-        equipmentType: templateForm.equipmentType,
-        category: templateForm.category,
-        requiredPoints: requiredPoints.map(config => ({
-          id: config.pointId,
-          name: config.name,
-          description: config.description,
-          pointFunction: config.pointFunction,
-          objectType: config.objectType,
-          units: config.units
-        })),
-        optionalPoints: optionalPoints.map(config => ({
-          id: config.pointId,
-          name: config.name,
-          description: config.description,
-          pointFunction: config.pointFunction,
-          objectType: config.objectType,
-          units: config.units
-        })),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        effectiveness: 0,
-        isBuiltIn: false
-      };
+      // Create template using unified service
+      const { UnifiedTemplateService } = await import('../../lib/services/unified-template-service');
       
-      addEquipmentTemplate(templateData);
+      const template = await UnifiedTemplateService.createTemplateFromTrackedPoints(
+        selectedEquipment!,
+        selectedPoints.map(point => ({
+          ...point,
+          normalizedName: includedPoints.find(c => c.pointId === (point.originalPointId || point.originalName))?.name || point.normalizedName,
+          pointFunction: includedPoints.find(c => c.pointId === (point.originalPointId || point.originalName))?.pointFunction || point.pointFunction,
+          units: includedPoints.find(c => c.pointId === (point.originalPointId || point.originalName))?.units || point.units
+        })),
+        templateForm.name,
+        templateForm.description,
+        templateForm.category
+      );
+      
+      console.log('[PointConfigModal] Template created:', template);
+      
+      // Refresh templates in the store
+      await fetchEquipmentTemplates();
       
       // Auto-apply the newly created template
-      setSelectedTemplate(templateData.id);
+      setSelectedTemplate(template.id);
       
       clearPointSelection();
       setShowPointConfigModal(false);

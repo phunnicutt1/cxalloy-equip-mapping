@@ -123,8 +123,8 @@ export function CompactPointRow({
           {getPointIcon(point.objectType)}
         </div>
 
-        {/* NavName (Editable) - Left Aligned with Tooltip */}
-        <div className="flex-1 min-w-0 text-left relative">
+        {/* Column 1: NavName (Editable) - 25% width */}
+        <div className="w-1/4 min-w-0 text-left relative pr-2">
           {editingNavName && isMapped ? (
             <div className="flex items-center gap-1">
               <Input
@@ -173,22 +173,22 @@ export function CompactPointRow({
           )}
         </div>
 
-        {/* BACnet Object (bacnetCur) - Left Aligned */}
-        <div className="flex-shrink-0 w-16 text-left">
+        {/* Column 2: BACnet Object - 25% width */}
+        <div className="w-1/4 text-left pr-2">
           <span className="text-xs font-mono bg-slate-100 text-slate-700 px-2 py-1 rounded transition-all duration-200 hover:bg-slate-200 hover:scale-105">
             {point.objectType}{point.objectInstance || ''}
           </span>
         </div>
 
-        {/* BACnet Description (bacnetDesc) - Left Aligned */}
-        <div className="flex-1 min-w-0 max-w-[250px] text-left">
+        {/* Column 3: BACnet Description - 25% width */}
+        <div className="w-1/4 min-w-0 text-left pr-2">
           <span className="text-xs text-muted-foreground truncate block" title={point.expandedDescription || point.originalDescription}>
             {point.expandedDescription || point.originalDescription || 'No description'}
           </span>
         </div>
 
-        {/* Units (Editable) - Left Aligned */}
-        <div className="flex-shrink-0 w-16 text-left">
+        {/* Column 4: Units - 25% width */}
+        <div className="w-1/4 text-left pr-2">
           {editingUnits && isMapped ? (
             <div className="flex items-center gap-1">
               <Input

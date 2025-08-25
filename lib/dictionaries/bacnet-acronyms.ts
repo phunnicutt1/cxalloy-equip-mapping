@@ -15,6 +15,11 @@ export interface AcronymMapping {
 }
 
 export const BACNET_ACRONYMS: AcronymMapping[] = [
+  // --- BACnet Protocol Specific ---
+  { acronym: 'BACnet', expansion: 'Building Automation Control Network', category: 'Protocol', priority: 10, tags: ['bacnet', 'protocol', 'communication'], pointFunction: 'Status' },
+  { acronym: 'BBMD', expansion: 'BACnet Broadcast Management Device', category: 'Protocol', priority: 10, tags: ['bacnet', 'broadcast', 'management', 'device'], pointFunction: 'Status' },
+  { acronym: 'BDT', expansion: 'Broadcast Definition Table', category: 'Protocol', priority: 9, tags: ['broadcast', 'definition', 'table', 'routing'], pointFunction: 'Status' },
+
   // --- High Priority & Specific ---
   { acronym: 'ZN-T', expansion: 'Zone Temperature', category: 'Temperature', priority: 10, tags: ['zone', 'air', 'temp'], pointFunction: 'Sensor' },
   { acronym: 'SAT', expansion: 'Supply Air Temperature', category: 'Temperature', priority: 10, tags: ['supply', 'air', 'temp'], pointFunction: 'Sensor' },

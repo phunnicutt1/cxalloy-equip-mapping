@@ -8,7 +8,7 @@ A comprehensive Next.js application for intelligent mapping between BACnet equip
 
 This platform streamlines the complex process of mapping building automation system (BAS) points between BACnet controllers and CxAlloy equipment definitions. It processes raw `.trio` files from BACnet systems and enhanced `.csv` files with vendor metadata, automatically classifies equipment types, normalizes point naming conventions, and provides intelligent mapping suggestions.
 
-The system's core innovation is its **Template-Based Mapping Engine** that learns from successful mappings to accelerate future work. Once you map equipment and points, the system creates reusable templates that can be applied to similar equipment with a single click through the **Bulk Mapping Wizard**.
+The system's core innovation is its **Unified Template System** that consolidates all template operations into a single, database-driven architecture. Once you map equipment and points, the system creates reusable templates that can be applied to similar equipment with detailed confidence scoring through the **Enhanced Bulk Mapping Wizard**.
 
 A comprehensive **Analytics Dashboard** tracks template effectiveness, usage patterns, and provides optimization recommendations to continuously improve mapping accuracy and efficiency.
 
@@ -18,16 +18,21 @@ A comprehensive **Analytics Dashboard** tracks template effectiveness, usage pat
 *   🗂️ **Multi-Format File Processing**: Processes BACnet `.trio` files and enhanced `.csv` files with vendor metadata
 *   🔄 **Equipment Mapping Interface**: Intuitive dual-panel interface for mapping BACnet equipment to CxAlloy definitions
 *   🎯 **Point Tracking System**: Select and track individual points for precise mapping control
-*   📋 **Template Creation**: Convert successful mappings into reusable templates for similar equipment
+*   🏗️ **Unified Template System**: Consolidated database-driven template management replacing legacy localStorage
+*   📋 **Template Creation**: Create templates from both point tracking and equipment mapping workflows
 
 ### Advanced Features
-*   🚀 **Bulk Mapping Wizard**: 3-step wizard for applying templates to multiple equipment pairs simultaneously
+*   🚀 **Enhanced Bulk Mapping Wizard**: 3-step wizard with detailed results visualization and confidence scoring
+*   🗄️ **Template Database**: MySQL persistence with comprehensive template applications tracking
+*   🔄 **Automatic Migration**: Seamless migration from legacy localStorage templates to database
 *   🤖 **Intelligent Auto-Mapping**: AI-powered suggestions based on equipment names, types, and point signatures
 *   ✍️ **Point Normalization**: Converts cryptic BACnet names to human-readable formats with Haystack tagging
 *   📊 **Analytics Dashboard**: Real-time insights into template performance, usage patterns, and optimization opportunities
 
 ### Technical Capabilities
 *   💾 **MySQL Database**: Persistent storage for equipment, points, templates, and mapping history
+*   🔗 **Unified API**: Consolidated `/api/templates` endpoint replacing separate template systems
+*   🛠️ **Database Services**: Comprehensive `TemplateDbService` for all template operations
 *   🔌 **RESTful API**: Comprehensive endpoints for all operations
 *   ⚡ **Real-time Processing**: Immediate feedback during file processing and mapping operations
 *   🎨 **Modern UI/UX**: Built with shadcn/ui components and responsive design patterns
@@ -65,14 +70,24 @@ cxalloy-equip-mapping/
 │   ├── equipment/                # Equipment browser and mapping
 │   ├── points/                   # Point tracking and display
 │   └── auto-process/             # File processing UI
+├── database/                     # Database Layer
+│   ├── db-service.ts             # MySQL connection pool management
+│   ├── template-db-service.ts    # Unified template database operations
+│   └── schema/                   # Database schema files
+│       └── templates.sql         # Unified template schema
 ├── lib/                          # Core Business Logic
-│   ├── database/                 # MySQL database service
 │   ├── services/                 # High-level service orchestration
+│   │   └── unified-template-service.ts # Client-side template operations
 │   ├── processors/               # File processors (TRIO, CSV)
 │   ├── engines/                  # Matching and classification
 │   └── utils/                    # Utility functions
+├── scripts/                      # Setup Scripts
+│   └── setup-templates.js        # Database initialization script
 ├── store/                        # Zustand state management
-├── types/                        # TypeScript definitions (11 type files)
+├── types/                        # TypeScript definitions (12 type files)
+│   ├── unified-template.ts       # NEW: Unified template system types
+│   ├── template-mapping.ts       # Legacy: Being phased out
+│   └── ...                       # Other type definitions
 ├── public/sample_data/           # 23 TRIO files + CSV data
 └── DATABASE_SETUP.md             # Database setup instructions
 ```
@@ -114,12 +129,23 @@ graph TD
 
 ## 🗃️ Database Schema
 
-The core of the data model resides in four main tables:
+### Unified Template System (NEW)
+The new unified template system uses three core tables:
 
-*   `equipment`: Stores information about each piece of equipment processed.
-*   `equipment_points`: Stores all points associated with each piece of equipment.
-*   `equipment_templates`: Contains the user-defined templates for different equipment types.
-*   `template_applications`: Logs every time a template is automatically applied to a piece of equipment, storing the confidence score.
+*   **`unified_templates`**: Master table for all template types (equipment, mapping, hybrid)
+*   **`template_points`**: Individual points within templates with matching configuration
+*   **`template_applications`**: Comprehensive logging of template usage with results
+
+### Legacy Equipment Tables
+*   `equipment`: Stores information about each piece of equipment processed
+*   `equipment_points`: Stores all points associated with each piece of equipment
+*   `equipment_templates`: Legacy templates (being migrated to unified system)
+
+### Key Features
+*   **Unified Storage**: Single source of truth for all template operations
+*   **Rich Metadata**: Vendor, model, confidence scoring, usage statistics
+*   **Application Tracking**: Detailed results and matching analysis
+*   **Migration Support**: Automatic migration from legacy localStorage templates
 
 For detailed schema information and setup instructions, see `DATABASE_SETUP.md`.
 
@@ -131,8 +157,10 @@ For detailed schema information and setup instructions, see `DATABASE_SETUP.md`.
 | `POST` | `/api/auto-process` | Processes TRIO and CSV files with enhancement |
 | `POST` | `/api/auto-map` | Performs automatic equipment mapping |
 | `GET` | `/api/equipment` | Fetches all processed equipment |
-| `GET` | `/api/templates` | Retrieves saved mapping templates |
-| `POST` | `/api/templates` | Creates new mapping template |
+| `GET` | `/api/templates` | Retrieves all unified templates from database |
+| `POST` | `/api/templates` | Creates new unified template in database |
+| `PUT` | `/api/templates/:id` | Updates existing template |
+| `DELETE` | `/api/templates/:id` | Deletes template (non-built-in only) |
 | `GET` | `/api/analytics` | Fetches analytics data for dashboard |
 | `POST` | `/api/save-mappings` | Saves equipment mappings |
 | `GET` | `/api/cxalloy/equipment` | Fetches CxAlloy equipment definitions |
@@ -168,12 +196,18 @@ npm install
 DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
 ```
 
-**4. Run the development server:**
+**4. Initialize the unified template system:**
+```bash
+node scripts/setup-templates.js
+```
+This creates the unified template tables and inserts default templates.
+
+**5. Run the development server:**
 ```bash
 npm run dev
 ```
 
-**5. Open in browser:**  
+**6. Open in browser:**  
 Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 Usage Guide
@@ -190,17 +224,24 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 3. **Track Points** you want to include in the mapping using the "Track" button
 4. **Save Mapping** to establish the connection
 
-### Step 3: Create Templates
-1. After successfully mapping equipment with tracked points
-2. Click **"Create Template"** to save the mapping pattern
-3. Give your template a descriptive name and description
-4. The template is now available for bulk operations
+### Step 3: Create Templates (Enhanced)
+1. **From Point Tracking**: After successfully mapping equipment with tracked points, click **"Save as Template"**
+2. **From Equipment Mapping**: After mapping BACnet to CxAlloy equipment, save the entire mapping as a template
+3. **Template Types**: Choose from equipment, mapping, or hybrid template types
+4. **Rich Metadata**: Add vendor, model, category information for better organization
+5. **Database Storage**: Templates are automatically saved to MySQL database (no more localStorage)
+6. **Instant Availability**: Templates immediately available for bulk operations across the entire system
 
-### Step 4: Bulk Mapping Operations
+### Step 4: Enhanced Bulk Mapping Operations
 1. Click **"Bulk Mapping"** button at the top of the interface
-2. **Select a Template** from your saved templates
-3. **Review Suggested Pairings** - the system automatically suggests equipment matches
-4. **Configure & Apply** to map multiple equipment pairs at once
+2. **Select a Template** from your unified database templates
+3. **Review Suggested Pairings** - intelligent matching based on equipment type and names
+4. **Enhanced Results View**: 
+   - Detailed success/failure breakdown
+   - Individual point mapping results with confidence scores
+   - Expandable details showing exactly what was matched
+   - Error reporting for failed mappings
+5. **Template Application Tracking**: All applications logged to database with full context
 
 ### Step 5: Monitor & Optimize
 1. Navigate to the **Analytics** tab
@@ -241,13 +282,17 @@ npm run test:watch
 ### Common Issues
 
 **"No templates available" in Bulk Mapping**
-- This is expected behavior when no templates have been created yet
-- Solution: Create equipment mappings and save them as templates first
+- Run the template setup script: `node scripts/setup-templates.js`
+- Create equipment mappings and save them as templates
+- Check database connection - templates are now stored in MySQL, not localStorage
+- Verify `/api/templates` endpoint is returning data
 
 **Database Connection Error**
 - Verify MySQL is running and accessible
 - Check DATABASE_URL in `.env.local` file
+- Run the setup script: `node scripts/setup-templates.js`
 - Ensure database and tables are created per `DATABASE_SETUP.md`
+- Check that the unified template tables exist: `unified_templates`, `template_points`, `template_applications`
 
 **Processing Files Not Working**
 - Ensure `.trio` files are present in `/public/sample_data/`
@@ -256,9 +301,54 @@ npm run test:watch
 
 ## 📚 Additional Resources
 
-- **CLAUDE.md** - AI assistant documentation for development
+- **CLAUDE.md** - AI assistant documentation for development (updated for unified templates)
 - **DATABASE_SETUP.md** - Detailed database setup instructions
+- **scripts/setup-templates.js** - Automated database initialization
+- **database/schema/templates.sql** - Complete unified template schema
 - **CHANGES.md** - Changelog and version history
+
+## 🔄 Migration Guide
+
+### From Legacy Template Systems
+If you're upgrading from a previous version with localStorage-based templates:
+
+1. **Automatic Migration**: The system will automatically detect and migrate localStorage templates
+2. **Backup First**: Export any critical templates before upgrading
+3. **Run Setup**: Execute `node scripts/setup-templates.js` to initialize the database
+4. **Verify Migration**: Check that your templates appear in the new unified system
+5. **Clean Up**: Legacy template data can be safely removed after verification
+
+### Key Changes
+- ✅ **Database Storage**: All templates now persist in MySQL database
+- ✅ **Unified System**: Single template type handles all use cases
+- ✅ **Enhanced UI**: Improved bulk mapping wizard with detailed results
+- ✅ **Better Tracking**: Comprehensive application logging and analytics
+- ✅ **Migration Tools**: Automatic conversion from old format to new
+
+## 🏗️ Architecture Overview
+
+### Unified Template System
+The new architecture consolidates previously separate template systems:
+
+```
+Legacy System (Before):
+├── EquipmentTemplate (in-memory API storage)
+├── MappingTemplate (localStorage)
+└── Separate management interfaces
+
+Unified System (Now):
+├── UnifiedTemplate (MySQL database)
+├── TemplateDbService (centralized operations)
+├── Single API endpoint (/api/templates)
+└── Consolidated management interface
+```
+
+### Benefits
+- **Single Source of Truth**: All templates in one database system
+- **Better Performance**: Optimized database queries vs localStorage
+- **Scalability**: Supports multi-user scenarios and larger datasets
+- **Rich Metadata**: Enhanced template information and tracking
+- **Robust Error Handling**: Proper transaction management and rollback
 
 ## 🤝 Contributing
 

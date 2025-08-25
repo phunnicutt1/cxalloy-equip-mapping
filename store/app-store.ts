@@ -2,13 +2,12 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { 
   Equipment, 
-  EquipmentTemplate,
   CxAlloyEquipment,
   EquipmentMapping 
 } from '../types/equipment';
+import type { UnifiedTemplate } from '../types/unified-template';
 import type { NormalizedPoint } from '../types/normalized';
 import type { AutoMappingResult, AutoMappingMatch } from '../lib/services/auto-mapping-service';
-import type { MappingTemplate } from '../types/template-mapping';
 
 interface ViewMode {
   left: 'equipment' | 'templates';
@@ -20,14 +19,13 @@ interface AppState {
   // Equipment Data
   equipment: Equipment[];
   selectedEquipment: Equipment | null;
-  equipmentTemplates: EquipmentTemplate[];
+  templates: UnifiedTemplate[];
   
   // CxAlloy Integration
   cxAlloyEquipment: CxAlloyEquipment[];
   equipmentMappings: EquipmentMapping[];
   
-  // Template Mapping System
-  mappingTemplates: MappingTemplate[];
+  // Template Management
   showTemplateManagementModal: boolean;
   
   // Auto-mapping State
@@ -81,15 +79,15 @@ interface AppState {
   clearAutoMappingResult: () => void;
   
   // Template Actions
-  setEquipmentTemplates: (templates: EquipmentTemplate[]) => void;
-  addEquipmentTemplate: (template: EquipmentTemplate) => void;
-  updateEquipmentTemplate: (templateId: string, updates: Partial<EquipmentTemplate>) => void;
-  removeEquipmentTemplate: (templateId: string) => void;
-  fetchEquipmentTemplates: () => Promise<void>;
+  setTemplates: (templates: UnifiedTemplate[]) => void;
+  addTemplate: (template: UnifiedTemplate) => void;
+  updateTemplate: (templateId: string, updates: Partial<UnifiedTemplate>) => void;
+  removeTemplate: (templateId: string) => void;
+  fetchTemplates: () => Promise<void>;
+  fetchEquipmentTemplates: () => Promise<void>; // Keep for backward compatibility
   
   // Template Mapping Actions
   setShowTemplateManagementModal: (show: boolean) => void;
-  loadMappingTemplates: () => Promise<void>;
   
   // Bulk Mapping Actions
   showBulkMappingModal: boolean;
@@ -131,9 +129,9 @@ interface AppState {
   getMappedCxAlloyEquipment: () => CxAlloyEquipment[];
   getMappedCxAlloyForDataSource: (bacnetEquipmentId: string) => CxAlloyEquipment | null;
   getUnmappedCxAlloyEquipment: () => CxAlloyEquipment[];
-  getTemplatesByType: () => Record<string, EquipmentTemplate[]>;
-  getFilteredTemplates: () => EquipmentTemplate[];
-  getSelectedTemplate: () => EquipmentTemplate | null;
+  getTemplatesByType: () => Record<string, UnifiedTemplate[]>;
+  getFilteredTemplates: () => UnifiedTemplate[];
+  getSelectedTemplate: () => UnifiedTemplate | null;
 }
 
 export const useAppStore = create<AppState>()(
@@ -142,12 +140,11 @@ export const useAppStore = create<AppState>()(
       // Initial State
       equipment: [],
       selectedEquipment: null,
-      equipmentTemplates: [],
+      templates: [],
       cxAlloyEquipment: [],
       equipmentMappings: [],
       
-      // Template Mapping State
-      mappingTemplates: [],
+      // Template Management State
       showTemplateManagementModal: false,
       
       // Bulk Mapping State
@@ -453,41 +450,47 @@ export const useAppStore = create<AppState>()(
       clearAutoMappingResult: () => set({ autoMappingResult: null }),
       
       // Template Actions
-      setEquipmentTemplates: (templates) => set({ equipmentTemplates: templates }),
+      setTemplates: (templates) => set({ templates }),
       
-      addEquipmentTemplate: (template) =>
+      addTemplate: (template) =>
         set((state) => ({
-          equipmentTemplates: [...state.equipmentTemplates, template]
+          templates: [...state.templates, template]
         })),
       
-      updateEquipmentTemplate: (templateId, updates) =>
+      updateTemplate: (templateId, updates) =>
         set((state) => ({
-          equipmentTemplates: state.equipmentTemplates.map(template =>
+          templates: state.templates.map(template =>
             template.id === templateId ? { ...template, ...updates } : template
           )
         })),
       
-      removeEquipmentTemplate: (templateId) =>
+      removeTemplate: (templateId) =>
         set((state) => ({
-          equipmentTemplates: state.equipmentTemplates.filter(
+          templates: state.templates.filter(
             template => template.id !== templateId
           )
         })),
       
-      fetchEquipmentTemplates: async () => {
+      fetchTemplates: async () => {
         set({ isLoading: true });
         try {
           const response = await fetch('/api/templates');
           const data = await response.json();
           if (data.success) {
-            set({ equipmentTemplates: data.templates, isLoading: false });
+            set({ templates: data.templates, isLoading: false });
           } else {
             throw new Error(data.error || 'Failed to fetch templates');
           }
         } catch (error) {
-          console.error('Failed to fetch templates:', error);
-          set({ isLoading: false });
+          console.error('Error fetching templates:', error);
+          set({ isLoading: false, error: 'Failed to fetch templates' });
         }
+      },
+      
+      // Backward compatibility
+      fetchEquipmentTemplates: async () => {
+        const { fetchTemplates } = get();
+        await fetchTemplates();
       },
       
       // Point Selection Actions
@@ -533,15 +536,6 @@ export const useAppStore = create<AppState>()(
       
       // Template Mapping Actions
       setShowTemplateManagementModal: (show) => set({ showTemplateManagementModal: show }),
-      loadMappingTemplates: async () => {
-        try {
-          const TemplateMappingService = (await import('../lib/services/template-mapping-service')).TemplateMappingService;
-          const templates = await TemplateMappingService.getTemplates();
-          set({ mappingTemplates: templates });
-        } catch (error) {
-          console.error('Error loading mapping templates:', error);
-        }
-      },
       
       // Bulk Mapping Actions
       setShowBulkMappingModal: (show) => set({ showBulkMappingModal: show }),
@@ -618,7 +612,7 @@ export const useAppStore = create<AppState>()(
       },
       
       getSelectedEquipmentPoints: () => {
-        const { selectedEquipment, equipmentTemplateMap, equipmentTemplates } = get();
+        const { selectedEquipment, equipmentTemplateMap, templates } = get();
         if (!selectedEquipment) return [];
         
         let points = selectedEquipment.points || [];
@@ -638,13 +632,12 @@ export const useAppStore = create<AppState>()(
         const selectedTemplateId = equipmentTemplateMap[selectedEquipment.id];
         
         // If a template is selected, only show points that match template points
-        if (selectedTemplateId) {
-          const template = equipmentTemplates.find(t => t.id === selectedTemplateId);
-          if (template) {
-            const templatePointNames = new Set([
-              ...(template.requiredPoints || []).map(p => p.name),
-              ...(template.optionalPoints || []).map(p => p.name)
-            ]);
+        if (selectedTemplateId && templates) {
+          const template = templates.find(t => t.id === selectedTemplateId);
+          if (template && template.points) {
+            const templatePointNames = new Set(
+              template.points.map(p => p.name)
+            );
             
             return points.filter(point => 
               templatePointNames.has(point.normalizedName) || 
@@ -679,21 +672,21 @@ export const useAppStore = create<AppState>()(
       },
       
       getTemplatesByType: () => {
-        const { equipmentTemplates } = get();
-        return equipmentTemplates.reduce((acc, template) => {
+        const { templates } = get();
+        return templates.reduce((acc, template) => {
           const type = template.equipmentType || 'Unknown';
           if (!acc[type]) acc[type] = [];
           acc[type].push(template);
           return acc;
-        }, {} as Record<string, EquipmentTemplate[]>);
+        }, {} as Record<string, UnifiedTemplate[]>);
       },
       
       getFilteredTemplates: () => {
-        const { equipmentTemplates, searchTerm } = get();
-        if (!searchTerm) return equipmentTemplates;
+        const { templates, searchTerm } = get();
+        if (!searchTerm) return templates;
         
         const term = searchTerm.toLowerCase();
-        return equipmentTemplates.filter(template =>
+        return templates.filter(template =>
           template.name.toLowerCase().includes(term) ||
           template.description?.toLowerCase().includes(term) ||
           template.equipmentType.toLowerCase().includes(term)
@@ -701,13 +694,13 @@ export const useAppStore = create<AppState>()(
       },
       
       getSelectedTemplate: () => {
-        const { equipmentTemplates, equipmentTemplateMap, selectedEquipment } = get();
+        const { templates, equipmentTemplateMap, selectedEquipment } = get();
         if (!selectedEquipment) return null;
         
         const selectedTemplateId = equipmentTemplateMap[selectedEquipment.id];
         if (!selectedTemplateId) return null;
         
-        return equipmentTemplates.find(template => template.id === selectedTemplateId) || null;
+        return templates.find(template => template.id === selectedTemplateId) || null;
       }
     }),
     {

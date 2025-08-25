@@ -84,10 +84,38 @@ function EquipmentGroup({
       };
 
       // Add the mapping to the store
-      addEquipmentMapping(mapping);
+      addEquipmentMapping(mapping as any);
 
       // Select the BACnet equipment to show the mapping in the UI
       setSelectedEquipment(bacnetEquipment);
+
+      // Immediately save the EK Skyspark ID to the database
+      try {
+        const saveResponse = await fetch('/api/save-mappings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            equipmentMappings: [{
+              bacnetEquipmentId: bacnetEquipment.id,
+              bacnetEquipmentName: bacnetEquipment.name,
+              cxalloyEquipmentId: Number(cxAlloyEq.id),
+              cxalloyEquipmentName: cxAlloyEq.name,
+              trackedPoints: [] // No tracked points for suggestion mapping
+            }]
+          })
+        });
+
+        const saveResult = await saveResponse.json();
+        if (!saveResult.success) {
+          console.error('Failed to save EK Skyspark ID:', saveResult.error);
+        } else {
+          console.log('EK Skyspark ID saved successfully for:', bacnetEquipment.name);
+        }
+      } catch (saveError) {
+        console.error('Error saving EK Skyspark ID:', saveError);
+      }
 
       // Record audit trail
       await recordEquipmentMapping(
@@ -110,18 +138,18 @@ function EquipmentGroup({
     <div className="border border-border rounded-lg bg-card">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.01] hover:shadow-sm rounded-t-lg group"
+        className="w-full flex items-center justify-between p-3 hover:bg-muted/60 transition-colors duration-200 rounded-t-lg group hover:ring-1 hover:ring-primary/20"
       >
         <div className="flex items-center gap-2">
           {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:text-primary" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground transition-all duration-300 group-hover:text-primary group-hover:translate-x-0.5" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
           )}
-          <Package className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
+          <Package className="h-4 w-4 text-primary" />
           <span className="font-medium text-foreground">{type}</span>
         </div>
-        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded transition-all duration-300 group-hover:bg-primary/10 group-hover:text-primary group-hover:scale-105">
+        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded transition-colors duration-200 group-hover:bg-primary/10 group-hover:text-primary">
           {equipment.length}
         </span>
       </button>
@@ -133,7 +161,7 @@ function EquipmentGroup({
               key={item.id}
               onClick={() => onSelectEquipment(item)}
               className={cn(
-                "w-full text-left p-3 hover:bg-muted/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md border-b border-border last:border-b-0 last:rounded-b-lg relative group hover:border-l-4 hover:border-l-primary/30",
+                "w-full text-left p-3 hover:bg-muted/60 transition-colors duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative group hover:border-l-4 hover:border-l-primary/30 hover:ring-1 hover:ring-primary/10",
                 selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-500 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
                 equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId === item.id && "bg-green-50/70 ring-2 ring-green-500 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
                 equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400 animate-in fade-in duration-700"
@@ -146,9 +174,9 @@ function EquipmentGroup({
                     e.stopPropagation();
                     removeEquipmentMapping(item.id);
                   }}
-                  className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer hover:scale-110 transform hover:-translate-y-0.5"
+                  className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
                 >
-                  <span className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 transition-all duration-200 hover:shadow-lg animate-in fade-in slide-in-from-top-1">
+                  <span className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 transition-shadow duration-200 hover:shadow-md animate-in fade-in slide-in-from-top-1">
                     <X className="h-2.5 w-2.5" />
                     UNMAP
                   </span>
@@ -158,7 +186,7 @@ function EquipmentGroup({
               {/* MAPPED Badge */}
               {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
                 <div className="absolute top-2 right-2 animate-in fade-in slide-in-from-right-2 duration-500">
-                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse hover:animate-none hover:scale-110 transition-transform duration-200">MAPPED</span>
+                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse hover:animate-none">MAPPED</span>
                 </div>
               )}
               <div className="space-y-1">
@@ -210,7 +238,7 @@ function EquipmentGroup({
                   return (
                     <div
                       onClick={(e) => handleSuggestionClick(e, item, topSuggestion)}
-                      className="mt-2 w-full p-2 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-700"
+                      className="mt-2 w-full p-2 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 group cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-700"
                     >
                       <div className="flex items-center gap-1 text-xs text-blue-700 mb-1">
                         <Lightbulb className="h-3 w-3" />
@@ -221,7 +249,7 @@ function EquipmentGroup({
                           <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
                           <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
                         </div>
-                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors duration-200" />
                       </div>
                       {suggestions.length > 1 && (
                         <div className="text-xs text-blue-600 mt-1">

@@ -166,7 +166,7 @@ export function PointDetails() {
     selectedEquipment,
     selectedTemplate,
     viewMode,
-    equipmentTemplates,
+    templates: equipmentTemplates,
     getSelectedTemplate,
     setSelectedTemplate,
     setViewMode,
@@ -255,20 +255,7 @@ export function PointDetails() {
 
   const handleCreateTemplate = () => {
     if (selectedPoints.size > 0) {
-      // If equipment is already mapped, also offer to create a MappingTemplate
-      if (isMappedEquipment) {
-        const shouldCreateMappingTemplate = confirm(
-          'This equipment is already mapped to CxAlloy. Would you like to create a Mapping Template for bulk operations?\n\n' +
-          'Click OK to create a Mapping Template (for bulk mapping)\n' +
-          'Click Cancel to create an Equipment Template (for point configuration)'
-        );
-        
-        if (shouldCreateMappingTemplate) {
-          createMappingTemplateFromCurrentMapping();
-          return;
-        }
-      }
-      
+      // Always go directly to the point configuration modal
       setShowPointConfigModal(true);
     }
   };
@@ -304,8 +291,8 @@ export function PointDetails() {
     const templateDescription = prompt('Enter a description (optional):', `Template based on ${selectedEquipment.name} → ${cxAlloyEq.name} mapping with ${selectedPointsData.length} tracked points`);
 
     try {
-      const { TemplateMappingService } = await import('../../lib/services/template-mapping-service');
-      const template = await TemplateMappingService.createTemplateFromMappedEquipment(
+      const { UnifiedTemplateService } = await import('../../lib/services/unified-template-service');
+      const template = await UnifiedTemplateService.createTemplateFromMappedEquipment(
         cxAlloyEq,
         selectedEquipment,
         selectedPointsData,
@@ -316,6 +303,9 @@ export function PointDetails() {
 
       console.log('[PointDetails] Mapping template created:', template);
       alert(`Mapping template "${templateName}" created successfully! You can now use it in Bulk Mapping.`);
+      
+      // Refresh templates in the store
+      fetchEquipmentTemplates();
     } catch (error) {
       console.error('[PointDetails] Error creating mapping template:', error);
       alert('Failed to create mapping template. Please try again.');
@@ -575,10 +565,10 @@ export function PointDetails() {
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <div className="w-4"></div> {/* Expand button space */}
             <div className="w-4"></div> {/* Icon space */}
-            <div className="flex-1 min-w-0 text-left">NavName</div>
-            <div className="w-16 text-left">BACnet</div>
-            <div className="flex-1 min-w-0 max-w-[250px] text-left">Description</div>
-            <div className="w-16 text-left">Units</div>
+            <div className="w-1/4 pr-2 text-left">NavName</div>
+            <div className="w-1/4 pr-2 text-left">BACnet Object</div>
+            <div className="w-1/4 pr-2 text-left">Description</div>
+            <div className="w-1/4 pr-2 text-left">Units</div>
             <div className="w-20 text-right ml-auto">Action</div>
           </div>
         </div>

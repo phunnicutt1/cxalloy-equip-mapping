@@ -64,7 +64,9 @@ export class AutoMappingService {
       }
 
       if (bestMatch) {
-        if (bestMatch.confidence >= this.EXACT_MATCH_THRESHOLD) {
+        // Treat true exact name matches as exact mappings regardless of overall confidence weighting
+        const isExactNameMatch = bestMatch.matchType === 'exact';
+        if (isExactNameMatch || bestMatch.confidence >= this.EXACT_MATCH_THRESHOLD) {
           exactMappings.push(bestMatch);
           unmatchedCxAlloy.splice(bestMatchIndex, 1);
         } else if (bestMatch.confidence >= this.SUGGESTION_THRESHOLD) {
@@ -111,6 +113,7 @@ export class AutoMappingService {
     const reasons: string[] = [];
     let confidence = 0;
     let matchType: 'exact' | 'fuzzy' | 'type-assisted' = 'fuzzy';
+    let isExactNameMatch = false;
 
     // Normalize names for comparison
     const bacnetNormalized = this.normalizeName(bacnet.name);
@@ -122,6 +125,7 @@ export class AutoMappingService {
 
     if (nameSimilarity >= 0.95) {
       matchType = 'exact';
+      isExactNameMatch = true;
       reasons.push(`Exact name match (${Math.round(nameSimilarity * 100)}%)`);
     } else if (nameSimilarity >= 0.7) {
       reasons.push(`High name similarity (${Math.round(nameSimilarity * 100)}%)`);
@@ -133,7 +137,10 @@ export class AutoMappingService {
     const typeMatch = this.calculateTypeMatch(bacnet.type, cxAlloy.type);
     if (typeMatch > 0) {
       confidence += typeMatch * this.TYPE_BONUS;
-      matchType = 'type-assisted';
+      // Preserve exact match status; only downgrade/annotate when not an exact name match
+      if (!isExactNameMatch) {
+        matchType = 'type-assisted';
+      }
       reasons.push(`Equipment type compatibility (${Math.round(typeMatch * 100)}%)`);
     }
 
@@ -149,8 +156,13 @@ export class AutoMappingService {
       }
     }
 
-    // Ensure confidence doesn't exceed 1.0
-    confidence = Math.min(confidence, 1.0);
+    // For exact name matches, force confidence to 1.0
+    if (isExactNameMatch) {
+      confidence = 1.0;
+    } else {
+      // Ensure confidence doesn't exceed 1.0
+      confidence = Math.min(confidence, 1.0);
+    }
 
     return {
       bacnetEquipment: bacnet,
@@ -314,9 +326,9 @@ export class AutoMappingService {
       mappedPointsCount: 0,
       unmappedPointsCount: 0,
       isActive: true,
-      isVerified: match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD,
-      verifiedBy: match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD ? 'auto-mapping' : undefined,
-      verifiedAt: match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD ? new Date() : undefined,
+      isVerified: match.matchType === 'exact' || match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD,
+      verifiedBy: (match.matchType === 'exact' || match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD) ? 'auto-mapping' : undefined,
+      verifiedAt: (match.matchType === 'exact' || match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD) ? new Date() : undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
       createdBy: 'auto-mapping-service',

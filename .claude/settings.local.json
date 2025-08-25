@@ -14,7 +14,11 @@
       "Bash(brew services:*)",
       "Bash(npx tsx:*)",
       "mcp__playwright__browser_navigate",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:guides.smartbuildingsacademy.com)",
+      "Bash(npm run lint)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

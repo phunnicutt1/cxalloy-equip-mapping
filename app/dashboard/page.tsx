@@ -10,6 +10,7 @@ import { TemplateManagementModal } from '../../components/templates/TemplateMana
 import { BulkMappingModal } from '../../components/templates/BulkMappingModal';
 import { useAppStore } from '../../store/app-store';
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RefreshCw, Download, Save, TestTube, Upload, BarChart3, Zap, Copy, Layers } from 'lucide-react';
 import { EquipmentMapping } from '../../types/auto-mapping';
 
@@ -74,6 +75,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [showMappingModal, setShowMappingModal] = useState(false);
   const [savingMappings, setSavingMappings] = useState(false);
+  const [showExactPrompt, setShowExactPrompt] = useState(false);
 
   const fetchCxAlloyEquipment = useCallback(async () => {
     try {
@@ -124,11 +126,17 @@ export default function DashboardPage() {
       
       // Also fetch CxAlloy equipment
       await fetchCxAlloyEquipment();
+
+      // After data loads, run a silent auto-map to detect exact matches
+      const result = await performAutoMapping();
+      if (result && result.exactMappings && result.exactMappings.length > 0) {
+        setShowExactPrompt(true);
+      }
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     }
-  }, [fetchEquipment, fetchCxAlloyEquipment]);
+  }, [fetchEquipment, fetchCxAlloyEquipment, performAutoMapping]);
 
   const handleAutoMap = useCallback(async () => {
     setError(null);
@@ -157,9 +165,14 @@ export default function DashboardPage() {
       
       // Prepare mappings data with tracked points
       const mappingsToSave = equipmentMappings.map(mapping => {
+        // Debug: Log the mapping object to see its structure
+        console.log('[Dashboard] Mapping object:', mapping);
+        
         // Get equipment names from the arrays
         const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
-        const cxalloyEquipment = cxAlloyEquipment.find(eq => eq.id === mapping.cxAlloyEquipmentId);
+        // Try both property names to handle different type definitions
+        const cxalloyId = (mapping as any).cxalloyEquipmentId || (mapping as any).cxAlloyEquipmentId;
+        const cxalloyEquipment = cxAlloyEquipment.find(eq => eq.id === cxalloyId?.toString());
         
         // Get tracked points for this equipment
         const trackedPoints = getSelectedPointsData().filter(point => 
@@ -181,13 +194,15 @@ export default function DashboardPage() {
         return {
           bacnetEquipmentId: mapping.bacnetEquipmentId,
           bacnetEquipmentName: bacnetEquipment?.name || 'Unknown',
-          cxalloyEquipmentId: mapping.cxAlloyEquipmentId,
+          cxalloyEquipmentId: cxalloyId,
           cxalloyEquipmentName: cxalloyEquipment?.name || 'Unknown',
           trackedPoints
         };
       });
       
       console.log(`[Dashboard] Saving ${mappingsToSave.length} equipment mappings with tracked points...`);
+      
+      console.log('[Dashboard] Sending mappings to API:', mappingsToSave);
       
       const response = await fetch('/api/save-mappings', {
         method: 'POST',
@@ -201,7 +216,8 @@ export default function DashboardPage() {
         console.log('[Dashboard] Mappings saved successfully:', data.data);
         alert(`Successfully saved ${data.data.equipmentMappingsSaved} equipment mappings and ${data.data.totalPointsSaved} tracked points to CxAlloy database!`);
       } else {
-        throw new Error(data.error || 'Failed to save mappings');
+        console.error('[Dashboard] Save mappings API error:', data);
+        throw new Error(data.details || data.error || 'Failed to save mappings');
       }
     } catch (err) {
       console.error('[Dashboard] Save mappings error:', err);
@@ -216,7 +232,7 @@ export default function DashboardPage() {
       // TODO: Implement actual mapping persistence to database
       console.log('[Dashboard] Applying mapping:', mapping);
       // For now, just add to applied mappings in store
-      await applyExactMappings([mapping]);
+      await applyExactMappings([mapping as any]);
     } catch (err) {
       console.error('[Dashboard] Failed to apply mapping:', err);
     }
@@ -236,7 +252,7 @@ export default function DashboardPage() {
   const handleApplySelectedSuggestions = async (mappings: EquipmentMapping[]) => {
     try {
       console.log('[Dashboard] Applying selected suggestions:', mappings);
-      await applyExactMappings(mappings);
+      await applyExactMappings(mappings as any);
     } catch (err) {
       console.error('[Dashboard] Failed to apply suggestions:', err);
     }
@@ -346,7 +362,7 @@ export default function DashboardPage() {
       <AutoMappingResultsModal
         isOpen={showMappingModal}
         onClose={() => setShowMappingModal(false)}
-        results={autoMappingResult}
+        results={autoMappingResult as any}
         onApplyMapping={handleApplyMapping}
         onApplyAllExact={handleApplyAllExact}
         onApplySelectedSuggestions={handleApplySelectedSuggestions}
@@ -376,6 +392,39 @@ export default function DashboardPage() {
           fetchEquipment(1, {});
         }}
       />
+
+      {/* Exact Matches Prompt */}
+      <Dialog open={showExactPrompt} onOpenChange={setShowExactPrompt}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apply Exact Matches?</DialogTitle>
+            <DialogDescription>
+              We detected exact equipment name matches. Would you like to apply them now?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setShowExactPrompt(false)}
+            >
+              No Thanks
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  if (autoMappingResult?.exactMappings?.length) {
+                    await handleApplyAllExact();
+                  }
+                } finally {
+                  setShowExactPrompt(false);
+                }
+              }}
+            >
+              Sure
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

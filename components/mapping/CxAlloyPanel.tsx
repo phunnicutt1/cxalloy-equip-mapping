@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { CxAlloyEquipment, Equipment } from '../../types/equipment';
-import { TemplateMappingService } from '../../lib/services/template-mapping-service';
+import { UnifiedTemplateService } from '../../lib/services/unified-template-service';
 import { 
   Dialog,
   DialogContent,
@@ -219,11 +219,11 @@ export function CxAlloyPanel() {
 
   // Helper functions (need to be declared before use)
   const isEquipmentMapped = (equipmentId: string | number) => {
-    return equipmentMappings.some(m => Number(m.cxalloyEquipmentId) === Number(equipmentId));
+    return equipmentMappings.some(m => Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(equipmentId));
   };
 
   const getMappedBacnetName = (cxAlloyEquipmentId: string | number): string | undefined => {
-    const mapping = equipmentMappings.find(m => Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId));
+    const mapping = equipmentMappings.find(m => Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(cxAlloyEquipmentId));
     if (!mapping) return undefined;
     
     const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
@@ -235,7 +235,7 @@ export function CxAlloyPanel() {
     if (!selectedEquipment) return [];
     return cxAlloyEquipment.filter(eq => 
       equipmentMappings.some(m => 
-        m.bacnetEquipmentId === selectedEquipment.id && Number(m.cxalloyEquipmentId) === Number(eq.id)
+        m.bacnetEquipmentId === selectedEquipment.id && Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(eq.id)
       )
     );
   };
@@ -244,13 +244,13 @@ export function CxAlloyPanel() {
   const isMappedToSelectedSource = (cxAlloyEquipmentId: string | number): boolean => {
     if (!selectedEquipment) return false;
     return equipmentMappings.some(m => 
-      m.bacnetEquipmentId === selectedEquipment.id && Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId)
+      m.bacnetEquipmentId === selectedEquipment.id && Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(cxAlloyEquipmentId)
     );
   };
 
   // Get tracked points count for a specific CxAlloy equipment
   const getTrackedPointsCount = (cxAlloyEquipmentId: string | number): number => {
-    const mapping = equipmentMappings.find(m => Number(m.cxalloyEquipmentId) === Number(cxAlloyEquipmentId));
+    const mapping = equipmentMappings.find(m => Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(cxAlloyEquipmentId));
     if (!mapping) return 0;
     
     // Find the BACnet equipment for this mapping
@@ -717,6 +717,7 @@ function CreateMappingTemplateDialog({
   cxalloyEquipment: CxAlloyEquipment | null;
   selectedPoints: any[];
 }) {
+  const { fetchTemplates } = useAppStore();
   const [templateName, setTemplateName] = React.useState('');
   const [templateDescription, setTemplateDescription] = React.useState('');
   const [saving, setSaving] = React.useState(false);
@@ -746,7 +747,7 @@ function CreateMappingTemplateDialog({
 
     try {
       console.log('[CreateMappingTemplateDialog] Calling createTemplateFromMappedEquipment...');
-      const template = await TemplateMappingService.createTemplateFromMappedEquipment(
+      const template = await UnifiedTemplateService.createTemplateFromMappedEquipment(
         cxalloyEquipment,
         bacnetEquipment,
         selectedPoints,
@@ -756,6 +757,10 @@ function CreateMappingTemplateDialog({
       );
 
       console.log('[CreateMappingTemplateDialog] Template created successfully:', template);
+      
+      // Refresh templates in the store so it shows up in bulk mapping
+      await fetchTemplates();
+      
       alert(`Template "${templateName}" created successfully! You can now use it in Bulk Mapping.`);
       onClose();
     } catch (err) {
