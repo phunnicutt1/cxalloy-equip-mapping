@@ -12,11 +12,11 @@ import {
   ChevronRight,
   Package,
   Wrench,
-  Lightbulb,
   Plus,
   ArrowRight,
   CheckCircle2,
-  X
+  X,
+  Link2
 } from 'lucide-react';
 import { TemplateList } from '../templates/TemplateList';
 import { TemplateModal } from '../templates/TemplateModal';
@@ -238,24 +238,19 @@ function EquipmentGroup({
                   return (
                     <div
                       onClick={(e) => handleSuggestionClick(e, item, topSuggestion)}
-                      className="mt-2 w-full p-2 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 group cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-700"
+                      className="mt-2 w-full px-3 py-1.5 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 group cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-700"
                     >
-                      <div className="flex items-center gap-1 text-xs text-blue-700 mb-1">
-                        <Lightbulb className="h-3 w-3" />
-                        <span className="font-medium">Click to Map</span>
-                      </div>
                       <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1">
-                          <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
-                          <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
+                        <div className="flex items-center gap-2">
+                          <Link2 className="h-3.5 w-3.5 text-blue-600" />
+                          <span className="text-blue-700 font-medium">Click to Map:</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
+                            <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
+                          </div>
                         </div>
                         <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors duration-200" />
                       </div>
-                      {suggestions.length > 1 && (
-                        <div className="text-xs text-blue-600 mt-1">
-                          +{suggestions.length - 1} more suggestions
-                        </div>
-                      )}
                     </div>
                   );
                 })()}

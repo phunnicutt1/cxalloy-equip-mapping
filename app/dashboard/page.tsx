@@ -41,7 +41,7 @@ function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping, onSaveM
         </Button>
         <Button variant="outline" onClick={onBulkMapping}>
           <Layers className="w-4 h-4 mr-2" />
-          Bulk Mapping
+         Bulk Point Templates
         </Button>
         <Button variant="outline" onClick={onSaveMappings} disabled={savingMappings}>
           <Save className={`w-4 h-4 mr-2 ${savingMappings ? 'animate-pulse' : ''}`} />
