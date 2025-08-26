@@ -1,0 +1,20 @@
+{
+  "markdown.styles": [
+    ".vscode/markdown-preview.css"
+  ],
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "name": "Inline code in Markdown",
+        "scope": [
+          "markup.inline.raw.markdown",
+          "markup.raw.inline.markdown",
+          "markup.inline.raw.string.markdown"
+        ],
+        "settings": {
+          "foreground": "#FFD866"
+        }
+      }
+    ]
+  }
+}

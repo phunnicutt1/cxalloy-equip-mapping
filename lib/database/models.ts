@@ -58,6 +58,38 @@ export interface MappingSessionRecord {
   metadata: string; // JSON string
 }
 
+// Equipment point configuration templates
+export interface EquipmentPointConfigurationRecord {
+  id: string;
+  equipment_type: string;
+  name: string;
+  description: string | null;
+  point_signatures: string; // JSON string containing PointSignature[]
+  default_config: boolean;
+  effectiveness_score: number;
+  usage_count: number;
+  success_rate: number;
+  created_at: Date;
+  updated_at: Date;
+  created_by: string | null;
+  metadata: string | null; // JSON string
+}
+
+// Template application tracking
+export interface TemplateApplicationRecord {
+  id: string;
+  equipment_id: string;
+  configuration_id: string;
+  applied_points: string; // JSON string containing applied point mappings
+  confidence_score: number;
+  match_results: string | null; // JSON string containing TemplateMatch[]
+  effectiveness_rating: number | null;
+  applied_at: Date;
+  applied_by: string | null;
+  is_automatic: boolean;
+  metadata: string | null; // JSON string
+}
+
 // SQL table creation scripts
 export const CREATE_TABLES_SQL = {
   equipment: `
@@ -160,6 +192,8 @@ export async function getTableInfo(): Promise<{
   equipment: { count: number; latest: Date | null };
   points: { count: number; latest: Date | null };
   sessions: { count: number; latest: Date | null };
+  configurations: { count: number; latest: Date | null };
+  applications: { count: number; latest: Date | null };
 }> {
   try {
     const equipmentStatsRows = await executeQuery<{ count: number; latest: Date | null }>(`
@@ -186,6 +220,22 @@ export async function getTableInfo(): Promise<{
     `, [], 'SESSION_STATS');
     const sessionStats = sessionStatsRows.length > 0 ? sessionStatsRows[0] : { count: 0, latest: null };
     
+    const configurationStatsRows = await executeQuery<{ count: number; latest: Date | null }>(`
+      SELECT 
+        COUNT(*) as count,
+        MAX(created_at) as latest
+      FROM equipment_point_configurations
+    `, [], 'CONFIGURATION_STATS');
+    const configurationStats = configurationStatsRows.length > 0 ? configurationStatsRows[0] : { count: 0, latest: null };
+    
+    const applicationStatsRows = await executeQuery<{ count: number; latest: Date | null }>(`
+      SELECT 
+        COUNT(*) as count,
+        MAX(applied_at) as latest
+      FROM template_applications
+    `, [], 'APPLICATION_STATS');
+    const applicationStats = applicationStatsRows.length > 0 ? applicationStatsRows[0] : { count: 0, latest: null };
+    
     return {
       equipment: {
         count: equipmentStats.count,
@@ -198,6 +248,14 @@ export async function getTableInfo(): Promise<{
       sessions: {
         count: sessionStats.count,
         latest: sessionStats.latest
+      },
+      configurations: {
+        count: configurationStats.count,
+        latest: configurationStats.latest
+      },
+      applications: {
+        count: applicationStats.count,
+        latest: applicationStats.latest
       }
     };
   } catch (error) {

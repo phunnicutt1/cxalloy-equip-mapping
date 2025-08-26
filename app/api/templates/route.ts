@@ -1,192 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-export interface Template {
-  id: string;
-  name: string;
-  description: string;
-  equipmentType: string;
-  points: TemplatePoint[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TemplatePoint {
-  id: string;
-  name: string;
-  description: string;
-  objectType: string;
-  unit?: string;
-  dataType: string;
-  required: boolean;
-  haystackTags: string[];
-}
+import { TemplateDbService } from '../../../database/template-db-service';
+import {
+  UnifiedTemplate,
+  CreateUnifiedTemplateRequest,
+  UpdateUnifiedTemplateRequest
+} from '../../../types/unified-template';
 
 interface TemplateResponse {
   success: boolean;
-  templates?: Template[];
-  template?: Template;
+  templates?: UnifiedTemplate[];
+  template?: UnifiedTemplate;
   error?: string;
 }
 
-interface CreateTemplateRequest {
-  name: string;
-  description: string;
-  equipmentType: string;
-  points: Omit<TemplatePoint, 'id'>[];
-}
-
-interface UpdateTemplateRequest {
-  name?: string;
-  description?: string;
-  equipmentType?: string;
-  points?: Omit<TemplatePoint, 'id'>[];
-}
-
-// In-memory storage for templates (use database in production)
-const templatesStore = new Map<string, Template>();
-
-// Initialize with some default templates
-const initializeDefaultTemplates = () => {
-  if (templatesStore.size === 0) {
-    const defaultTemplates: Template[] = [
-      {
-        id: 'vav-standard',
-        name: 'VAV Standard',
-        description: 'Standard Variable Air Volume box template',
-        equipmentType: 'VAV',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        points: [
-          {
-            id: 'room-temp',
-            name: 'Room Temperature',
-            description: 'Zone temperature sensor',
-            objectType: 'AI',
-            unit: '°F',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['sensor', 'temp', 'zone', 'room']
-          },
-          {
-            id: 'damper-pos',
-            name: 'Damper Position',
-            description: 'Supply air damper position command',
-            objectType: 'AO',
-            unit: '%',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
-          },
-          {
-            id: 'airflow',
-            name: 'Air Flow',
-            description: 'Supply air flow measurement',
-            objectType: 'AI',
-            unit: 'cfm',
-            dataType: 'Number',
-            required: false,
-            haystackTags: ['sensor', 'flow', 'air', 'supply']
-          }
-        ]
-      },
-      {
-        id: 'vav-reheat',
-        name: 'VAV with Reheat',
-        description: 'Variable Air Volume box with reheat coil',
-        equipmentType: 'VAV',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        points: [
-          {
-            id: 'room-temp',
-            name: 'Room Temperature',
-            description: 'Zone temperature sensor',
-            objectType: 'AI',
-            unit: '°F',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['sensor', 'temp', 'zone', 'room']
-          },
-          {
-            id: 'damper-pos',
-            name: 'Damper Position',
-            description: 'Supply air damper position command',
-            objectType: 'AO',
-            unit: '%',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['cmd', 'damper', 'position', 'supply', 'air']
-          },
-          {
-            id: 'reheat-valve',
-            name: 'Reheat Valve',
-            description: 'Hot water reheat valve position',
-            objectType: 'AO',
-            unit: '%',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['cmd', 'valve', 'position', 'hotWater', 'reheat']
-          }
-        ]
-      },
-      {
-        id: 'ahu-basic',
-        name: 'AHU Basic',
-        description: 'Basic Air Handling Unit template',
-        equipmentType: 'AHU',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        points: [
-          {
-            id: 'supply-temp',
-            name: 'Supply Air Temperature',
-            description: 'Discharge air temperature sensor',
-            objectType: 'AI',
-            unit: '°F',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['sensor', 'temp', 'air', 'discharge', 'supply']
-          },
-          {
-            id: 'return-temp',
-            name: 'Return Air Temperature',
-            description: 'Return air temperature sensor',
-            objectType: 'AI',
-            unit: '°F',
-            dataType: 'Number',
-            required: true,
-            haystackTags: ['sensor', 'temp', 'air', 'return']
-          },
-          {
-            id: 'supply-fan',
-            name: 'Supply Fan',
-            description: 'Supply fan start/stop command',
-            objectType: 'BO',
-            dataType: 'Boolean',
-            required: true,
-            haystackTags: ['cmd', 'fan', 'supply']
-          }
-        ]
-      }
-    ];
-
-    defaultTemplates.forEach(template => {
-      templatesStore.set(template.id, template);
-    });
-  }
-};
-
 export async function GET(request: NextRequest): Promise<NextResponse<TemplateResponse>> {
   try {
-    initializeDefaultTemplates();
-
     const { searchParams } = new URL(request.url);
     const templateId = searchParams.get('id');
     const equipmentType = searchParams.get('type');
 
     if (templateId) {
       // Get specific template
-      const template = templatesStore.get(templateId);
+      const template = await TemplateDbService.getTemplateById(templateId);
       
       if (!template) {
         return NextResponse.json(
@@ -202,12 +37,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<TemplateRe
     }
 
     // Get all templates or filter by equipment type
-    let templates = Array.from(templatesStore.values());
-
+    let templates: UnifiedTemplate[];
+    
     if (equipmentType) {
-      templates = templates.filter(t => 
-        t.equipmentType.toLowerCase() === equipmentType.toLowerCase()
-      );
+      templates = await TemplateDbService.getTemplatesByEquipmentType(equipmentType);
+    } else {
+      templates = await TemplateDbService.getAllTemplates();
     }
 
     return NextResponse.json({
@@ -218,7 +53,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<TemplateRe
   } catch (error) {
     console.error('Templates GET error:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
@@ -226,44 +61,26 @@ export async function GET(request: NextRequest): Promise<NextResponse<TemplateRe
 
 export async function POST(request: NextRequest): Promise<NextResponse<TemplateResponse>> {
   try {
-    const body = await request.json() as CreateTemplateRequest;
-    const { name, description, equipmentType, points } = body;
-
-    if (!name || !description || !equipmentType || !points) {
+    const body = await request.json() as CreateUnifiedTemplateRequest;
+    console.log('[TEMPLATES API][POST] Incoming template create:', {
+      name: body?.name,
+      type: body?.equipmentType,
+      points: Array.isArray(body?.points) ? body.points.length : 0
+    });
+    
+    if (!body.name || !body.equipmentType || !body.points) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Generate unique ID
-    const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    
-    // Check if template already exists
-    if (templatesStore.has(id)) {
-      return NextResponse.json(
-        { success: false, error: 'Template with this name already exists' },
-        { status: 409 }
-      );
-    }
-
-    // Create template points with IDs
-    const templatePoints: TemplatePoint[] = points.map((point, index) => ({
-      ...point,
-      id: `${id}-point-${index}`
-    }));
-
-    const template: Template = {
-      id,
-      name,
-      description,
-      equipmentType,
-      points: templatePoints,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    templatesStore.set(id, template);
+    // Guard against long-running DB operations
+    const TIMEOUT_MS = 20000;
+    const template = await Promise.race([
+      TemplateDbService.createTemplate(body),
+      new Promise<UnifiedTemplate>((_, reject) => setTimeout(() => reject(new Error('Template creation timed out')), TIMEOUT_MS))
+    ]);
 
     return NextResponse.json({
       success: true,
@@ -271,9 +88,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<TemplateR
     });
 
   } catch (error) {
-    console.error('Templates POST error:', error);
+    console.error('[TEMPLATES API][POST] Error:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
@@ -291,35 +108,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse<TemplateRe
       );
     }
 
-    const existingTemplate = templatesStore.get(templateId);
-    
-    if (!existingTemplate) {
-      return NextResponse.json(
-        { success: false, error: 'Template not found' },
-        { status: 404 }
-      );
-    }
-
-    const updates = await request.json() as UpdateTemplateRequest;
-
-    // Update template points with IDs if provided
-    let updatedPoints = existingTemplate.points;
-    if (updates.points) {
-      updatedPoints = updates.points.map((point, index) => ({
-        ...point,
-        id: `${templateId}-point-${index}`
-      }));
-    }
-
-    const updatedTemplate: Template = {
-      ...existingTemplate,
-      ...updates,
-      points: updatedPoints,
-      id: templateId, // Ensure ID cannot be changed
-      updatedAt: new Date().toISOString()
-    };
-
-    templatesStore.set(templateId, updatedTemplate);
+    const updates = await request.json() as UpdateUnifiedTemplateRequest;
+    const updatedTemplate = await TemplateDbService.updateTemplate(templateId, updates);
 
     return NextResponse.json({
       success: true,
@@ -329,7 +119,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<TemplateRe
   } catch (error) {
     console.error('Templates PUT error:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
@@ -347,16 +137,14 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<{ succe
       );
     }
 
-    const template = templatesStore.get(templateId);
+    const deleted = await TemplateDbService.deleteTemplate(templateId);
     
-    if (!template) {
+    if (!deleted) {
       return NextResponse.json(
-        { success: false, error: 'Template not found' },
+        { success: false, error: 'Template not found or is built-in' },
         { status: 404 }
       );
     }
-
-    templatesStore.delete(templateId);
 
     return NextResponse.json({
       success: true
@@ -365,7 +153,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<{ succe
   } catch (error) {
     console.error('Templates DELETE error:', error);
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

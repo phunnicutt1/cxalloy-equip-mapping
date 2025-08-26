@@ -1,0 +1,591 @@
+dis:DX_TS
+bacnetCur:AI1
+bacnetDesc:DX Cooling Coil Leaving Temperature
+kind:Number
+point
+unit:°F
+---
+dis:OA_HS
+bacnetCur:AI2
+bacnetDesc:Outside air humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:OA_TS
+bacnetCur:AI3
+bacnetDesc:Outside air temperature
+kind:Number
+point
+unit:°F
+---
+dis:SA_DPT
+bacnetCur:AI7
+bacnetDesc:Supply Air Differential Pressure
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:SA_FLOW
+bacnetCur:AI8
+bacnetDesc:Supply Air Flow Station
+kind:Number
+point
+unit:cfm
+---
+dis:SA_HS
+bacnetCur:AI5
+bacnetDesc:Supply air humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:SA_TS
+bacnetCur:AI0
+bacnetDesc:Supply air temperature
+kind:Number
+point
+unit:°F
+---
+dis:SFN_FDBK
+bacnetCur:AI6
+bacnetDesc:Supply Fan Speed Feedback
+kind:Number
+point
+unit:"%"
+---
+dis:COMP_DMD
+bacnetCur:AO3
+bacnetDesc:Compressor Demand Signal
+bacnetWrite:AO3
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:GHEAT_DMD
+bacnetCur:AO4
+bacnetDesc:Gas Heat Demand Signal
+bacnetWrite:AO4
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:HGRH_DMD
+bacnetCur:AO0
+bacnetDesc:Hot Gas Reheat Demand Signal
+bacnetWrite:AO0
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:OAD_SIG
+bacnetCur:AO5
+bacnetDesc:Outside air damper command
+bacnetWrite:AO5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:SFN_SPD
+bacnetCur:AO2
+bacnetDesc:Supply Fan Speed Command
+bacnetWrite:AO2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:AVG_RM_TEMP
+bacnetCur:AV56
+bacnetDesc:Average room temperature
+kind:Number
+point
+unit:°F
+---
+dis:CLG_REQ_SP
+bacnetCur:AV10
+bacnetDesc:Cooling Request Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:DEHUM_DIS_OFST
+bacnetCur:AV23
+bacnetDesc:Dehumidification Disable Offset
+kind:Number
+point
+unit:"%RH"
+---
+dis:DEHUM_DX_LVG_TEMP_SP
+bacnetCur:AV47
+bacnetDesc:Dehumidification Mode Coil Leaving Temperature Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:DEHUM_ENA_SP
+bacnetCur:AV22
+bacnetDesc:Dehumidification Enable Setpoint
+kind:Number
+point
+unit:"%RH"
+---
+dis:EFF_CLG_DMD
+bacnetCur:AV48
+bacnetDesc:Effective Cooling Demand
+kind:Number
+point
+unit:"%"
+---
+dis:EFF_HTG_DMD
+bacnetCur:AV51
+bacnetDesc:Effective Heating Demand
+kind:Number
+point
+unit:"%"
+---
+dis:EFF_SA_TEMP_SP
+bacnetCur:AV55
+bacnetDesc:Effective Supply Air Temperature Setpoint
+bacnetWrite:AV55
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"ExternalIBUS'DiagIOBus"
+bacnetCur:AV4186115
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:HTG_REQ_SP
+bacnetCur:AV9
+bacnetDesc:Heating Request Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:"Infra'DiagAs"
+bacnetCur:AV4186111
+bacnetDesc:Diagnostics for automation station
+kind:Number
+point
+---
+dis:"Infra'DiagChgLog"
+bacnetCur:AV4186113
+bacnetDesc:Diagnostics for change log
+kind:Number
+point
+---
+dis:"Infra'DiagS7"
+bacnetCur:AV4186112
+bacnetDesc:Diagnostics for S7 program
+kind:Number
+point
+---
+dis:OA_CLG_ENA_SP
+bacnetCur:AV50
+bacnetDesc:Outside Air Cooling Enable Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:OA_HTG_ENA_SP
+bacnetCur:AV49
+bacnetDesc:Outside Air Heating Enable Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:OCC_CLG_SP
+bacnetCur:AV8
+bacnetDesc:Occupied Cooling Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:OCC_HTG_SP
+bacnetCur:AV7
+bacnetDesc:Occupied Heating Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"OnboardIBUS'DiagIOBus"
+bacnetCur:AV4186114
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:SA_DPT_SP
+bacnetCur:AV57
+bacnetDesc:Supply Air Differential Pressure Setpoint
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:SA_TEMP_CLG_SP_HI
+bacnetCur:AV14
+bacnetDesc:Supply Air Temperature Cooling Setpoint High
+kind:Number
+point
+unit:°F
+---
+dis:SA_TEMP_CLG_SP_LO
+bacnetCur:AV15
+bacnetDesc:Supply Air Temperature Cooling Setpoint Low
+kind:Number
+point
+unit:°F
+---
+dis:SA_TEMP_DEF_SP
+bacnetCur:AV18
+bacnetDesc:Supply Air Temperature Default Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SA_TEMP_HI_LIM
+bacnetCur:AV20
+bacnetDesc:Supply Air Temperature High Limit
+kind:Number
+point
+unit:°F
+---
+dis:SA_TEMP_HTG_SP_HI
+bacnetCur:AV16
+bacnetDesc:Supply Air Temperature Heating Setpoint High
+kind:Number
+point
+unit:°F
+---
+dis:SA_TEMP_HTG_SP_LO
+bacnetCur:AV17
+bacnetDesc:Supply Air Temperature Heating Setpoint Low
+kind:Number
+point
+unit:°F
+---
+dis:SA_TEMP_LO_LIM
+bacnetCur:AV21
+bacnetDesc:Supply Air Temperature Low Limit
+kind:Number
+point
+unit:°F
+---
+dis:SFN_MIN_SPD_SP
+bacnetCur:AV58
+bacnetDesc:Supply Fan Minimum Speed Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:SPC_CLG_DMD
+bacnetCur:AV11
+bacnetDesc:Space Cooling Demand
+kind:Number
+point
+unit:"%"
+---
+dis:SPC_HTG_DMD
+bacnetCur:AV52
+bacnetDesc:Space Heating Demand
+kind:Number
+point
+unit:"%"
+---
+dis:FA_ST
+bacnetCur:BI1
+bacnetDesc:Fire Alarm Status
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:FLT_ST
+bacnetCur:BI6
+bacnetDesc:Filter Status
+enum:"Clean,Dirty"
+kind:Bool
+point
+---
+dis:HSL_ST
+bacnetCur:BI7
+bacnetDesc:Supply High Static Pressure Switch
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:SFN_ST
+bacnetCur:BI0
+bacnetDesc:Supply Air Fan Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:CMP1_CMD
+bacnetCur:BO3
+bacnetDesc:"Compressor Start/Stop Y1"
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CMP2_CMD
+bacnetCur:BO4
+bacnetDesc:"Compressor Start/Stop Y2"
+bacnetWrite:BO4
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CMP3_CMD
+bacnetCur:BO5
+bacnetDesc:"Compressor Start/Stop Y3"
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:CMP4_CMD
+bacnetCur:BO6
+bacnetDesc:"Compressor Start/Stop Y4"
+bacnetWrite:BO6
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:GHEAT_CMD
+bacnetCur:BO7
+bacnetDesc:Gas Heat Command W1
+bacnetWrite:BO7
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:HGRH_CMD
+bacnetCur:BO8
+bacnetDesc:Hot Gas Reheat Command RH1
+bacnetWrite:BO8
+bacnetWriteLevel:16
+cmd
+enum:"Disable,Enable"
+kind:Bool
+point
+writable
+---
+dis:SFN_SS
+bacnetCur:BO0
+bacnetDesc:"Supply Fan Start/Stop"
+bacnetWrite:BO0
+bacnetWriteLevel:16
+cmd
+enum:"Stop,Start"
+kind:Bool
+point
+writable
+---
+dis:DEHUM_MODE
+bacnetCur:BV12
+bacnetDesc:Dehumidification Mode
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:EFF_SYS_ENA
+bacnetCur:BV1
+bacnetDesc:Effective System Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:OA_CLG_ENA
+bacnetCur:BV14
+bacnetDesc:Outside Air Cooling Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:OA_HTG_ENA
+bacnetCur:BV15
+bacnetDesc:Outside Air Heating Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:RTU3_SCHED
+bacnetCur:BV0
+bacnetDesc:RTU 3 Schedule
+enum:"UnOcc,Occupied"
+kind:Bool
+point
+---
+dis:SA_TEMP_HI_LIM_ALRT
+bacnetCur:BV10
+bacnetDesc:Supply Air Temperature High Limit Alert
+enum:"Normal,Alert"
+kind:Bool
+point
+---
+dis:SA_TEMP_LO_LIM_ALRT
+bacnetCur:BV11
+bacnetDesc:Supply Air Temperature Low Limit Alert
+enum:"Normal,Alert"
+kind:Bool
+point
+---
+dis:SFN_FAIL_ALM
+bacnetCur:BV18
+bacnetDesc:Supply Fan Fail Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:"ExternalIBUS'IOBusMgmt"
+bacnetCur:MSV4186118
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"ExternalIBUS'IOBusSta"
+bacnetCur:MSV4186117
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"ExternalIBUS'Rail'TXM1.6R(1)'PrphDev"
+bacnetCur:MSV1
+bacnetDesc:Peripheral device
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"ExternalIBUS'Rail'TXM1.8X(2)'PrphDev"
+bacnetCur:MSV2
+bacnetDesc:Peripheral device
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:HVAC_MODE_CMD
+bacnetCur:MSV7
+bacnetDesc:HVAC Mode Command
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Heat,Cool,Vent"
+kind:Str
+point
+---
+dis:HVAC_MODE_STS
+bacnetCur:MSV6
+bacnetDesc:HVAC Mode Status
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Heat,Cool,Vent"
+kind:Str
+point
+---
+dis:"Infra'AsSta"
+bacnetCur:MSV4186111
+bacnetDesc:Automation station state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"Infra'Crtf"
+bacnetCur:MSV4186112
+bacnetDesc:Certificate
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Activated,Expiration warning,Expired,Inactive"
+kind:Str
+point
+---
+dis:"OnboardIBUS'DX_DOM_4DO_A'OnbMdl"
+bacnetCur:MSV4186116
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"OnboardIBUS'DX_UIOM_12UIO'OnbMdl"
+bacnetCur:MSV4186115
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"OnboardIBUS'IOBusMgmt"
+bacnetCur:MSV4186114
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"OnboardIBUS'IOBusSta"
+bacnetCur:MSV4186113
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:PltSta
+bacnetCur:MSV0
+bacnetDesc:Plant state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:SYS_ENA_MODE
+bacnetCur:MSV3
+bacnetDesc:System Enable Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,ManualOn,ManualOff"
+kind:Str
+point
+---
+dis:RTU3_OCC_SCHED
+bacnetCur:SCH0
+bacnetDesc:RTU 3 Occupancy Schedule
+kind:Str
+point

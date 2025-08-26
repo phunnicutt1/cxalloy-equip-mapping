@@ -51,11 +51,12 @@ export interface EquipmentTemplate {
   id: string;
   name: string;
   type?: EquipmentType;
-  equipmentType?: string; // Alternative equipment type string
+  equipmentType: EquipmentType; // Primary equipment type
   description?: string;
+  category?: string; // Template category for grouping
   pointPatterns?: string[];
-  requiredPoints?: string[];
-  optionalPoints?: string[];
+  requiredPoints?: PointTemplate[];
+  optionalPoints?: PointTemplate[];
   pointMappings?: Array<{
     pointName: string;
     normalizedName: string;
@@ -65,8 +66,21 @@ export interface EquipmentTemplate {
     haystackTags: string[];
   }>; // Point mapping definitions
   isBuiltIn?: boolean; // Whether this is a built-in template
+  effectiveness?: number; // 0-1 effectiveness score for template matching
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+/**
+ * Point Template Interface
+ */
+export interface PointTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  pointFunction: import('./normalized').PointFunction;
+  objectType?: import('./point').BACnetObjectType;
+  units?: string;
 }
 
 /**
@@ -78,8 +92,17 @@ export interface CxAlloyEquipment {
   type: string;
   description?: string;
   location?: string;
+  floor?: string;
+  space?: string;
   zone?: string;
   system?: string;
+  vendor?: string;
+  model?: string;
+  serialNumber?: string;
+  status?: string;
+  projectId?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -213,4 +236,74 @@ export interface EquipmentSource {
   };
   status: string;
   tags: string[];
+}
+
+/**
+ * Enhanced Connector Data for advanced CSV processing
+ * Extends basic ConnectorData with dynamic field detection and metadata
+ */
+export interface EnhancedConnectorData {
+  // Basic fields (maintaining compatibility)
+  fileName: string;
+  equipmentName: string;
+  vendor?: string;
+  model?: string;
+  description?: string;
+  uri?: string;
+  deviceName?: string;
+  
+  // Enhanced fields from dynamic detection
+  vendorName?: string;
+  modelName?: string;
+  location?: string;
+  fullDescription: string; // Generated from all available fields
+  additionalFields: Record<string, string>; // All other detected fields
+  
+  // Field mapping metadata
+  fieldMappings: {
+    detectedVendorField?: string;
+    detectedModelField?: string;
+    detectedDescriptionField?: string;
+    detectedLocationField?: string;
+    fallbackUsed: string; // Which fallback strategy was used
+    confidence: number; // 0-1 confidence in field detection
+  };
+  
+  // Processing metadata
+  processingMetadata: {
+    csvHeaders: string[];
+    totalFields: number;
+    mappedFields: number;
+    processingTimestamp: string;
+    enhancedProcessing: boolean;
+  };
+}
+
+/**
+ * Field Detection Patterns for CSV processing
+ */
+export interface FieldDetectionPatterns {
+  vendor: RegExp[];
+  model: RegExp[];
+  description: RegExp[];
+  location: RegExp[];
+  deviceName: RegExp[];
+  equipmentName: RegExp[];
+}
+
+/**
+ * CSV Processing Result with enhanced metadata
+ */
+export interface CsvProcessingResult {
+  success: boolean;
+  connectorData: EnhancedConnectorData[];
+  errors: string[];
+  warnings: string[];
+  metadata: {
+    totalRecords: number;
+    processedRecords: number;
+    fieldDetectionAccuracy: number;
+    commonPatterns: Record<string, number>;
+    processingTime: number;
+  };
 } 

@@ -107,3 +107,94 @@
   - Allows gradual migration to enhanced features
   - Enables A/B testing of normalization approaches
   - Adds slight complexity to configuration interface
+
+## TypeScript Build Error Resolution Strategy
+- **Date:** 2025-07-03 10:50:44 PM
+- **Author:** Unknown User
+- **Context:** Encountered multiple cascading TypeScript compilation errors blocking the build after data processing enhancements. System was broken with 11+ critical compilation errors preventing deployment.
+- **Decision:** Systematic error resolution approach: Fix import/export mismatches, align enum values with actual definitions, create missing UI components, update method signatures, and ensure proper type assertions throughout the codebase.
+- **Alternatives Considered:** 
+  - Quick fixes with @ts-ignore comments
+  - Downgrade TypeScript strictness
+  - Revert recent changes
+  - Rebuild components from scratch
+- **Consequences:** 
+  - ✅ Build now compiles successfully (Exit Code 0)
+  - ✅ All 18 pages generate without errors
+  - ✅ Auto-process functionality fully operational
+  - ✅ Type safety maintained throughout
+  - ✅ Production ready deployment
+  - ⚠️ Some ESLint warnings remain (non-blocking)
+
+## Project Standards Initialization for AI Agent Guidance
+- **Date:** 2025-07-03 10:55:11 PM
+- **Author:** Unknown User
+- **Context:** Need to establish comprehensive development standards to prevent build failures and guide AI agents working on the CxAlloy equipment mapping system. Recent experience with 11+ TypeScript compilation errors highlighted the need for systematic guidance.
+- **Decision:** Created shrimp-rules.md as a comprehensive project standards document specifically optimized for AI agent use, containing 11 major sections with actionable rules, prohibited actions, decision trees, and quality assurance standards.
+- **Alternatives Considered:** 
+  - Basic README documentation
+  - Code comments only
+  - General TypeScript style guide
+  - Ad-hoc error fixing without systematic prevention
+- **Consequences:** 
+  - ✅ AI agents have systematic guidance for common development tasks
+  - ✅ Build failures prevention through specific TypeScript and database rules
+  - ✅ Multi-file coordination workflows established
+  - ✅ Memory bank integration requirements defined
+  - ✅ Quality assurance standards implemented
+  - ✅ Decision trees for complex scenarios provided
+  - ⚠️ Document requires maintenance as codebase evolves
+
+## Advanced File Processing System Enhancement Strategy
+- **Date:** 2025-07-03 12:38:31 AM
+- **Author:** Unknown User
+- **Context:** After comprehensive research of 5 mapping project implementations and analysis of current cxalloy-equip-mapping architecture, needed to determine the best approach for implementing enhanced CSV processing, point signature matching, and template management system.
+- **Decision:** Adopt hybrid approach combining best practices from mapping-equipment-ui (#1) and mapping-new-approach (#4) projects, building incrementally on existing cxalloy-equip-mapping foundation without breaking changes.
+- **Alternatives Considered:** 
+  - Complete rewrite using mapping-equipment-ui ML-based approach
+  - Minimal enhancement of existing CSV processing only
+  - Adopt mapping-ui-gemini Python-based backend approach
+  - Fork mapping-new-approach project as starting point
+- **Consequences:** 
+  - Maintains backward compatibility with existing TRIO processing and database schema
+  - Leverages sophisticated existing foundation (FileProcessor, EquipmentDatabaseService, three-panel UI)
+  - Enables parallel development of core components without dependencies
+  - Provides clear upgrade path with measurable benefits
+  - Reduces implementation risk by building on proven patterns
+  - Allows for incremental deployment and testing of enhanced features
+
+## Template Management System Architecture Implementation
+- **Date:** 2025-07-03 1:34:31 AM
+- **Author:** Unknown User
+- **Context:** After completing Task 4 (Enhanced Equipment Browser with Template Toggle), we have successfully implemented a comprehensive template management system that seamlessly integrates with the existing equipment browsing functionality.
+- **Decision:** Implemented a modular template management architecture with:
+1. Extended app store with template state management and computed properties
+2. TemplateList component following existing equipment group patterns
+3. TemplateModal component with comprehensive form validation and point management
+4. Seamless toggle functionality preserving existing three-panel layout
+5. Full TypeScript type safety with enhanced interfaces
+- **Alternatives Considered:** 
+  - Separate dedicated template management page
+  - Embedded template editor within equipment details
+  - Simplified template system without grouped display
+- **Consequences:** 
+  - ✅ Maintained existing UI/UX patterns and user familiarity
+  - ✅ Achieved full type safety and build success
+  - ✅ Created scalable foundation for template effectiveness analytics
+  - ✅ Enabled seamless workflow between equipment and template management
+  - ⚠️ Increased component complexity requires careful maintenance
+
+## Equipment Points Display Fix - Database Performance vs UI Display
+- **Date:** 2025-07-03 2:46:55 AM
+- **Author:** Unknown User
+- **Context:** Equipment in the UI was showing "0 points attached" even though the database contained the correct point data. This was due to a performance optimization where getAllEquipment() returns empty points arrays but includes totalPoints field, while the UI was checking points.length instead of totalPoints.
+- **Decision:** Fixed the equipment points display issue with two key changes: 1) Updated EquipmentBrowser.tsx to use item.totalPoints instead of item.points.length for displaying point counts, and 2) Enhanced setSelectedEquipment in app-store.ts to automatically fetch full equipment data with points from /api/equipment/{id} when equipment is selected, ensuring point details load properly.
+- **Alternatives Considered:** 
+  - Keep existing performance optimization and load points on-demand
+  - Pre-load all points for all equipment (performance impact)
+  - Add separate point count API endpoint
+- **Consequences:** 
+  - Correct point counts now display in equipment browser
+  - Full point data loads automatically when equipment selected
+  - Maintains database performance optimization
+  - Graceful fallback if API call fails

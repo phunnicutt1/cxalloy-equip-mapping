@@ -1,0 +1,512 @@
+dis:BYP_DMP_5A_FBK
+bacnetCur:AI0
+bacnetDesc:Bypass Damper 5A Position Feedback
+kind:Number
+point
+unit:"%"
+---
+dis:BYP_DMP_5B_FBK
+bacnetCur:AI1
+bacnetDesc:Bypass Damper 5B Position Feedback
+kind:Number
+point
+unit:"%"
+---
+dis:EA_DPT
+bacnetCur:AI4
+bacnetDesc:Exhaust Air Differential Pressure Sensor
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:EFN_5A_FLW
+bacnetCur:AI2
+bacnetDesc:Exhaust Fan 5A Air Flow
+kind:Number
+point
+unit:cfm
+---
+dis:EFN_5B_FLW
+bacnetCur:AI3
+bacnetDesc:Exhaust Fan 5B Air Flow
+kind:Number
+point
+unit:cfm
+---
+dis:BYP_DMP_5A_CMD
+bacnetCur:AO0
+bacnetDesc:Bypass Damper 5A Command
+bacnetWrite:AO0
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:BYP_DMP_5B_CMD
+bacnetCur:AO1
+bacnetDesc:Bypass Damper 5B Command
+bacnetWrite:AO1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:EFN_5A_SPD
+bacnetCur:AO2
+bacnetDesc:Exhaust Fan 5A Speed Command
+bacnetWrite:AO2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:EFN_5B_SPD
+bacnetCur:AO3
+bacnetDesc:Exhaust Fan 5B Speed Command
+bacnetWrite:AO3
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:BYP_DMP_FAIL_SAFE_SP
+bacnetCur:AV2
+bacnetDesc:Exhaust Fan Bypass Damper Fail-Safe Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:EA_DPT_HI_LIM
+bacnetCur:AV4
+bacnetDesc:Exhaust Air Differential Pressure High Limit
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:EA_DPT_SP
+bacnetCur:AV0
+bacnetDesc:Exhaust Air Differential Pressure Setpoint
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:EA_MIN_FLW_SP
+bacnetCur:AV6
+bacnetDesc:Exhaust Fan Minimum Airflow Setpoint
+kind:Number
+point
+unit:cfm
+---
+dis:EF_MIN_SPD_SP
+bacnetCur:AV1
+bacnetDesc:Exhaust Fan Minimum Speed Setpoint
+kind:Number
+point
+unit:"%"
+---
+dis:"ExternalIBUS'DiagIOBus"
+bacnetCur:AV4186115
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:ISO_DMP_ALM_OFST
+bacnetCur:AV3
+bacnetDesc:Isolation Damper Alarm Offset
+kind:Number
+point
+unit:"%"
+---
+dis:"Infra'DiagAs"
+bacnetCur:AV4186111
+bacnetDesc:Diagnostics for automation station
+kind:Number
+point
+---
+dis:"Infra'DiagChgLog"
+bacnetCur:AV4186113
+bacnetDesc:Diagnostics for change log
+kind:Number
+point
+---
+dis:"Infra'DiagS7"
+bacnetCur:AV4186112
+bacnetDesc:Diagnostics for S7 program
+kind:Number
+point
+---
+dis:"OnboardIBUS'DiagIOBus"
+bacnetCur:AV4186114
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:EFN_1_STS
+bacnetCur:BI6
+bacnetDesc:Exhaust Fan 7 Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:EFN_2_STS
+bacnetCur:BI7
+bacnetDesc:Exhaust Fan 10 Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:EFN_5A_FLT
+bacnetCur:BI2
+bacnetDesc:Exhaust Fan 5A VFD Fault
+enum:"Normal,Fault"
+kind:Bool
+point
+---
+dis:EFN_5A_STS
+bacnetCur:BI0
+bacnetDesc:Exhaust Fan 5A Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:EFN_5B_FLT
+bacnetCur:BI3
+bacnetDesc:Exhaust Fan 5B VFD Fault
+enum:"Normal,Fault"
+kind:Bool
+point
+---
+dis:EFN_5B_STS
+bacnetCur:BI1
+bacnetDesc:Exhaust Fan 5B Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:ISO_DMP_5A_POS
+bacnetCur:BI4
+bacnetDesc:Isolation Damper 5A Open Position
+enum:"Damper Closed,Damper Open"
+kind:Bool
+point
+---
+dis:ISO_DMP_5B_POS
+bacnetCur:BI5
+bacnetDesc:Isolation Damper 5B Open Position
+enum:"Damper Closed,Damper Open"
+kind:Bool
+point
+---
+dis:EFN_1_CMD
+bacnetCur:BO4
+bacnetDesc:"Exhaust Fan 7 Start/Stop"
+bacnetWrite:BO4
+bacnetWriteLevel:16
+cmd
+enum:"Stop,Start"
+kind:Bool
+point
+writable
+---
+dis:EFN_2_CMD
+bacnetCur:BO5
+bacnetDesc:"Exhaust Fan 10 Start/Stop"
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"Stop,Start"
+kind:Bool
+point
+writable
+---
+dis:EFN_5A_SS
+bacnetCur:BO0
+bacnetDesc:"Exhaust Fan 5A Start/Stop"
+bacnetWrite:BO0
+bacnetWriteLevel:16
+cmd
+enum:"Stop,Start"
+kind:Bool
+point
+writable
+---
+dis:EFN_5B_SS
+bacnetCur:BO1
+bacnetDesc:"Exhaust Fan 5B Start/Stop"
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"Stop,Start"
+kind:Bool
+point
+writable
+---
+dis:ISO_DMPR_5A_CMD
+bacnetCur:BO2
+bacnetDesc:"Isolation Damper 5A Open/Close"
+bacnetWrite:BO2
+bacnetWriteLevel:16
+cmd
+enum:"Close,Open"
+kind:Bool
+point
+writable
+---
+dis:ISO_DMPR_5B_CMD
+bacnetCur:BO3
+bacnetDesc:"Isolation Damper 5B Open/Close"
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"Close,Open"
+kind:Bool
+point
+writable
+---
+dis:BYP_DMP_5A_ALM
+bacnetCur:BV14
+bacnetDesc:Bypass Damper 5A Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:BYP_DMP_5B_ALM
+bacnetCur:BV15
+bacnetDesc:Bypass Damper 5B Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EA_DPT_HI_LIM_ALM
+bacnetCur:BV10
+bacnetDesc:Exhaust Air Differential Pressure High Limit Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EFF_SYS_ENA
+bacnetCur:BV1
+bacnetDesc:Effective System Enable
+enum:"Disable,Enable"
+kind:Bool
+point
+---
+dis:EF_10_FAIL_ALM
+bacnetCur:BV22
+bacnetDesc:Exhaust Fan 10 Fail Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EF_5A_5B_SCHED_OV
+bacnetCur:BV0
+bacnetDesc:Exhaust Fans 5A 5B Schedule Override
+bacnetWrite:BV0
+bacnetWriteLevel:16
+cmd
+enum:"Inactive,Active"
+kind:Bool
+point
+writable
+---
+dis:EF_5A_FAIL
+bacnetCur:BV6
+bacnetDesc:Exhaust Fan 5A Fail
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EF_5A_LOW_AIRFLOW_ALM
+bacnetCur:BV16
+bacnetDesc:Exhaust Fan 5A Low Airflow Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EF_5B_FAIL
+bacnetCur:BV8
+bacnetDesc:Exhaust Fan 5B Fail
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EF_5B_LOW_AIRFLOW_ALM
+bacnetCur:BV17
+bacnetDesc:Exhaust Fan 5B Low Airflow Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:EF_7_FAIL_ALM
+bacnetCur:BV23
+bacnetDesc:Exhaust Fan 7 Fail Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:ISO_DMP_5A_FAIL
+bacnetCur:BV5
+bacnetDesc:Isolation Damper 5A Fail
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:ISO_DMP_5B_FAIL
+bacnetCur:BV7
+bacnetDesc:Isolation Damper 5B Fail
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:LEAD_EF_ROT_PULSE
+bacnetCur:BV2
+bacnetDesc:Lead EF Rotate Pulse
+enum:"Inactive,Rotate"
+kind:Bool
+point
+---
+dis:RTU_12_SFN_ST
+bacnetCur:BV24
+bacnetDesc:RTU 12 Supply Fan Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:RTU_3_SFN_ST
+bacnetCur:BV25
+bacnetDesc:RTU 3 Supply Fan Status
+enum:"Stopped,Running"
+kind:Bool
+point
+---
+dis:ALM_RST
+bacnetCur:MSV10
+bacnetDesc:Alarm reset
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Inactive,EF_4A_AlmRst,EF_4B_AlmRst,FullReset"
+kind:Str
+point
+---
+dis:"B_3A'Roof'MISC_2'PltSta"
+bacnetCur:MSV0
+bacnetDesc:Plant state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"ExternalIBUS'IOBusMgmt"
+bacnetCur:MSV4186118
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"ExternalIBUS'IOBusSta"
+bacnetCur:MSV4186117
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"ExternalIBUS'Rail'TXM1.6R(2)'PrphDev"
+bacnetCur:MSV2
+bacnetDesc:Peripheral device
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"ExternalIBUS'Rail'TXM1.8X(1)'PrphDev"
+bacnetCur:MSV1
+bacnetDesc:Peripheral device
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"Infra'AsSta"
+bacnetCur:MSV4186111
+bacnetDesc:Automation station state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"Infra'Crtf"
+bacnetCur:MSV4186112
+bacnetDesc:Certificate
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Activated,Expiration warning,Expired,Inactive"
+kind:Str
+point
+---
+dis:LEAD_EF_SEL
+bacnetCur:MSV6
+bacnetDesc:Lead Exhaust Fan Selection
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,EF4ALead,EF4BLead"
+kind:Str
+point
+---
+dis:"OnboardIBUS'DX_DOM_4DO_A'OnbMdl"
+bacnetCur:MSV4186116
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"OnboardIBUS'DX_UIOM_12UIO'OnbMdl"
+bacnetCur:MSV4186115
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng,Device error,Incompatible device"
+kind:Str
+point
+---
+dis:"OnboardIBUS'IOBusMgmt"
+bacnetCur:MSV4186114
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"OnboardIBUS'IOBusSta"
+bacnetCur:MSV4186113
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:SYS_ENA_MODE
+bacnetCur:MSV3
+bacnetDesc:System Enable Mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,ManualOn,ManualOff"
+kind:Str
+point
+---
+dis:"B_3A'Roof'MISC_2'rot_8_1"
+bacnetCur:PIV0
+bacnetDesc:Unsigned calculated value
+kind:Number
+point
+---
+dis:EF_5A_5B_SCHED
+bacnetCur:SCH0
+bacnetDesc:Exhaust Fans 5A_5B Schedule
+kind:Str
+point

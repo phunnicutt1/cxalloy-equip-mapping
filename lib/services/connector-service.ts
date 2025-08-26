@@ -27,8 +27,8 @@ export class ConnectorService {
   private isInitialized: boolean = false;
 
   constructor() {
-    // Update paths to use public/sample_data
-    this.bacnetConnectionsPath = path.join(process.cwd(), 'public', 'sample_data', 'bacnet_connections.csv');
+    // Update paths to use public/sample_data - note: bacnet_connections.txt is optional
+    this.bacnetConnectionsPath = path.join(process.cwd(), 'public', 'sample_data', 'bacnet_connections.txt');
     this.connectorDataPath = path.join(process.cwd(), 'public', 'sample_data', 'ConnectorData.csv');
     this.loadData();
   }
@@ -63,33 +63,49 @@ export class ConnectorService {
     const map = new Map<string, EquipmentMetadata>();
     
     try {
-      console.log(`[CONNECTOR SERVICE] Loading bacnet_connections.csv from: ${this.bacnetConnectionsPath}`);
+      console.log(`[CONNECTOR SERVICE] Loading bacnet_connections.txt from: ${this.bacnetConnectionsPath}`);
       const csvContent = readFileSync(this.bacnetConnectionsPath, 'utf-8');
       const records = parse(csvContent, {
         columns: true,
         skip_empty_lines: true,
-        trim: true
+        trim: true,
+        delimiter: '\t'  // Tab-delimited file
       });
 
-      console.log(`[CONNECTOR SERVICE] Parsed ${records.length} records from bacnet_connections.csv`);
+      console.log(`[CONNECTOR SERVICE] Parsed ${records.length} records from bacnet_connections.txt`);
+      console.log(`[CONNECTOR SERVICE] Column headers:`, Object.keys(records[0] || {}));
       
       for (const record of records) {
-        const equipmentName = record['Equip/Connector Name'];
+        const equipmentName = record['Equipment'];
         if (equipmentName) {
           map.set(equipmentName, {
             name: equipmentName,
-            ipAddress: record.ipAddress,
-            deviceId: record.deviceId,
-            network: record.network,
-            mac: record.mac
+            description: record['Location'],
+            ipAddress: record['Local IP'] || record['OTTO IP'],
+            deviceId: record['Device ID'],
+            network: record['Network'],
+            mac: record['MAC Address'],
+            customFields: {
+              building: record['Building'],
+              location: record['Location'],
+              bacRouter: record['BAC Router'],
+              udpPort: record['UDP Port'],
+              maxAirflowSP: record['MaxAirflowSP-Design'],
+              minAirflowSP: record['MinAirflowSP-Design']
+            }
           });
         }
       }
       
-      console.log(`[CONNECTOR SERVICE] Loaded ${map.size} equipment from bacnet_connections.csv`);
+      console.log(`[CONNECTOR SERVICE] Loaded ${map.size} equipment from bacnet_connections.txt`);
       console.log(`[CONNECTOR SERVICE] Sample equipment names:`, Array.from(map.keys()).slice(0, 5));
     } catch (error) {
-      console.error('[CONNECTOR SERVICE] Error loading bacnet_connections.csv:', error);
+      // Check if it's just a missing file (which is optional)
+      if ((error as any)?.code === 'ENOENT') {
+        console.log('[CONNECTOR SERVICE] bacnet_connections.txt not found - this file is optional for basic functionality');
+      } else {
+        console.error('[CONNECTOR SERVICE] Error loading bacnet_connections.txt:', error);
+      }
     }
     
     return map;

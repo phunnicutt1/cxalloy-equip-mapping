@@ -1,0 +1,1808 @@
+dis:EX DIFF P 1
+bacnetCur:AI744
+bacnetDesc:Extract air VAV differential pressure
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:ROOM TEMP 4
+bacnetCur:AI980
+bacnetDesc:Room temperature
+kind:Number
+point
+unit:°F
+---
+dis:SPLY TEMP 7
+bacnetCur:AI724
+bacnetDesc:Supply air temperature
+kind:Number
+point
+unit:°F
+---
+dis:SU DIFF P 1
+bacnetCur:AI734
+bacnetDesc:Supply air VAV differential pressure
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:DAMPER POS 6
+bacnetCur:AO438
+bacnetDesc:Supply air VAV position
+bacnetWrite:AO438
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:EX DMP POS 6
+bacnetCur:AO443
+bacnetDesc:Extract air VAV position
+bacnetWrite:AO443
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:HTG EL POS 7
+bacnetCur:AO497
+bacnetDesc:Heating coil electric position
+bacnetWrite:AO497
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:AIR FLOW
+bacnetCur:AV1236
+bacnetDesc:Supply air VAV relative air volume flow
+kind:Number
+point
+unit:"%"
+---
+dis:AIR VEL EFF
+bacnetCur:AV1232
+bacnetDesc:Supply air VAV effective air velocity
+kind:Number
+point
+unit:"ft/min"
+---
+dis:AIR VOL DIFF
+bacnetCur:AV1237
+bacnetDesc:Supply air VAV air volume flow deviation
+kind:Number
+point
+unit:"%"
+---
+dis:AIR VOL SP 4
+bacnetCur:AV1233
+bacnetDesc:"Supply air VAV setpoint for air vol.flow"
+bacnetWrite:AV1233
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:AIR VOLUME 4
+bacnetCur:AV1235
+bacnetDesc:Supply air VAV air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:APPLICATION
+bacnetCur:AV4
+bacnetDesc:Application
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'TDwp"
+bacnetCur:AV1409
+bacnetDesc:Dewpoint temperature
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'TOa"
+bacnetCur:AV1410
+bacnetDesc:Outside air temperature
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'TPa"
+bacnetCur:AV2254
+bacnetDesc:Primary air temperature
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'TREff"
+bacnetCur:AV1408
+bacnetDesc:Effective room temperature
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExAflHodRec"
+bacnetCur:AV1334
+bacnetDesc:"Extr.air VAV recorded air flow at hood"
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExAirFlHood"
+bacnetCur:AV1333
+bacnetDesc:Extract air VAV air volume flow at hood
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExAirFlRec"
+bacnetCur:AV1337
+bacnetDesc:Extract air VAV recorded air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExAirFlTck"
+bacnetCur:AV1331
+bacnetDesc:Extract air VAV air volume flow tracking
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExDmsnA"
+bacnetCur:AV1340
+bacnetDesc:Extract air VAV dimension A
+kind:Number
+point
+unit:in
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExDmsnB"
+bacnetCur:AV1341
+bacnetDesc:Extract air VAV dimension B
+kind:Number
+point
+unit:in
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExFlCoefCal"
+bacnetCur:AV1332
+bacnetDesc:"Extract air VAV calc.flow coefficient"
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExFlCoefIni"
+bacnetCur:AV1336
+bacnetDesc:Extract air VAV initial flow coefficient
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExFlCoefRec"
+bacnetCur:AV1335
+bacnetDesc:"Extr.air VAV recorded flow coefficient"
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExPosRec"
+bacnetCur:AV1338
+bacnetDesc:Extract air VAV recorded position
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExSpAflSmk"
+bacnetCur:AV1343
+bacnetDesc:"Extract air VAV smoke ctrl.air flow setp"
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAflHodRec"
+bacnetCur:AV1245
+bacnetDesc:Supply air VAV recorded air flow at hood
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAirFlHood"
+bacnetCur:AV1244
+bacnetDesc:Supply air VAV air volume flow at hood
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAirFlRec"
+bacnetCur:AV1248
+bacnetDesc:Supply air VAV recorded air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAirFlTck"
+bacnetCur:AV1242
+bacnetDesc:Supply air VAV air volume flow tracking
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuDmsnA"
+bacnetCur:AV1251
+bacnetDesc:Supply air VAV dimension A
+kind:Number
+point
+unit:in
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuDmsnB"
+bacnetCur:AV1252
+bacnetDesc:Supply air VAV dimension B
+kind:Number
+point
+unit:in
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuFlCoefCal"
+bacnetCur:AV1243
+bacnetDesc:"Supply air VAV calc.flow coefficient"
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuFlCoefIni"
+bacnetCur:AV1247
+bacnetDesc:Supply air VAV initial flow coefficient
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuFlCoefRec"
+bacnetCur:AV1246
+bacnetDesc:Supply air VAV recorded flow coefficient
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuPosRec"
+bacnetCur:AV1249
+bacnetDesc:Supply air VAV recorded position
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuSpAflSmk"
+bacnetCur:AV1254
+bacnetDesc:"Supply air VAV smoke ctrl.air flow setp."
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'AQualRRu"
+bacnetCur:AV1494
+bacnetDesc:Room air quality for room operator unit
+bacnetWrite:AV1494
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ppm
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'FanSpdIn"
+bacnetCur:AV1498
+bacnetDesc:Fan speed input value
+kind:Number
+point
+unit:"%"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'FanSpdRu"
+bacnetCur:AV1491
+bacnetDesc:Fan speed for room operator unit
+bacnetWrite:AV1491
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'HuRelRRu"
+bacnetCur:AV1493
+bacnetDesc:"Relative air humidity for room op.unit"
+bacnetWrite:AV1493
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'PrSpRu"
+bacnetCur:AV1492
+bacnetDesc:Present setpoint for room operator unit
+bacnetWrite:AV1492
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'PrSpShftRu"
+bacnetCur:AV1497
+bacnetDesc:"Pres.setp.shift for room operator unit"
+bacnetWrite:AV1497
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'SpShftIn"
+bacnetCur:AV1496
+bacnetDesc:Setpoint shift input value
+kind:Number
+point
+unit:°F
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'TOaRu"
+bacnetCur:AV1495
+bacnetDesc:"Outside air temperature for room op.unit"
+bacnetWrite:AV1495
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'TRRu"
+bacnetCur:AV1490
+bacnetDesc:Room temperature for room operator unit
+bacnetWrite:AV1490
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:CLG FLOW MAX
+bacnetCur:AV1255
+bacnetDesc:"Supply air VAV max.air vol.flow f.cool."
+kind:Number
+point
+unit:cfm
+---
+dis:CLG FLOW MIN
+bacnetCur:AV1256
+bacnetDesc:"Supply air VAV min.air vol.flow f.cool."
+kind:Number
+point
+unit:cfm
+---
+dis:CLG STPT EFF
+bacnetCur:AV77
+bacnetDesc:Present cooling setpoint
+bacnetWrite:AV77
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:CMF C SP EFF
+bacnetCur:AV78
+bacnetDesc:Present cooling setpoint for comfort
+kind:Number
+point
+unit:°F
+---
+dis:CMF CLG STPT
+bacnetCur:AV82
+bacnetDesc:Cooling setpoint for comfort
+bacnetWrite:AV82
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:CMF H SP EFF
+bacnetCur:AV60
+bacnetDesc:Present heating setpoint for comfort
+kind:Number
+point
+unit:°F
+---
+dis:CMF HTG STPT
+bacnetCur:AV64
+bacnetDesc:Heating setpoint for comfort
+bacnetWrite:AV64
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:CMF MIN SP
+bacnetCur:AV30
+bacnetDesc:Minimum room air volume flow for comfort
+kind:Number
+point
+unit:cfm
+---
+dis:DUCT AREA
+bacnetCur:AV1250
+bacnetDesc:Supply air VAV duct area
+kind:Number
+point
+unit:"ft²"
+---
+dis:ECO C SP EFF
+bacnetCur:AV80
+bacnetDesc:Present cooling setpoint for economy
+kind:Number
+point
+unit:°F
+---
+dis:ECO CLG STPT
+bacnetCur:AV84
+bacnetDesc:Cooling setpoint for economy
+kind:Number
+point
+unit:°F
+---
+dis:ECO H SP EFF
+bacnetCur:AV62
+bacnetDesc:Present heating setpoint for economy
+kind:Number
+point
+unit:°F
+---
+dis:ECO HTG STPT
+bacnetCur:AV66
+bacnetDesc:Heating setpoint for economy
+kind:Number
+point
+unit:°F
+---
+dis:ECO MIN SP
+bacnetCur:AV32
+bacnetDesc:Minimum room air volume flow for economy
+kind:Number
+point
+unit:cfm
+---
+dis:EH VOL REQ
+bacnetCur:AV1330
+bacnetDesc:Extract air VAV air volume flow request
+kind:Number
+point
+unit:"%"
+---
+dis:EX DUCT AREA
+bacnetCur:AV1339
+bacnetDesc:Extract air VAV duct area
+kind:Number
+point
+unit:"ft²"
+---
+dis:EX FLOW
+bacnetCur:AV1328
+bacnetDesc:Extract air VAV relative air volume flow
+kind:Number
+point
+unit:"%"
+---
+dis:EX FLOW COEF
+bacnetCur:AV1342
+bacnetDesc:Extract air VAV flow coefficient
+kind:Number
+point
+---
+dis:EX FLOW DIFF
+bacnetCur:AV1329
+bacnetDesc:"Extract air VAV air vol.flow deviation"
+kind:Number
+point
+unit:"%"
+---
+dis:EX FLOW STPT
+bacnetCur:AV1326
+bacnetDesc:"Extract air VAV setp.f.rel.air vol.flow"
+kind:Number
+point
+unit:"%"
+---
+dis:EX VEL EFF
+bacnetCur:AV1324
+bacnetDesc:Extract air VAV effective air velocity
+kind:Number
+point
+unit:"ft/min"
+---
+dis:EX VENT MAX
+bacnetCur:AV1344
+bacnetDesc:"Extract air VAV max.air vol.flow f.vent."
+kind:Number
+point
+unit:cfm
+---
+dis:EX VENT MIN
+bacnetCur:AV1345
+bacnetDesc:"Extract air VAV min.air vol.flow f.vent."
+kind:Number
+point
+unit:cfm
+---
+dis:EX VOL AI 4
+bacnetCur:AV1327
+bacnetDesc:Extract air VAV air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:EX VOL SP 4
+bacnetCur:AV1325
+bacnetDesc:"Extract air VAV setp.for air vol.flow"
+bacnetWrite:AV1325
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:EX VOL SP EF
+bacnetCur:AV8
+bacnetDesc:"Present setp.f.room extract air vol.flow"
+kind:Number
+point
+unit:cfm
+---
+dis:FLOW COEF
+bacnetCur:AV1253
+bacnetDesc:Supply air VAV flow coefficient
+kind:Number
+point
+---
+dis:FLOW REL SP
+bacnetCur:AV1234
+bacnetDesc:"Supply air VAV setp.for rel.air vol.flow"
+kind:Number
+point
+unit:"%"
+---
+dis:HTG COIL REQ
+bacnetCur:AV1372
+bacnetDesc:Heating coil heating request
+kind:Number
+point
+unit:"%"
+---
+dis:HTG ELEC PWR
+bacnetCur:AV1373
+bacnetDesc:Heating coil electric power
+kind:Number
+point
+unit:kW
+---
+dis:HTG FLOW MAX
+bacnetCur:AV1257
+bacnetDesc:"Supply air VAV max.air vol.flow f.heat."
+kind:Number
+point
+unit:cfm
+---
+dis:HTG FLOW MIN
+bacnetCur:AV1258
+bacnetDesc:"Supply air VAV min.air vol.flow f.heat."
+kind:Number
+point
+unit:cfm
+---
+dis:HTG STPT EFF
+bacnetCur:AV59
+bacnetDesc:Present heating setpoint
+bacnetWrite:AV59
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:"IOBus'DiagIOBus"
+bacnetCur:AV2
+bacnetDesc:"Diagnostics for I/O bus"
+kind:Number
+point
+---
+dis:"Infra'DiagAs"
+bacnetCur:AV0
+bacnetDesc:Diagnostics for automation station
+kind:Number
+point
+---
+dis:"Infra'DiagS7"
+bacnetCur:AV1
+bacnetDesc:Diagnostics for S7 program
+kind:Number
+point
+---
+dis:OA HUM 1
+bacnetCur:AV97
+bacnetDesc:Relative outside humidity
+bacnetWrite:AV97
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:OA TEMP 1
+bacnetCur:AV101
+bacnetDesc:Outside air temperature
+bacnetWrite:AV101
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:OTHER EX
+bacnetCur:AV14
+bacnetDesc:Additional extract air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:OTHER EX EFF
+bacnetCur:AV13
+bacnetDesc:"Effective additional extr.air vol.flow"
+bacnetWrite:AV13
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:OTHER SU EFF
+bacnetCur:AV5
+bacnetDesc:"Effective additional supply air vol.flow"
+bacnetWrite:AV5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:OTHER SUP
+bacnetCur:AV6
+bacnetDesc:Additional supply air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:PROT C SPEFF
+bacnetCur:AV81
+bacnetDesc:Present cooling setpoint for protection
+kind:Number
+point
+unit:°F
+---
+dis:PROT CLGSTPT
+bacnetCur:AV85
+bacnetDesc:Cooling setpoint for protection
+kind:Number
+point
+unit:°F
+---
+dis:PROT H SPEFF
+bacnetCur:AV63
+bacnetDesc:Present heating setpoint for protection
+kind:Number
+point
+unit:°F
+---
+dis:PROT HTG SP
+bacnetCur:AV67
+bacnetDesc:Heating setpoint for protection
+kind:Number
+point
+unit:°F
+---
+dis:PROT MIN SP
+bacnetCur:AV33
+bacnetDesc:"Min.room air volume flow for protection"
+kind:Number
+point
+unit:cfm
+---
+dis:"PlnkBus'DiagPlnkBus"
+bacnetCur:AV3
+bacnetDesc:Diagnostics for KNX PL-Link bus
+kind:Number
+point
+---
+dis:REHTG POS
+bacnetCur:AV1411
+bacnetDesc:Reheating coil position
+kind:Number
+point
+unit:"%"
+---
+dis:RM DCV EVAL
+bacnetCur:AV99
+bacnetDesc:Room air quality
+kind:Number
+point
+unit:ppm
+---
+dis:RM HUM EVAL
+bacnetCur:AV98
+bacnetDesc:Relative humidity for room
+kind:Number
+point
+unit:"%RH"
+---
+dis:RM TEMP EVAL
+bacnetCur:AV100
+bacnetDesc:Room temperature
+bacnetHis:TL23
+kind:Number
+point
+unit:°F
+---
+dis:RM TEMP SHFT
+bacnetCur:AV96
+bacnetDesc:Room temperature setpoint shift
+bacnetWrite:AV96
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:RM TEMP STPT
+bacnetCur:AV95
+bacnetDesc:Room temperature setpoint
+bacnetWrite:AV95
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:STBY C DELTA
+bacnetCur:AV83
+bacnetDesc:Delta cooling setpoint for pre-comfort
+kind:Number
+point
+unit:°F
+---
+dis:STBY C SPEFF
+bacnetCur:AV79
+bacnetDesc:Present cooling setpoint for pre-comfort
+kind:Number
+point
+unit:°F
+---
+dis:STBY H DELTA
+bacnetCur:AV65
+bacnetDesc:Delta heating setpoint for pre-comfort
+kind:Number
+point
+unit:°F
+---
+dis:STBY H SPEFF
+bacnetCur:AV61
+bacnetDesc:Present heating setpoint for pre-comfort
+kind:Number
+point
+unit:°F
+---
+dis:STBY MIN SP
+bacnetCur:AV31
+bacnetDesc:"Min.room air volume flow for pre-comfort"
+kind:Number
+point
+unit:cfm
+---
+dis:SU VOL REQ
+bacnetCur:AV1238
+bacnetDesc:Supply air VAV air volume flow request
+kind:Number
+point
+unit:"%"
+---
+dis:SU VOL SP EF
+bacnetCur:AV9
+bacnetDesc:"Present setp.f.room supply air vol.flow"
+kind:Number
+point
+unit:cfm
+---
+dis:TOT AIR VOL
+bacnetCur:AV12
+bacnetDesc:Room supply air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:TOT EX VOL
+bacnetCur:AV11
+bacnetDesc:Room extract air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:TOT FH VOL
+bacnetCur:AV10
+bacnetDesc:Room fume hood air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:VAV CLG DMD
+bacnetCur:AV1239
+bacnetDesc:Supply air VAV cooling demand
+kind:Number
+point
+unit:"%"
+---
+dis:VAV CLG REQ
+bacnetCur:AV2234
+bacnetDesc:Supply air VAV cooling request
+kind:Number
+point
+unit:"%"
+---
+dis:VAV HTG DMD
+bacnetCur:AV1240
+bacnetDesc:Supply air VAV heating demand
+kind:Number
+point
+unit:"%"
+---
+dis:VAV HTG REQ
+bacnetCur:AV2235
+bacnetDesc:Supply air VAV heating request
+kind:Number
+point
+unit:"%"
+---
+dis:VAV VENT DMD
+bacnetCur:AV1241
+bacnetDesc:Supply air VAV ventilation demand
+kind:Number
+point
+unit:"%"
+---
+dis:VENT FLO MAX
+bacnetCur:AV1259
+bacnetDesc:"Supply air VAV max.air vol.flow f.vent."
+kind:Number
+point
+unit:cfm
+---
+dis:VENT FLO MIN
+bacnetCur:AV1260
+bacnetDesc:"Supply air VAV min.air vol.flow f.vent."
+kind:Number
+point
+unit:cfm
+---
+dis:VNT ACH
+bacnetCur:AV35
+bacnetDesc:Ventilation air change rate
+kind:Number
+point
+unit:"/h"
+---
+dis:VNT AIR VOL
+bacnetCur:AV34
+bacnetDesc:Ventilation air volume flow
+kind:Number
+point
+unit:cfm
+---
+dis:VNT VEL RATE
+bacnetCur:AV36
+bacnetDesc:Ventilation velocity rate
+kind:Number
+point
+---
+dis:VNT VOL SP
+bacnetCur:AV29
+bacnetDesc:Ventilation air volume flow setpoint
+bacnetWrite:AV29
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:VOL DIF
+bacnetCur:AV7
+bacnetDesc:Room transferred air volume flow
+bacnetHis:TL3
+kind:Number
+point
+unit:cfm
+---
+dis:VOL DIFF SP
+bacnetCur:AV15
+bacnetDesc:Transferred air volume flow setpoint
+kind:Number
+point
+unit:cfm
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'Hcl'HclAvlH"
+bacnetCur:BV591
+bacnetDesc:Heating coil available for heating
+enum:"No,Yes"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExAvlVnt"
+bacnetCur:BV574
+bacnetDesc:"Extract air VAV available for vent."
+enum:"No,Yes"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAvlC"
+bacnetCur:BV562
+bacnetDesc:Supply air VAV available for cooling
+enum:"No,Yes"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAvlH"
+bacnetCur:BV563
+bacnetDesc:Supply air VAV available for heating
+enum:"No,Yes"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAvlVnt"
+bacnetCur:BV564
+bacnetDesc:Supply air VAV available for ventilation
+enum:"No,Yes"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuRqdC"
+bacnetCur:BV560
+bacnetDesc:Supply air VAV required for cooling
+enum:"Off,On"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuRqdH"
+bacnetCur:BV561
+bacnetDesc:Supply air VAV required for heating
+enum:"Off,On"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'RAlm"
+bacnetCur:BV965
+bacnetDesc:Alarm from room
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'FanOpIn"
+bacnetCur:BV631
+bacnetDesc:Fan operation input value
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'LockOpRu"
+bacnetCur:BV626
+bacnetDesc:Lock operation for room operator unit
+bacnetWrite:BV626
+bacnetWriteLevel:16
+cmd
+enum:"Normal,Locked"
+kind:Bool
+point
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'PscBtnIn"
+bacnetCur:BV632
+bacnetDesc:Presence button input value
+enum:"Absent,Present"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'PscBtnRu"
+bacnetCur:BV633
+bacnetDesc:Presence button for room operator unit
+bacnetWrite:BV633
+bacnetWriteLevel:16
+cmd
+enum:"Absent,Present"
+kind:Bool
+point
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'REeiRstIn"
+bacnetCur:BV627
+bacnetDesc:"Reset of room energy effic.indic.input"
+enum:"No,Yes"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'TmpCmfIn"
+bacnetCur:BV630
+bacnetDesc:Temporary comfort input value
+enum:"Absent,Present"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'TmpCmfRu"
+bacnetCur:BV628
+bacnetDesc:Temporary comfort for room operator unit
+bacnetWrite:BV628
+bacnetWriteLevel:16
+cmd
+enum:"Absent,Present"
+kind:Bool
+point
+writable
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'WndContRu"
+bacnetCur:BV629
+bacnetDesc:Window contact for room operator unit
+bacnetWrite:BV629
+bacnetWriteLevel:16
+cmd
+enum:"Closed,Opened"
+kind:Bool
+point
+writable
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RGrnLf'REeiRst"
+bacnetCur:BV1
+bacnetDesc:"Reset of room energy efficiency indic."
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'PRCtl'AirFlTrnRWarn"
+bacnetCur:BV962
+bacnetDesc:Room transferred air volume flow warning
+enum:"Normal,Warning"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'RAlmCol'RAlmRs"
+bacnetCur:BV961
+bacnetDesc:Result of room alarm collection
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:CMF BTN
+bacnetCur:BV0
+bacnetDesc:Comfort button
+bacnetWrite:BV0
+bacnetWriteLevel:16
+cmd
+enum:"Inactive,Active"
+kind:Bool
+point
+writable
+---
+dis:CND MSG RS
+bacnetCur:BV914
+bacnetDesc:Result of condensation message
+enum:"Normal,Alert"
+kind:Bool
+point
+---
+dis:COOL DN REQ
+bacnetCur:BV11
+bacnetDesc:Cool down request
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:DOOR STATE
+bacnetCur:BV16
+bacnetDesc:Room door state
+enum:"Closed,Opened"
+kind:Bool
+point
+---
+dis:EX FLO SATUR
+bacnetCur:BV573
+bacnetDesc:"Extract air VAV air vol.flow saturation"
+enum:"Satisfd,Starved"
+kind:Bool
+point
+---
+dis:FRE CLGREQ 1
+bacnetCur:BV14
+bacnetDesc:Free cooling request
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:NGT CLG REQ
+bacnetCur:BV13
+bacnetDesc:Night cooling request
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:OCC SEN EVAL
+bacnetCur:BV2
+bacnetDesc:Room presence detection
+enum:"Absent,Present"
+kind:Bool
+point
+---
+dis:RAPID VENT
+bacnetCur:BV10
+bacnetDesc:Rapid ventilation
+bacnetWrite:BV10
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:S7 PGM HRTBT
+bacnetCur:BV915
+bacnetDesc:S7 program heartbeat
+enum:"Off,On"
+kind:Bool
+point
+---
+dis:SU FLO SATUR
+bacnetCur:BV559
+bacnetDesc:"Supply air VAV air vol.flow saturation"
+enum:"Satisfd,Starved"
+kind:Bool
+point
+---
+dis:VNT ALM
+bacnetCur:BV6
+bacnetDesc:Ventilation alarm
+bacnetHis:TL14
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:VOL DIF ALM
+bacnetCur:BV3
+bacnetDesc:Room transferred air volume flow alarm
+bacnetHis:TL2
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:WARM UP REQ
+bacnetCur:BV12
+bacnetDesc:Warm-up request
+enum:"Inactive,Active"
+kind:Bool
+point
+---
+dis:WINDOW EVAL
+bacnetCur:BV15
+bacnetDesc:Room window state
+enum:"Closed,Opened"
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'PltOpMod"
+bacnetCur:MSV779
+bacnetDesc:Plant operating mode
+bacnetWrite:MSV779
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,Protect,Economy,PrComfrt,Comfort,Warm-up,Cooldown,RmLTProt,NotUsed,FreeCool,NghtCool,Vent,NotUsed,AVlFlOf,SmkCPoPr,SmkCNgPr,Purge"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExBalCmd"
+bacnetCur:MSV733
+bacnetDesc:Extract air VAV balancing command
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Ready,Balancg,Calibrte,Record,Balancd"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExBalMod"
+bacnetCur:MSV735
+bacnetDesc:Extract air VAV balancing mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"MxVent,MinVent,Smoke"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExBalModRec"
+bacnetCur:MSV736
+bacnetDesc:Extract air VAV recorded balancing mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"MxVent,MinVent,Smoke"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExBalSta"
+bacnetCur:MSV734
+bacnetDesc:Extract air VAV balancing state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Initial,Balancg,Balancd"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavExDuctShape"
+bacnetCur:MSV737
+bacnetDesc:Extract air VAV duct shape
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Rctnglr,Round,FlatOval,DirEntry"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VavTckMthd"
+bacnetCur:MSV730
+bacnetDesc:VAV tracking method
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Setpoint,AVlmFl"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VntrExClbCmd"
+bacnetCur:MSV1242
+bacnetDesc:"Extract air venturi valve calibr.command"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Ready,Calibrate,Apply,Cancel"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavEx'VntrExClbSta"
+bacnetCur:MSV1243
+bacnetDesc:"Extract air venturi valve calibr.state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Initial,Failed calibration,Calibrated"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuAflScale"
+bacnetCur:MSV700
+bacnetDesc:Supply air VAV air volume flow scale
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Heating,Cooling,Vent,MakeUpA"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuBalCmd"
+bacnetCur:MSV706
+bacnetDesc:Supply air VAV balancing command
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Ready,Balancg,Calibrte,Record,Balancd"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuBalMod"
+bacnetCur:MSV708
+bacnetDesc:Supply air VAV balancing mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"MxCool,MxHeat,MxVent,MnCool,MnHeat,MnVent,Smoke"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuBalModRec"
+bacnetCur:MSV709
+bacnetDesc:Supply air VAV recorded balancing mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"MxCool,MxHeat,MxVent,MnCool,MnHeat,MnVent,Smoke"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuBalSta"
+bacnetCur:MSV707
+bacnetDesc:Supply air VAV balancing state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Initial,Balancg,Balancd"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavSuDuctShape"
+bacnetCur:MSV710
+bacnetDesc:Supply air VAV duct shape
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Rctnglr,Round,FlatOval,DirEntry"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VavTckMthd"
+bacnetCur:MSV703
+bacnetDesc:VAV tracking method
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Setpoint,AVlmFl"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VntrSuClbCmd"
+bacnetCur:MSV1240
+bacnetDesc:"Supply air venturi valve calibr.command"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Ready,Calibrate,Apply,Cancel"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'HVAC'VavSu'VntrSuClbSta"
+bacnetCur:MSV1241
+bacnetDesc:"Supply air venturi valve calibr.state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Initial,Failed calibration,Calibrated"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'AQualRIndRu"
+bacnetCur:MSV834
+bacnetDesc:"Room air quality ind.for room op.unit"
+bacnetWrite:MSV834
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Okay,Good"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'HCStaRu"
+bacnetCur:MSV832
+bacnetDesc:"Heating/cooling state for room op.unit"
+bacnetWrite:MSV832
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Neither,Heating,Cooling"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'RClmOpModIn"
+bacnetCur:MSV835
+bacnetDesc:Room climate operating mode input value
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Auto,Protect,Economy,PreCnfrt,Comfort"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'RClmOpModRu"
+bacnetCur:MSV833
+bacnetDesc:"Room climate op.mode for room op.unit"
+bacnetWrite:MSV833
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Protect,Economy,PreCnfrt,Comfort"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'RSegm_402'ROpUnDev(1)'REeiRu"
+bacnetCur:MSV831
+bacnetDesc:"Energy effic.indic.room for room op.unit"
+bacnetWrite:MSV831
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Satisf,Good,Excel"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'PgmS7ErrRst"
+bacnetCur:MSV1245
+bacnetDesc:S7 program error reset
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Ready,Reset"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'ROpModDtr'CenCndTrg"
+bacnetCur:MSV16
+bacnetDesc:Central condition trigger
+bacnetWrite:MSV16
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,EnrEfCon,ComfCon"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'R_402'ROpModDtr'CmfCndTrg"
+bacnetCur:MSV17
+bacnetDesc:Comfort condition trigger
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Auto,Manual"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'ROpModDtr'EefCndTrg"
+bacnetCur:MSV18
+bacnetDesc:Energy efficiency condition trigger
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Auto,Manual"
+kind:Str
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'ROpModDtr'ManOpCnd"
+bacnetCur:MSV15
+bacnetDesc:Manual operation condition
+bacnetWrite:MSV15
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Unlock,Lock"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:DCV IND EVAL
+bacnetCur:MSV30
+bacnetDesc:Room air quality indication
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Okay,Good"
+kind:Str
+point
+---
+dis:DEV STATUS
+bacnetCur:MSV0
+bacnetDesc:Automation station state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:EX DEV MODE
+bacnetCur:MSV729
+bacnetDesc:Extract air VAV device mode
+bacnetWrite:MSV729
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,CtrlMod,MxAiVlFl,MnAiVlFl,SmCtAFlS"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:GREEN LEAF
+bacnetCur:MSV19
+bacnetDesc:Energy efficiency indication room
+bacnetWrite:MSV19
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Satisf,Good,Excel"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"H.C STATE"
+bacnetCur:MSV25
+bacnetDesc:"Heating/cooling state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Neither,Heating,Cooling"
+kind:Str
+point
+---
+dis:HC DEMAND
+bacnetCur:MSV780
+bacnetDesc:"Heating/cooling demand"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Neither,Heating,Cooling"
+kind:Str
+point
+---
+dis:HTG DEV MODE
+bacnetCur:MSV760
+bacnetDesc:Heating coil device mode
+bacnetWrite:MSV760
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,CtrlMod,FullOpen"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:IO STATUS
+bacnetCur:MSV1
+bacnetDesc:"I/O bus state"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"IOBus'IOBusMgmt"
+bacnetCur:MSV2
+bacnetDesc:"I/O bus management"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:"Infra'Crtf"
+bacnetCur:MSV1246
+bacnetDesc:Certificate
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Activated,Expiration warning,Expired,Inactive"
+kind:Str
+point
+---
+dis:"Infra'CrtfSC"
+bacnetCur:MSV1289
+bacnetDesc:Secure connect certificate
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Activated,Expiration warning,Expired,Inactive"
+kind:Str
+point
+---
+dis:NEXT OP MODE
+bacnetCur:MSV28
+bacnetDesc:Next room operating mode
+bacnetWrite:MSV28
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Protect,Economy,PreCnfrt,Comfort"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:OP MODE EFF
+bacnetCur:MSV13
+bacnetDesc:Present operating mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Protect,Economy,PreCnfrt,Comfort"
+kind:Str
+point
+---
+dis:"On-board 1FA module_1'OnbMdl"
+bacnetCur:MSV7
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng"
+kind:Str
+point
+---
+dis:"On-board 4AO_A module_1'OnbMdl"
+bacnetCur:MSV9
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng"
+kind:Str
+point
+---
+dis:"On-board 4DO module_1'OnbMdl"
+bacnetCur:MSV8
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng"
+kind:Str
+point
+---
+dis:"On-board 4MP module_1'OnbMdl"
+bacnetCur:MSV6
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng"
+kind:Str
+point
+---
+dis:"On-board 9UI module_1'OnbMdl"
+bacnetCur:MSV5
+bacnetDesc:On-board module
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng"
+kind:Str
+point
+---
+dis:PLANT OPMODE
+bacnetCur:MSV27
+bacnetDesc:Plant operating mode
+bacnetWrite:MSV27
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,Protect,Economy,PrComfrt,Comfort,Warm-up,Cooldown,RmLTProt,NotUsed,FreeCool,NghtCool,Vent,NotUsed,AVlFlOf,SmkCPoPr,SmkCNgPr,Purge"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:PLNK STATUS
+bacnetCur:MSV3
+bacnetDesc:KNX PL-Link bus state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:"PlnkBus'PlnkBusMgmt"
+bacnetCur:MSV4
+bacnetDesc:KNX PL-Link bus management
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operatnl,Stopped,Initial.,CnfError,ComErr"
+kind:Str
+point
+---
+dis:RM LGT GRNLF
+bacnetCur:MSV20
+bacnetDesc:"Room energy efficiency ind.lighting"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Satisf,Good,Excel"
+kind:Str
+point
+---
+dis:RM OP MODE
+bacnetCur:MSV14
+bacnetDesc:Room operating mode
+bacnetWrite:MSV14
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Protect,Economy,PreCnfrt,Comfort"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:RM SHD GRNLF
+bacnetCur:MSV21
+bacnetDesc:"Room energy efficiency ind.shading"
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Satisf,Good,Excel"
+kind:Str
+point
+---
+dis:RM STATUS
+bacnetCur:MSV10
+bacnetDesc:Room state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:RM UNIT STA4
+bacnetCur:MSV830
+bacnetDesc:Room operator unit 1
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Operat.,DevStopd,DevNAsgn,DevMisng,CnfngDev,Unused,CnfError,Searchng"
+kind:Str
+point
+---
+dis:RMHVAC GRNLF
+bacnetCur:MSV29
+bacnetDesc:Room energy efficiency indication HVAC
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Undef,Poor,Satisf,Good,Excel"
+kind:Str
+point
+---
+dis:S7 PGM ERR
+bacnetCur:MSV1244
+bacnetDesc:S7 program error
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,ExecWarn,ExecErr"
+kind:Str
+point
+---
+dis:SEGM STATUS
+bacnetCur:MSV668
+bacnetDesc:Room segment state
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,IntervAc,Fault,Alarm,FltAlrm"
+kind:Str
+point
+---
+dis:SU FLO DRVR
+bacnetCur:MSV23
+bacnetDesc:Supply air volume flow determination
+bacnetHis:TL1
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Heating,Cooling,Vent,MakeUpA"
+hisConvert:"-1 enumNumberToStr(self, false)"
+kind:Str
+point
+---
+dis:SUP AIR DMD
+bacnetCur:MSV702
+bacnetDesc:Supply air VAV air demand for plant mode
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,Protect,Economy,PrComfrt,Comfort,Warm-up,Cooldown,RmLTProt,NotUsed,FreeCool,NghtCool,Vent,NotUsed,AVlFlOf,SmkCPoPr,SmkCNgPr,Purge"
+kind:Str
+point
+---
+dis:VAV CHGOVR
+bacnetCur:MSV701
+bacnetDesc:Supply air VAV changeover condition
+bacnetWrite:MSV701
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Neither,Heating,Cooling,Neutral"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:VAV MODE
+bacnetCur:MSV699
+bacnetDesc:Supply air VAV device mode
+bacnetWrite:MSV699
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,CtrlMod,MxAiVlFl,MnAiVlFl,SmCtAFlS"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'PRCtl'TrndAflTrnRAlm"
+bacnetHis:TL2
+kind:Bool
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'PRCtl'TrndAirFlSuDtr"
+bacnetHis:TL1
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'PRCtl'TrndAirFlTrnR"
+bacnetHis:TL3
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'TrndRTemp"
+bacnetHis:TL23
+kind:Number
+point
+---
+dis:"B_3A'Flr_01'S_A1'R_402'RHvacCoo'VntCtl'TrndVntAlm"
+bacnetHis:TL14
+kind:Bool
+point

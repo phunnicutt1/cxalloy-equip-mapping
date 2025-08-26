@@ -63,6 +63,7 @@ export class EquipmentClassifier {
     { pattern: /^RTU[-_]?\d*$/i, type: 'RTU', confidence: 0.9 },
     { pattern: /rooftop/i, type: 'RTU', confidence: 0.85 },
     { pattern: /^VAV[-_]?\d*$/i, type: 'VAV', confidence: 0.9 },
+    { pattern: /^VVR[-_]?\d*\.?\d*$/i, type: 'VAV_CONTROLLER', confidence: 0.95 },
     { pattern: /variable.*air.*volume/i, type: 'VAV', confidence: 0.85 },
     { pattern: /^FCU[-_]?\d*$/i, type: 'FCU', confidence: 0.9 },
     { pattern: /fan.*coil/i, type: 'FCU', confidence: 0.85 },
@@ -83,6 +84,11 @@ export class EquipmentClassifier {
     { pattern: /return.*fan/i, type: 'RETURN_FAN', confidence: 0.85 },
     { pattern: /^CTF[-_]?\d*$/i, type: 'COOLING_TOWER_FAN', confidence: 0.95 },
     { pattern: /cooling.*tower.*fan/i, type: 'COOLING_TOWER_FAN', confidence: 0.9 },
+    
+    // Laboratory Equipment
+    { pattern: /^L[-_]?\d+$/i, type: 'LAB_AIR_VALVE', confidence: 0.95 },
+    { pattern: /lab.*air.*valve/i, type: 'LAB_AIR_VALVE', confidence: 0.9 },
+    { pattern: /laboratory.*exhaust/i, type: 'LAB_EXHAUST', confidence: 0.85 },
     
     // Pumps
     { pattern: /^CWP[-_]?\d*$/i, type: 'CHILLED_WATER_PUMP', confidence: 0.9 },
@@ -139,6 +145,114 @@ export class EquipmentClassifier {
   ];
 
   /**
+   * Dictionary of equipment prefixes to Haystack-aligned standard types.
+   * Based on Haystack v4/v5 equipment taxonomy.
+   */
+  private static readonly EQUIPMENT_TYPE_DICTIONARY: Record<string, string> = {
+    // Air Handling
+    'AHU': 'AHU',
+    'RTU': 'RTU',
+    'DOAS': 'DOAS',
+    'DOAU': 'DOAS',
+    'MAU': 'MAU',
+    
+    // Terminal Units
+    'VAV': 'VAV',
+    'VVR': 'VAV',
+    'VV': 'VAV',
+    'FCU': 'FCU',
+    'FPB': 'FPB',
+    'CAV': 'CAV',
+    
+    // Heat Recovery
+    'ERV': 'ERV',
+    'HRV': 'HRV',
+    
+    // Fans
+    'EF': 'EXHAUST-FAN',
+    'SF': 'SUPPLY-FAN',
+    'RF': 'RETURN-FAN',
+    'CTF': 'COOLING-TOWER-FAN',
+    'MISC': 'FAN',
+    
+    // Laboratory
+    'LAB': 'LAB-EXHAUST',
+    'L': 'LAB-EXHAUST',
+    
+    // Pumps
+    'CWP': 'CHILLED-WATER-PUMP',
+    'CHWP': 'CHILLED-WATER-PUMP',
+    'HWP': 'HOT-WATER-PUMP',
+    'HHP': 'HOT-WATER-PUMP',
+    'CHP': 'CHILLED-WATER-PUMP',
+    'TWP': 'CONDENSER-WATER-PUMP',
+    'P': 'PUMP',
+    
+    // Central Plant
+    'CH': 'CHILLER',
+    'CHW': 'CHILLER',
+    'BLR': 'BOILER',
+    'HHW': 'BOILER',
+    'CT': 'COOLING-TOWER',
+    
+    // Heat Pumps
+    'WSHP': 'WATER-SOURCE-HEAT-PUMP',
+    'ASHP': 'AIR-SOURCE-HEAT-PUMP',
+    'HP': 'HEAT-PUMP',
+    'CUH': 'UNIT-HEATER',
+    'UH': 'UNIT-HEATER',
+    
+    // Controls
+    'VFD': 'VFD',
+    'ECB': 'CONTROLLER',
+    'CTRL': 'CONTROLLER',
+    
+    // Systems
+    'SYS': 'SYSTEM',
+    'SYSTEM': 'SYSTEM'
+  };
+
+  // Memo-cache to avoid repeated scanning
+  private static readonly typeCache = new Map<string, { typeName: string; matchedKey: string }>();
+
+  /**
+   * Attempt to infer an equipment type from its name using prefix extraction.
+   * Takes the first substring before "_" or "-" as the equipment type.
+   */
+  public static getEquipmentTypeFromName(name: string): { typeName: string; matchedKey: string } {
+    if (this.typeCache.has(name)) return this.typeCache.get(name)!;
+
+    // Extract prefix before first separator (_ or -)
+    const match = name.match(/^([A-Za-z]+)[-_]/);
+    const prefix = match ? match[1].toUpperCase() : name.toUpperCase();
+    
+    // Check if this prefix exists in our dictionary
+    if (this.EQUIPMENT_TYPE_DICTIONARY[prefix]) {
+      const res = { typeName: this.EQUIPMENT_TYPE_DICTIONARY[prefix], matchedKey: prefix };
+      this.typeCache.set(name, res);
+      return res;
+    }
+    
+    // If no exact match, try to find in dictionary keys
+    const upper = name.toUpperCase();
+    const keys = Object.keys(this.EQUIPMENT_TYPE_DICTIONARY)
+      .sort((a, b) => b.length - a.length); // longest first
+
+    for (const key of keys) {
+      if (upper.startsWith(key.toUpperCase())) {
+        const res = { typeName: this.EQUIPMENT_TYPE_DICTIONARY[key], matchedKey: key };
+        this.typeCache.set(name, res);
+        return res;
+      }
+    }
+    
+    // Default to the prefix itself if not found in dictionary
+    const res = { typeName: prefix, matchedKey: prefix };
+    this.typeCache.set(name, res);
+    return res;
+  }
+
+  /**
    * Classify equipment based on filename and metadata from connector service
    */
   public static classifyFromFilename(filename: string): ClassificationResult {
@@ -168,6 +282,21 @@ export class EquipmentClassifier {
     }
     
     // If vendor/model didn't match, try pattern matching on the name
+
+    // --- NEW: dictionary substring match (medium-confidence) ---
+    const dictGuess = this.getEquipmentTypeFromName(baseName);
+    if (dictGuess.typeName !== 'Unknown') {
+      console.log(`[CLASSIFIER] Matched by dictionary: ${baseName} -> ${dictGuess.typeName}`);
+      return {
+        equipmentType: dictGuess.typeName,
+        confidence: 0.9,
+        equipmentName: baseName,
+        matchedPattern: `Dictionary key: ${dictGuess.matchedKey}`,
+        alternatives: []
+      };
+    }
+
+    // -- Existing regex pattern matching fallback --
     const matches: Array<{ type: string; confidence: number; pattern: string }> = [];
     
     for (const { pattern, type, confidence } of this.EQUIPMENT_PATTERNS) {
@@ -216,6 +345,53 @@ export class EquipmentClassifier {
    */
   public static getEquipmentTypeDisplayName(type: string): string {
     const displayNames: Record<string, string> = {
+      // Haystack standard types (lowercase)
+      'ahu': 'Air Handling Unit',
+      'rtu': 'Rooftop Unit',
+      'vav': 'Variable Air Volume Box',
+      'fcu': 'Fan Coil Unit',
+      'doas': 'Dedicated Outdoor Air System',
+      'mau': 'Makeup Air Unit',
+      'erv': 'Energy Recovery Ventilator',
+      'hrv': 'Heat Recovery Ventilator',
+      'fpb': 'Fan Powered Box',
+      'cav': 'Constant Air Volume Box',
+      
+      // Fans
+      'exhaust-fan': 'Exhaust Fan',
+      'supply-fan': 'Supply Fan',
+      'return-fan': 'Return Fan',
+      'cooling-tower-fan': 'Cooling Tower Fan',
+      'fan': 'Fan',
+      
+      // Laboratory
+      'lab-exhaust': 'Laboratory Exhaust',
+      
+      // Pumps
+      'chilled-water-pump': 'Chilled Water Pump',
+      'hot-water-pump': 'Hot Water Pump',
+      'condenser-water-pump': 'Condenser Water Pump',
+      'pump': 'Pump',
+      
+      // Central Plant
+      'chiller': 'Chiller',
+      'boiler': 'Boiler',
+      'cooling-tower': 'Cooling Tower',
+      
+      // Heat Pumps
+      'water-source-heat-pump': 'Water Source Heat Pump',
+      'air-source-heat-pump': 'Air Source Heat Pump',
+      'heat-pump': 'Heat Pump',
+      'unit-heater': 'Unit Heater',
+      
+      // Controls
+      'vfd': 'Variable Frequency Drive',
+      'controller': 'Controller',
+      
+      // Systems
+      'system': 'System',
+      
+      // Legacy types (uppercase) - for backwards compatibility
       'AHU': 'Air Handling Unit',
       'RTU': 'Rooftop Unit',
       'VAV': 'Variable Air Volume Box',
@@ -229,31 +405,16 @@ export class EquipmentClassifier {
       'COOLING_TOWER_FAN': 'Cooling Tower Fan',
       'CHILLED_WATER_PUMP': 'Chilled Water Pump',
       'HOT_WATER_PUMP': 'Hot Water Pump',
-      'LOOP_WATER_PUMP': 'Loop Water Pump',
-      'TOWER_WATER_PUMP': 'Tower Water Pump',
-      'CONDENSER_WATER_PUMP': 'Condenser Water Pump',
       'CHILLER': 'Chiller',
       'BOILER': 'Boiler',
-      'BOILER_CONTROLLER': 'Boiler Controller',
       'COOLING_TOWER': 'Cooling Tower',
-      'FAN_POWERED_BOX': 'Fan Powered Box',
-      'FAN_POWERED_TERMINAL': 'Fan Powered Terminal Unit',
-      'CONSTANT_AIR_VOLUME': 'Constant Air Volume Box',
-      'ENERGY_RECOVERY_VENTILATOR': 'Energy Recovery Ventilator',
-      'ERV': 'Energy Recovery Ventilator',
-      'HEAT_RECOVERY_VENTILATOR': 'Heat Recovery Ventilator',
-      'HRV': 'Heat Recovery Ventilator',
-      'DOAS': 'Dedicated Outdoor Air System',
-      'DOAU': 'Dedicated Outdoor Air Unit',
-      'MAKEUP_AIR_UNIT': 'Makeup Air Unit',
-      'MAU': 'Makeup Air Unit',
-      'CONTROLLER': 'Controller',
-      'LOOP_CONTROLLER': 'Loop Controller',
       'VFD': 'Variable Frequency Drive',
-      'PUMP_CONTROLLER': 'Pump Controller',
-      'GATEWAY': 'Protocol Gateway',
-      'UNIT': 'Generic Unit',
+      'CONTROLLER': 'Controller',
       'SYSTEM': 'System',
+      'LAB_AIR_VALVE': 'Laboratory Air Valve',
+      'VAV_CONTROLLER': 'VAV Controller',
+      
+      // Default types
       'Unknown': 'Unknown Equipment',
       'UNKNOWN': 'Unknown Equipment'
     };

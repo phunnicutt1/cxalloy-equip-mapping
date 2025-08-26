@@ -1,9 +1,12 @@
 import { nanoid } from 'nanoid';
-import { Equipment, ConnectionState, EquipmentStatus } from '../../types/equipment';
+import { Equipment, EquipmentType, ConnectionState, EquipmentStatus } from '../../types/equipment';
 import { NormalizedPoint, PointFunction, NormalizationConfidence } from '../../types/normalized';
 import { BACnetObjectType, PointDataType, PointCategory } from '../../types/point';
+import { EquipmentTemplate, PointTemplate, TemplateApplicationResult } from '../../types/template';
+import { PointSignature, TemplateMatch } from '../engines/point-signature-engine';
 import { executeQuery, executeTransaction } from './config';
-import { EquipmentRecord, PointRecord, MappingSessionRecord, DbConnectionState } from './models';
+import { EquipmentRecord, PointRecord, MappingSessionRecord, DbConnectionState, EquipmentPointConfigurationRecord, TemplateApplicationRecord } from './models';
+import { connectorService } from '../services/connector-service';
 
 // Mapping function to convert equipment status to database ENUM values
 function mapEquipmentStatusToDbEnum(status: string): string {
@@ -56,10 +59,66 @@ function mapConnectionStateToDbEnum(connectionState: string): string {
 
 // Mapping function to convert human-readable equipment types to database ENUM values
 function mapEquipmentTypeToDbEnum(equipmentType: string): string {
-  // Handle exact matches first
-  const upperType = equipmentType.toUpperCase().replace(/\s+/g, '_');
+  // Handle uppercase Haystack-aligned types first
+  const upperType = equipmentType.toUpperCase().replace(/\s+/g, '-');
   
-  // Direct mappings
+  // Haystack to DB mappings (uppercase input -> DB enum)
+  const haystackMappings: { [key: string]: string } = {
+    'AHU': 'AIR_HANDLER_UNIT',
+    'RTU': 'RTU_CONTROLLER',
+    'VAV': 'VAV_CONTROLLER',
+    'FCU': 'FAN_COIL_UNIT',
+    'DOAS': 'AIR_HANDLER_UNIT', // Map DOAS to AHU
+    'MAU': 'AIR_HANDLER_UNIT',  // Map MAU to AHU
+    'ERV': 'AIR_HANDLER_UNIT',  // Map ERV to AHU
+    'HRV': 'AIR_HANDLER_UNIT',  // Map HRV to AHU
+    'FPB': 'FAN', // Fan Powered Box
+    'CAV': 'VAV_CONTROLLER', // Constant Air Volume similar to VAV
+    
+    // Fans
+    'EXHAUST-FAN': 'EXHAUST_FAN',
+    'SUPPLY-FAN': 'SUPPLY_FAN',
+    'RETURN-FAN': 'RETURN_FAN',
+    'COOLING-TOWER-FAN': 'FAN',
+    'FAN': 'FAN',
+    
+    // Laboratory
+    'LAB-EXHAUST': 'LAB_AIR_VALVE',
+    
+    // Pumps
+    'CHILLED-WATER-PUMP': 'PUMP',
+    'HOT-WATER-PUMP': 'PUMP',
+    'CONDENSER-WATER-PUMP': 'PUMP',
+    'PUMP': 'PUMP',
+    
+    // Central Plant
+    'CHILLER': 'CHILLER',
+    'BOILER': 'BOILER',
+    'COOLING-TOWER': 'COOLING_TOWER',
+    
+    // Heat Pumps
+    'WATER-SOURCE-HEAT-PUMP': 'HEAT_EXCHANGER',
+    'AIR-SOURCE-HEAT-PUMP': 'HEAT_EXCHANGER',
+    'HEAT-PUMP': 'HEAT_EXCHANGER',
+    'UNIT-HEATER': 'UNIT_HEATER',
+    
+    // Controls
+    'VFD': 'CONTROLLER',
+    'CONTROLLER': 'CONTROLLER',
+    
+    // Systems
+    'SYSTEM': 'CONTROLLER' // Map system to controller
+  };
+  
+  // Check Haystack mapping first
+  if (haystackMappings[upperType]) {
+    return haystackMappings[upperType];
+  }
+  
+  // Handle legacy uppercase types for backwards compatibility
+  const legacyType = equipmentType.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '_');
+  
+  // Direct mappings (legacy)
   const mappings: { [key: string]: string } = {
     'LAB_AIR_VALVE': 'LAB_AIR_VALVE',
     'AIR_HANDLER_UNIT': 'AIR_HANDLER_UNIT',
@@ -82,6 +141,7 @@ function mapEquipmentTypeToDbEnum(equipmentType: string): string {
     'UNIT_HEATER': 'UNIT_HEATER',
     'ZONE_CONTROLLER': 'ZONE_CONTROLLER',
     'FUME_HOOD': 'FUME_HOOD',
+    'FAN_COIL_UNIT': 'FAN_COIL_UNIT',
     'LIGHTING_CONTROLLER': 'LIGHTING_CONTROLLER',
     'POWER_METER': 'POWER_METER',
     'WEATHER_STATION': 'WEATHER_STATION',
@@ -91,31 +151,31 @@ function mapEquipmentTypeToDbEnum(equipmentType: string): string {
     'ESCALATOR': 'ESCALATOR'
   };
 
-  // Check direct mapping first
-  if (mappings[upperType]) {
-    return mappings[upperType];
+  // Check direct mapping
+  if (mappings[legacyType]) {
+    return mappings[legacyType];
   }
 
   // Partial matches for common variations
-  if (upperType.includes('LAB') && (upperType.includes('AIR') || upperType.includes('VALVE'))) {
+  if (legacyType.includes('LAB') && (legacyType.includes('AIR') || legacyType.includes('VALVE') || legacyType.includes('EXHAUST'))) {
     return 'LAB_AIR_VALVE';
   }
-  if (upperType.includes('AHU') || upperType.includes('AIR_HANDLER')) {
+  if (legacyType.includes('AHU') || legacyType.includes('AIR_HANDLER')) {
     return 'AIR_HANDLER_UNIT';
   }
-  if (upperType.includes('VAV')) {
+  if (legacyType.includes('VAV') || legacyType.includes('VVR') || legacyType.includes('VV')) {
     return 'VAV_CONTROLLER';
   }
-  if (upperType.includes('RTU')) {
+  if (legacyType.includes('RTU')) {
     return 'RTU_CONTROLLER';
   }
-  if (upperType.includes('FAN')) {
-    if (upperType.includes('EXHAUST')) return 'EXHAUST_FAN';
-    if (upperType.includes('SUPPLY')) return 'SUPPLY_FAN';
-    if (upperType.includes('RETURN')) return 'RETURN_FAN';
+  if (legacyType.includes('FAN')) {
+    if (legacyType.includes('EXHAUST')) return 'EXHAUST_FAN';
+    if (legacyType.includes('SUPPLY')) return 'SUPPLY_FAN';
+    if (legacyType.includes('RETURN')) return 'RETURN_FAN';
     return 'FAN';
   }
-  if (upperType.includes('FUME') && upperType.includes('HOOD')) {
+  if (legacyType.includes('FUME') && legacyType.includes('HOOD')) {
     return 'FUME_HOOD';
   }
 
@@ -200,12 +260,17 @@ function mapCategoryToDbEnum(category: PointCategory | string | undefined): stri
 export class EquipmentDatabaseService {
   
   async clearAllData(): Promise<void> {
-    console.log('[DB SERVICE] Clearing all data from equipment and point tables');
-    // It's better to use TRUNCATE for speed, but DELETE is safer if there are foreign keys without ON DELETE CASCADE
-    // We will delete from points first, then equipment to respect foreign key constraints.
-    await executeQuery('DELETE FROM point_mapping', [], 'CLEAR_POINTS');
-    await executeQuery('DELETE FROM equipment_mapping', [], 'CLEAR_EQUIPMENT');
-    console.log('[DB SERVICE] All data cleared.');
+    console.log('\x1b[33m[DB SERVICE]\x1b[0m Clearing all data from equipment and point tables');
+    try {
+      // It's better to use TRUNCATE for speed, but DELETE is safer if there are foreign keys without ON DELETE CASCADE
+      // We will delete from points first, then equipment to respect foreign key constraints.
+      await executeQuery('DELETE FROM point_mapping', [], 'CLEAR_POINTS');
+      await executeQuery('DELETE FROM equipment_mapping', [], 'CLEAR_EQUIPMENT');
+      console.log('\x1b[32m[DB SERVICE]\x1b[0m All data cleared successfully');
+    } catch (error) {
+      console.error('\x1b[31m[DB SERVICE ERROR]\x1b[0m Failed to clear data:', error);
+      throw error;
+    }
   }
 
   // Store equipment and points in database
@@ -215,7 +280,7 @@ export class EquipmentDatabaseService {
     points: NormalizedPoint[],
     sessionId?: string
   ): Promise<{ equipmentId: string; pointIds: string[] }> {
-    console.log('[DB SERVICE] Storing equipment with points', {
+    console.log('\x1b[36m[DB SERVICE]\x1b[0m Storing equipment with points', {
       fileId,
       equipmentId: equipment.id,
       pointCount: points.length,
@@ -311,12 +376,19 @@ export class EquipmentDatabaseService {
         }
       }
 
-      console.log('[DB SERVICE] Equipment and points stored successfully', {
+      console.log('\x1b[32m[DB SERVICE SUCCESS]\x1b[0m Equipment and points stored', {
         equipmentId,
         pointCount: pointIds.length
       });
 
       return { equipmentId, pointIds };
+    }).catch(error => {
+      console.error('\x1b[31m[DB SERVICE ERROR]\x1b[0m Failed to store equipment with points:', {
+        equipmentId: equipment.id,
+        equipmentName: equipment.name,
+        error: error.message || error
+      });
+      throw error;
     });
   }
 
@@ -345,6 +417,9 @@ export class EquipmentDatabaseService {
       console.warn('[DB SERVICE] Failed to parse metadata for equipment', record.id, e);
     }
     
+    // Get connector metadata for vendor and model info
+    const connectorMetadata = connectorService.getEquipmentMetadata(record.equipment_name);
+    
     // Get points for this equipment
     const points = await this.getPointsByEquipmentId(equipmentId);
 
@@ -355,8 +430,9 @@ export class EquipmentDatabaseService {
       displayName: record.equipment_name,
       type: record.equipment_type,
       filename: record.original_filename,
-      vendor: metadata.vendor || 'Unknown',
-      modelName: metadata.model || 'Unknown',
+      vendor: connectorMetadata.vendor || metadata.vendor || 'Unknown',
+      modelName: connectorMetadata.model || metadata.model || 'Unknown', 
+      description: connectorMetadata.description,
       status: record.status as EquipmentStatus,
       connectionState: mapDbEnumToConnectionState(rawConnectionState),
       connectionStatus: metadata.connectionStatus || (rawConnectionState === 'CONNECTED' ? 'ok' : 'fault'),
@@ -374,8 +450,30 @@ export class EquipmentDatabaseService {
     const pointRows = await executeQuery<PointRecord>(query, [equipmentId], 'GET_POINTS_BY_EQUIPMENT');
 
     return pointRows.map(record => {
-      const metadata = JSON.parse(record.normalization_metadata || '{}');
-      const haystackTagsData = JSON.parse(record.haystack_tags || '[]');
+      // Handle JSON parsing - MySQL driver may already parse JSON columns
+      let metadata: any = {};
+      try {
+        if (typeof record.normalization_metadata === 'string') {
+          metadata = JSON.parse(record.normalization_metadata || '{}');
+        } else if (typeof record.normalization_metadata === 'object' && record.normalization_metadata !== null) {
+          metadata = record.normalization_metadata;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse normalization_metadata:', e);
+        metadata = {};
+      }
+
+      let haystackTagsData: any[] = [];
+      try {
+        if (typeof record.haystack_tags === 'string') {
+          haystackTagsData = JSON.parse(record.haystack_tags || '[]');
+        } else if (Array.isArray(record.haystack_tags)) {
+          haystackTagsData = record.haystack_tags;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse haystack_tags:', e);
+        haystackTagsData = [];
+      }
       
               // Convert haystack tags to proper format
         const haystackTags = Array.isArray(haystackTagsData) 
@@ -500,14 +598,18 @@ export class EquipmentDatabaseService {
         console.warn('[DB SERVICE] Failed to parse metadata for equipment', row.id, e);
       }
       
+      // Get connector metadata for vendor and model info
+      const connectorMetadata = connectorService.getEquipmentMetadata(row.equipment_name);
+      
       return {
         id: row.id,
         name: row.equipment_name,
         displayName: row.equipment_name,
         type: row.equipment_type,
         filename: row.original_filename,
-        vendor: metadata.vendor || 'Unknown',
-        modelName: metadata.model || 'Unknown',
+        vendor: connectorMetadata.vendor || metadata.vendor || 'Unknown',
+        modelName: connectorMetadata.model || metadata.model || 'Unknown',
+        description: connectorMetadata.description,
         status: row.status as EquipmentStatus,
         connectionState: mapDbEnumToConnectionState(row.connection_state),
         connectionStatus: metadata.connectionStatus || 'ok',
@@ -692,5 +794,641 @@ export class EquipmentDatabaseService {
       pointsByCategory,
       recentActivity
     };
+  }
+
+  // ===== TEMPLATE MANAGEMENT METHODS =====
+
+  // Create equipment point configuration template
+  async createEquipmentPointConfiguration(
+    equipmentType: EquipmentType,
+    name: string,
+    description: string,
+    pointSignatures: PointSignature[],
+    isDefault = false,
+    createdBy?: string,
+    metadata?: Record<string, any>
+  ): Promise<string> {
+    const configId = nanoid();
+    
+    console.log('[DB SERVICE] Creating equipment point configuration', { 
+      configId, 
+      equipmentType, 
+      name, 
+      signaturesCount: pointSignatures.length 
+    });
+
+    await executeQuery(`
+      INSERT INTO equipment_point_configurations (
+        id, equipment_type, name, description, point_signatures, 
+        default_config, created_by, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      configId,
+      equipmentType,
+      name,
+      description || null,
+      JSON.stringify(pointSignatures),
+      isDefault,
+      createdBy || null,
+      metadata ? JSON.stringify(metadata) : null
+    ], 'CREATE_CONFIGURATION');
+
+    return configId;
+  }
+
+  // Update equipment point configuration template
+  async updateEquipmentPointConfiguration(
+    configId: string,
+    updates: {
+      name?: string;
+      description?: string;
+      pointSignatures?: PointSignature[];
+      effectivenessScore?: number;
+      usageCount?: number;
+      successRate?: number;
+      metadata?: Record<string, any>;
+    }
+  ): Promise<void> {
+    const setClauses: string[] = [];
+    const params: any[] = [];
+
+    if (updates.name !== undefined) {
+      setClauses.push('name = ?');
+      params.push(updates.name);
+    }
+    if (updates.description !== undefined) {
+      setClauses.push('description = ?');
+      params.push(updates.description);
+    }
+    if (updates.pointSignatures !== undefined) {
+      setClauses.push('point_signatures = ?');
+      params.push(JSON.stringify(updates.pointSignatures));
+    }
+    if (updates.effectivenessScore !== undefined) {
+      setClauses.push('effectiveness_score = ?');
+      params.push(updates.effectivenessScore);
+    }
+    if (updates.usageCount !== undefined) {
+      setClauses.push('usage_count = ?');
+      params.push(updates.usageCount);
+    }
+    if (updates.successRate !== undefined) {
+      setClauses.push('success_rate = ?');
+      params.push(updates.successRate);
+    }
+    if (updates.metadata !== undefined) {
+      setClauses.push('metadata = ?');
+      params.push(JSON.stringify(updates.metadata));
+    }
+
+    if (setClauses.length === 0) return;
+
+    params.push(configId);
+    const query = `
+      UPDATE equipment_point_configurations 
+      SET ${setClauses.join(', ')}, updated_at = CURRENT_TIMESTAMP 
+      WHERE id = ?
+    `;
+
+    await executeQuery(query, params, 'UPDATE_CONFIGURATION');
+  }
+
+  // Delete equipment point configuration template
+  async deleteEquipmentPointConfiguration(configId: string): Promise<void> {
+    console.log('[DB SERVICE] Deleting equipment point configuration', { configId });
+
+    await executeQuery(`
+      DELETE FROM equipment_point_configurations WHERE id = ?
+    `, [configId], 'DELETE_CONFIGURATION');
+  }
+
+  // Get equipment point configurations
+  async getEquipmentPointConfigurations(
+    equipmentType?: EquipmentType,
+    includeDefaults = true
+  ): Promise<Array<{
+    id: string;
+    equipmentType: string;
+    name: string;
+    description: string | null;
+    pointSignatures: PointSignature[];
+    isDefault: boolean;
+    effectivenessScore: number;
+    usageCount: number;
+    successRate: number;
+    createdAt: Date;
+    updatedAt: Date;
+    createdBy: string | null;
+    metadata: Record<string, any> | null;
+  }>> {
+    let query = 'SELECT * FROM equipment_point_configurations';
+    const params: any[] = [];
+    const conditions: string[] = [];
+
+    if (equipmentType) {
+      conditions.push('equipment_type = ?');
+      params.push(equipmentType);
+    }
+
+    if (!includeDefaults) {
+      conditions.push('default_config = FALSE');
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY default_config DESC, effectiveness_score DESC, name ASC';
+
+    const rows = await executeQuery<EquipmentPointConfigurationRecord>(query, params, 'GET_CONFIGURATIONS');
+
+    return rows.map(row => {
+      let pointSignatures: PointSignature[] = [];
+      let metadata: Record<string, any> | null = null;
+
+      try {
+        if (typeof row.point_signatures === 'string') {
+          pointSignatures = JSON.parse(row.point_signatures);
+        } else if (Array.isArray(row.point_signatures)) {
+          pointSignatures = row.point_signatures;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse point signatures for config', row.id, e);
+      }
+
+      try {
+        if (row.metadata) {
+          if (typeof row.metadata === 'string') {
+            metadata = JSON.parse(row.metadata);
+          } else if (typeof row.metadata === 'object' && row.metadata !== null) {
+            metadata = row.metadata;
+          }
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse metadata for config', row.id, e);
+      }
+
+      return {
+        id: row.id,
+        equipmentType: row.equipment_type,
+        name: row.name,
+        description: row.description,
+        pointSignatures,
+        isDefault: row.default_config,
+        effectivenessScore: row.effectiveness_score,
+        usageCount: row.usage_count,
+        successRate: row.success_rate,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+        createdBy: row.created_by,
+        metadata
+      };
+    });
+  }
+
+  // Apply template to equipment
+  async applyTemplateToEquipment(
+    equipmentId: string,
+    configurationId: string,
+    templateMatches: TemplateMatch[],
+    confidenceScore: number,
+    appliedBy?: string,
+    isAutomatic = true,
+    effectivenessRating?: number,
+    metadata?: Record<string, any>
+  ): Promise<string> {
+    const applicationId = nanoid();
+    
+    console.log('[DB SERVICE] Applying template to equipment', { 
+      applicationId,
+      equipmentId, 
+      configurationId, 
+      matchesCount: templateMatches.length,
+      confidenceScore 
+    });
+
+    // Extract applied points data from template matches
+    const appliedPoints = templateMatches.map(match => ({
+      templatePointId: match.pointSignature.id,
+      actualPointId: match.matchedPoint.originalPointId,
+      confidence: match.confidence,
+      patternMatch: match.exactMatch || match.partialMatch,
+      matchedSignature: match.pointSignature.pattern
+    }));
+
+    await executeQuery(`
+      INSERT INTO template_applications (
+        id, equipment_id, configuration_id, applied_points, confidence_score,
+        match_results, effectiveness_rating, applied_by, is_automatic, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      applicationId,
+      equipmentId,
+      configurationId,
+      JSON.stringify(appliedPoints),
+      confidenceScore,
+      JSON.stringify(templateMatches),
+      effectivenessRating || null,
+      appliedBy || null,
+      isAutomatic,
+      metadata ? JSON.stringify(metadata) : null
+    ], 'APPLY_TEMPLATE');
+
+    // Update configuration usage statistics
+    await executeQuery(`
+      UPDATE equipment_point_configurations 
+      SET usage_count = usage_count + 1, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `, [configurationId], 'UPDATE_CONFIG_USAGE');
+
+    return applicationId;
+  }
+
+  // Get template applications for equipment
+  async getTemplateApplications(
+    equipmentId?: string,
+    configurationId?: string
+  ): Promise<Array<{
+    id: string;
+    equipmentId: string;
+    configurationId: string;
+    appliedPoints: any[];
+    confidenceScore: number;
+    matchResults: TemplateMatch[] | null;
+    effectivenessRating: number | null;
+    appliedAt: Date;
+    appliedBy: string | null;
+    isAutomatic: boolean;
+    metadata: Record<string, any> | null;
+  }>> {
+    let query = 'SELECT * FROM template_applications';
+    const params: any[] = [];
+    const conditions: string[] = [];
+
+    if (equipmentId) {
+      conditions.push('equipment_id = ?');
+      params.push(equipmentId);
+    }
+
+    if (configurationId) {
+      conditions.push('configuration_id = ?');
+      params.push(configurationId);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY applied_at DESC';
+
+    const rows = await executeQuery<TemplateApplicationRecord>(query, params, 'GET_APPLICATIONS');
+
+    return rows.map(row => {
+      let appliedPoints: any[] = [];
+      let matchResults: TemplateMatch[] | null = null;
+      let metadata: Record<string, any> | null = null;
+
+      try {
+        if (typeof row.applied_points === 'string') {
+          appliedPoints = JSON.parse(row.applied_points);
+        } else if (Array.isArray(row.applied_points)) {
+          appliedPoints = row.applied_points;
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse applied points for application', row.id, e);
+      }
+
+      try {
+        if (row.match_results) {
+          if (typeof row.match_results === 'string') {
+            matchResults = JSON.parse(row.match_results);
+          } else if (Array.isArray(row.match_results)) {
+            matchResults = row.match_results;
+          }
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse match results for application', row.id, e);
+      }
+
+      try {
+        if (row.metadata) {
+          if (typeof row.metadata === 'string') {
+            metadata = JSON.parse(row.metadata);
+          } else if (typeof row.metadata === 'object' && row.metadata !== null) {
+            metadata = row.metadata;
+          }
+        }
+      } catch (e) {
+        console.warn('[DB SERVICE] Failed to parse metadata for application', row.id, e);
+      }
+
+      return {
+        id: row.id,
+        equipmentId: row.equipment_id,
+        configurationId: row.configuration_id,
+        appliedPoints,
+        confidenceScore: row.confidence_score,
+        matchResults,
+        effectivenessRating: row.effectiveness_rating,
+        appliedAt: row.applied_at,
+        appliedBy: row.applied_by,
+        isAutomatic: row.is_automatic,
+        metadata
+      };
+    });
+  }
+
+  // Get template effectiveness analytics
+  async getTemplateEffectiveness(configurationId?: string): Promise<{
+    totalApplications: number;
+    averageConfidence: number;
+    averageEffectiveness: number;
+    successRate: number;
+    equipmentTypes: { [key: string]: number };
+    recentApplications: Array<{
+      date: string;
+      applicationCount: number;
+      averageConfidence: number;
+    }>;
+  }> {
+    let baseQuery = `
+      SELECT 
+        ta.configuration_id,
+        ta.confidence_score,
+        ta.effectiveness_rating,
+        ta.applied_at,
+        epc.equipment_type
+      FROM template_applications ta
+      JOIN equipment_point_configurations epc ON ta.configuration_id = epc.id
+    `;
+    
+    const params: any[] = [];
+    if (configurationId) {
+      baseQuery += ' WHERE ta.configuration_id = ?';
+      params.push(configurationId);
+    }
+
+    const applicationData = await executeQuery<{
+      configuration_id: string;
+      confidence_score: number;
+      effectiveness_rating: number | null;
+      applied_at: Date;
+      equipment_type: string;
+    }>(baseQuery, params, 'GET_TEMPLATE_EFFECTIVENESS');
+
+    if (applicationData.length === 0) {
+      return {
+        totalApplications: 0,
+        averageConfidence: 0,
+        averageEffectiveness: 0,
+        successRate: 0,
+        equipmentTypes: {},
+        recentApplications: []
+      };
+    }
+
+    const totalApplications = applicationData.length;
+    const averageConfidence = applicationData.reduce((sum, app) => sum + app.confidence_score, 0) / totalApplications;
+    
+    const effectivenessRatings = applicationData.filter(app => app.effectiveness_rating !== null);
+    const averageEffectiveness = effectivenessRatings.length > 0 
+      ? effectivenessRatings.reduce((sum, app) => sum + (app.effectiveness_rating || 0), 0) / effectivenessRatings.length
+      : 0;
+
+    const successRate = applicationData.filter(app => app.confidence_score >= 0.7).length / totalApplications;
+
+    const equipmentTypes = applicationData.reduce((acc, app) => {
+      acc[app.equipment_type] = (acc[app.equipment_type] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    // Recent applications (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const recentData = applicationData.filter(app => new Date(app.applied_at) >= sevenDaysAgo);
+    const recentApplications = recentData.reduce((acc, app) => {
+      const date = new Date(app.applied_at).toISOString().split('T')[0];
+      if (!acc[date]) {
+        acc[date] = { applicationCount: 0, totalConfidence: 0 };
+      }
+      acc[date].applicationCount++;
+      acc[date].totalConfidence += app.confidence_score;
+      return acc;
+    }, {} as { [key: string]: { applicationCount: number; totalConfidence: number } });
+
+    const recentApplicationsArray = Object.entries(recentApplications).map(([date, data]) => ({
+      date,
+      applicationCount: data.applicationCount,
+      averageConfidence: data.totalConfidence / data.applicationCount
+    })).sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      totalApplications,
+      averageConfidence,
+      averageEffectiveness,
+      successRate,
+      equipmentTypes,
+      recentApplications: recentApplicationsArray
+    };
+  }
+
+  // Get all template applications across all templates (for analytics)
+  async getAllTemplateApplications(): Promise<Array<{
+    id: string;
+    equipmentId: string;
+    templateId: string;
+    templateName: string;
+    equipmentType: string;
+    confidence: number;
+    success: boolean;
+    pointMatchRate: number;
+    appliedAt: Date;
+    appliedBy: string | null;
+    isAutomatic: boolean;
+  }>> {
+    const query = `
+      SELECT 
+        ta.id,
+        ta.equipment_id,
+        ta.configuration_id as template_id,
+        epc.name as template_name,
+        epc.equipment_type,
+        ta.confidence_score as confidence,
+        CASE WHEN ta.confidence_score >= 0.7 THEN true ELSE false END as success,
+        ta.confidence_score as point_match_rate,
+        ta.applied_at,
+        ta.applied_by,
+        ta.is_automatic
+      FROM template_applications ta
+      JOIN equipment_point_configurations epc ON ta.configuration_id = epc.id
+      ORDER BY ta.applied_at DESC
+    `;
+
+    const rows = await executeQuery<{
+      id: string;
+      equipment_id: string;
+      template_id: string;
+      template_name: string;
+      equipment_type: string;
+      confidence: number;
+      success: boolean;
+      point_match_rate: number;
+      applied_at: Date;
+      applied_by: string | null;
+      is_automatic: boolean;
+    }>(query, [], 'GET_ALL_APPLICATIONS');
+
+    return rows.map(row => ({
+      id: row.id,
+      equipmentId: row.equipment_id,
+      templateId: row.template_id,
+      templateName: row.template_name,
+      equipmentType: row.equipment_type,
+      confidence: row.confidence,
+      success: row.success,
+      pointMatchRate: row.point_match_rate,
+      appliedAt: row.applied_at,
+      appliedBy: row.applied_by,
+      isAutomatic: row.is_automatic
+    }));
+  }
+
+  // Get template applications for a specific template (for analytics)
+  async getTemplateApplicationsForAnalytics(templateId: string): Promise<Array<{
+    id: string;
+    equipmentId: string;
+    confidence: number;
+    success: boolean;
+    pointMatchRate: number;
+    appliedAt: Date;
+    appliedBy: string | null;
+    isAutomatic: boolean;
+  }>> {
+    const query = `
+      SELECT 
+        id,
+        equipment_id,
+        confidence_score as confidence,
+        CASE WHEN confidence_score >= 0.7 THEN true ELSE false END as success,
+        confidence_score as point_match_rate,
+        applied_at,
+        applied_by,
+        is_automatic
+      FROM template_applications
+      WHERE configuration_id = ?
+      ORDER BY applied_at DESC
+    `;
+
+    const rows = await executeQuery<{
+      id: string;
+      equipment_id: string;
+      confidence: number;
+      success: boolean;
+      point_match_rate: number;
+      applied_at: Date;
+      applied_by: string | null;
+      is_automatic: boolean;
+    }>(query, [templateId], 'GET_TEMPLATE_APPLICATIONS');
+
+    return rows.map(row => ({
+      id: row.id,
+      equipmentId: row.equipment_id,
+      confidence: row.confidence,
+      success: row.success,
+      pointMatchRate: row.point_match_rate,
+      appliedAt: row.applied_at,
+      appliedBy: row.applied_by,
+      isAutomatic: row.is_automatic
+    }));
+  }
+
+  // Get template usage statistics for analytics
+  async getTemplateUsageStats(): Promise<Array<{
+    templateId: string;
+    templateName: string;
+    equipmentType: string;
+    totalApplications: number;
+    successfulApplications: number;
+    successRate: number;
+    averageConfidence: number;
+    lastUsed: Date | null;
+    isDefault: boolean;
+  }>> {
+    const query = `
+      SELECT 
+        epc.id as template_id,
+        epc.name as template_name,
+        epc.equipment_type,
+        epc.is_default,
+        COUNT(ta.id) as total_applications,
+        SUM(CASE WHEN ta.confidence_score >= 0.7 THEN 1 ELSE 0 END) as successful_applications,
+        AVG(ta.confidence_score) as average_confidence,
+        MAX(ta.applied_at) as last_used
+      FROM equipment_point_configurations epc
+      LEFT JOIN template_applications ta ON epc.id = ta.configuration_id
+             WHERE 1=1
+      GROUP BY epc.id, epc.name, epc.equipment_type, epc.is_default
+      ORDER BY total_applications DESC, epc.name
+    `;
+
+    const rows = await executeQuery<{
+      template_id: string;
+      template_name: string;
+      equipment_type: string;
+      is_default: boolean;
+      total_applications: number;
+      successful_applications: number;
+      average_confidence: number | null;
+      last_used: Date | null;
+    }>(query, [], 'GET_TEMPLATE_USAGE_STATS');
+
+    return rows.map(row => ({
+      templateId: row.template_id,
+      templateName: row.template_name,
+      equipmentType: row.equipment_type,
+      totalApplications: row.total_applications,
+      successfulApplications: row.successful_applications,
+      successRate: row.total_applications > 0 ? row.successful_applications / row.total_applications : 0,
+      averageConfidence: row.average_confidence || 0,
+      lastUsed: row.last_used,
+      isDefault: row.is_default
+    }));
+  }
+
+  // Get analytics time series data
+  async getAnalyticsTimeSeries(days: number = 30): Promise<Array<{
+    date: string;
+    totalApplications: number;
+    successfulApplications: number;
+    successRate: number;
+    averageConfidence: number;
+  }>> {
+    const query = `
+      SELECT 
+        DATE(applied_at) as date,
+        COUNT(*) as total_applications,
+        SUM(CASE WHEN confidence_score >= 0.7 THEN 1 ELSE 0 END) as successful_applications,
+        AVG(confidence_score) as average_confidence
+      FROM template_applications
+      WHERE applied_at >= DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)
+      GROUP BY DATE(applied_at)
+      ORDER BY date
+    `;
+
+    const rows = await executeQuery<{
+      date: string;
+      total_applications: number;
+      successful_applications: number;
+      average_confidence: number;
+    }>(query, [days], 'GET_ANALYTICS_TIME_SERIES');
+
+    return rows.map(row => ({
+      date: row.date,
+      totalApplications: row.total_applications,
+      successfulApplications: row.successful_applications,
+      successRate: row.total_applications > 0 ? row.successful_applications / row.total_applications : 0,
+      averageConfidence: row.average_confidence
+    }));
   }
 }

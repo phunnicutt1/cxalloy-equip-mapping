@@ -11,8 +11,17 @@ import {
   ChevronDown, 
   ChevronRight,
   Package,
-  Wrench
+  Wrench,
+  Plus,
+  ArrowRight,
+  CheckCircle2,
+  X,
+  Link2
 } from 'lucide-react';
+import { TemplateList } from '../templates/TemplateList';
+import { TemplateModal } from '../templates/TemplateModal';
+import type { EquipmentTemplate } from '../../types/equipment';
+import { findMappingSuggestions, shouldShowCreateNewOption, type NameMatchSuggestion } from '../../lib/utils/smart-matching';
 
 interface EquipmentGroupProps {
   type: string;
@@ -21,6 +30,8 @@ interface EquipmentGroupProps {
   onToggle: () => void;
   onSelectEquipment: (equipment: Equipment) => void;
   selectedEquipmentId?: string;
+  equipmentMappings: any[];
+  cxAlloyEquipment: any[];
 }
 
 function EquipmentGroup({
@@ -29,57 +40,223 @@ function EquipmentGroup({
   isExpanded,
   onToggle,
   onSelectEquipment,
-  selectedEquipmentId
+  selectedEquipmentId,
+  equipmentMappings,
+  cxAlloyEquipment
 }: EquipmentGroupProps) {
+  const { addEquipmentMapping, recordEquipmentMapping, removeEquipmentMapping, setSelectedEquipment } = useAppStore();
+
+  const handleSuggestionClick = async (event: React.MouseEvent, bacnetEquipment: Equipment, suggestion: NameMatchSuggestion) => {
+    event.stopPropagation(); // Prevent parent button click
+    
+    try {
+      // Find the CxAlloy equipment
+      const cxAlloyEq = cxAlloyEquipment.find(eq => eq.name === suggestion.equipmentName);
+      if (!cxAlloyEq) {
+        console.error('CxAlloy equipment not found:', suggestion.equipmentName);
+        return;
+      }
+
+      // Create the equipment mapping (complete format matching CxAlloyPanel)
+      const mapping = {
+        id: `suggestion-${bacnetEquipment.id}-${cxAlloyEq.id}`,
+        bacnetEquipmentId: bacnetEquipment.id,
+        bacnetEquipmentName: bacnetEquipment.name,
+        bacnetEquipmentType: bacnetEquipment.type || 'Unknown',
+        cxalloyEquipmentId: Number(cxAlloyEq.id),
+        cxAlloyEquipmentName: cxAlloyEq.name,
+        cxalloyCategory: cxAlloyEq.type as any,
+        mappingType: 'automatic' as const,
+        confidence: suggestion.confidence,
+        mappingReason: suggestion.matchReason || 'Suggestion mapping',
+        totalBacnetPoints: bacnetEquipment.totalPoints || 0,
+        mappedPointsCount: 0,
+        unmappedPointsCount: 0,
+        isActive: true,
+        isVerified: suggestion.confidence >= 0.8,
+        verifiedBy: suggestion.confidence >= 0.8 ? 'auto-suggestion' : undefined,
+        verifiedAt: suggestion.confidence >= 0.8 ? new Date() : undefined,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'suggestion-mapping',
+        mappingMethod: 'automatic' as const,
+        mappedAt: new Date()
+      };
+
+      // Add the mapping to the store
+      addEquipmentMapping(mapping as any);
+
+      // Select the BACnet equipment to show the mapping in the UI
+      setSelectedEquipment(bacnetEquipment);
+
+      // Immediately save the EK Skyspark ID to the database
+      try {
+        const saveResponse = await fetch('/api/save-mappings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            equipmentMappings: [{
+              bacnetEquipmentId: bacnetEquipment.id,
+              bacnetEquipmentName: bacnetEquipment.name,
+              cxalloyEquipmentId: Number(cxAlloyEq.id),
+              cxalloyEquipmentName: cxAlloyEq.name,
+              trackedPoints: [] // No tracked points for suggestion mapping
+            }]
+          })
+        });
+
+        const saveResult = await saveResponse.json();
+        if (!saveResult.success) {
+          console.error('Failed to save EK Skyspark ID:', saveResult.error);
+        } else {
+          console.log('EK Skyspark ID saved successfully for:', bacnetEquipment.name);
+        }
+      } catch (saveError) {
+        console.error('Error saving EK Skyspark ID:', saveError);
+      }
+
+      // Record audit trail
+      await recordEquipmentMapping(
+        bacnetEquipment.id,
+        bacnetEquipment.name,
+        cxAlloyEq.id,
+        cxAlloyEq.name,
+        'created',
+        'manual',
+        suggestion.confidence,
+        bacnetEquipment.totalPoints || 0
+      );
+
+      console.log('Auto-mapped equipment:', bacnetEquipment.name, '→', cxAlloyEq.name);
+    } catch (error) {
+      console.error('Failed to create auto-mapping:', error);
+    }
+  };
   return (
     <div className="border border-border rounded-lg bg-card">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors rounded-t-lg"
+        className="w-full flex items-center justify-between p-3 hover:bg-muted/60 transition-colors duration-200 rounded-t-lg group hover:ring-1 hover:ring-primary/20"
       >
         <div className="flex items-center gap-2">
           {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
           ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground transition-colors duration-200 group-hover:text-primary" />
           )}
           <Package className="h-4 w-4 text-primary" />
           <span className="font-medium text-foreground">{type}</span>
         </div>
-        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+        <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded transition-colors duration-200 group-hover:bg-primary/10 group-hover:text-primary">
           {equipment.length}
         </span>
       </button>
       
       {isExpanded && (
-        <div className="border-t border-border">
+        <div className="border-t border-border animate-in slide-in-from-top-2 duration-500">
           {equipment.map((item) => (
             <button
               key={item.id}
               onClick={() => onSelectEquipment(item)}
               className={cn(
-                "w-full text-left p-3 hover:bg-muted/50 transition-colors border-b border-border last:border-b-0 last:rounded-b-lg",
-                selectedEquipmentId === item.id && "bg-primary/10 border-l-4 border-l-primary"
+                "w-full text-left p-3 hover:bg-muted/60 transition-colors duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative group hover:border-l-4 hover:border-l-primary/30 hover:ring-1 hover:ring-primary/10",
+                // Blue outline for currently selected mapping pair - matching CxAlloy style
+                selectedEquipmentId === item.id && equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50/30 ring-2 ring-blue-600 ring-offset-2 ring-offset-white border-blue-400 animate-in fade-in scale-in-95 duration-500 shadow-lg rounded-lg p-2",
+                // Standard selected state (not mapped)
+                selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-400 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
+                // Green for mapped but not selected
+                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400 animate-in fade-in duration-700"
               )}
             >
+              {/* Unmap button - only visible on hover, upper left corner */}
+              {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeEquipmentMapping(item.id);
+                  }}
+                  className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                >
+                  <span className="bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 transition-shadow duration-200 hover:shadow-md animate-in fade-in slide-in-from-top-1">
+                    <X className="h-2.5 w-2.5" />
+                    UNMAP
+                  </span>
+                </div>
+              )}
+              
+              {/* MAPPED Badge */}
+              {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                <div className="absolute top-2 right-2 animate-in fade-in slide-in-from-right-2 duration-500">
+                  <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse hover:animate-none">MAPPED</span>
+                </div>
+              )}
               <div className="space-y-1">
-                <div className="font-medium text-sm text-foreground">{item.name}</div>
-                {item.description && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold text-base text-foreground">{item.name}</div>
+                    {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 animate-in fade-in scale-in-50 duration-500" />
+                    )}
+                  </div>
+                </div>
+                {item.type && (
+                  <div className="text-xs text-muted-foreground">
+                    {item.type === 'VAV_CONTROLLER' ? 'VVR' : item.type.replace(/_/g, ' ')}
+                  </div>
+                )}
+                {item.description && item.description !== item.name && (
                   <div className="text-xs text-muted-foreground line-clamp-2">
                     {item.description}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {item.points && (
-                    <span>{item.points.length} points</span>
+                <div className="flex items-center gap-3 text-xs">
+                  {(item.totalPoints !== undefined && item.totalPoints > 0) && (
+                    <div>
+                      <span className="font-semibold text-foreground">{item.totalPoints} points</span>
+                    </div>
+                  )}
+                  {equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && (
+                    <div className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold uppercase text-[10px] tracking-wider">
+                      ONLINE
+                    </div>
                   )}
                   {item.vendor && (
-                    <>
-                      <span>•</span>
-                      <span>{item.vendor}</span>
-                    </>
+                    <span className="text-muted-foreground">{item.vendor}</span>
                   )}
                 </div>
+                
+                {/* Smart suggestions for unmapped equipment */}
+                {(() => {
+                  const isMapped = equipmentMappings.some(m => m.bacnetEquipmentId === item.id);
+                  if (isMapped) return null;
+                  
+                  const suggestions = findMappingSuggestions(item.name, item.type, cxAlloyEquipment);
+                  if (suggestions.length === 0) return null;
+                  
+                  const topSuggestion = suggestions[0];
+                  if (topSuggestion.confidence < 0.6) return null;
+                  
+                  return (
+                    <div
+                      onClick={(e) => handleSuggestionClick(e, item, topSuggestion)}
+                      className="mt-2 w-full px-3 py-1.5 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 group cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-700"
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Link2 className="h-3.5 w-3.5 text-blue-600" />
+                          <span className="text-blue-700 font-medium">Click to Map:</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
+                            <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors duration-200" />
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </button>
           ))}
@@ -94,14 +271,35 @@ export function EquipmentBrowser() {
     viewMode,
     searchTerm,
     selectedEquipment,
+    cxAlloyEquipment,
+    equipmentMappings,
     setViewMode,
     setSearchTerm,
     setSelectedEquipment,
     getEquipmentByType,
-    getFilteredEquipment
+    getFilteredEquipment,
+    fetchEquipmentTemplates,
+    getSelectedTemplate
   } = useAppStore();
 
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
+  const [equipmentFilter, setEquipmentFilter] = React.useState<'all' | 'mapped' | 'unmapped'>('all');
+  const [templateModal, setTemplateModal] = React.useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit';
+    template?: EquipmentTemplate | null;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    template: null
+  });
+
+  // Load templates when switching to template mode
+  React.useEffect(() => {
+    if (viewMode.left === 'templates') {
+      fetchEquipmentTemplates();
+    }
+  }, [viewMode.left, fetchEquipmentTemplates]);
 
   const equipmentByType = getEquipmentByType();
   const filteredEquipment = getFilteredEquipment();
@@ -131,24 +329,48 @@ export function EquipmentBrowser() {
     setSelectedEquipment(equipment);
   };
 
+  const handleCreateTemplate = () => {
+    setTemplateModal({
+      isOpen: true,
+      mode: 'create',
+      template: null
+    });
+  };
+
+  const handleEditTemplate = (template: EquipmentTemplate) => {
+    setTemplateModal({
+      isOpen: true,
+      mode: 'edit',
+      template
+    });
+  };
+
+  const handleCloseTemplateModal = () => {
+    setTemplateModal({
+      isOpen: false,
+      mode: 'create',
+      template: null
+    });
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-border bg-background">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-foreground">
-            {viewMode.left === 'equipment' ? 'Equipment' : 'Templates'}
+            {viewMode.left === 'equipment' ? 'Data Sources' : 'Templates'}
           </h2>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setViewMode('left', viewMode.left === 'equipment' ? 'templates' : 'equipment')}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-110 hover:bg-primary/10"
           >
             {viewMode.left === 'equipment' ? (
-              <Wrench className="h-4 w-4" />
+              <Wrench className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
             ) : (
-              <Package className="h-4 w-4" />
+              <Package className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
             )}
           </Button>
         </div>
@@ -161,37 +383,83 @@ export function EquipmentBrowser() {
         </p>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground transition-all duration-300 group-focus-within:text-primary group-focus-within:scale-110" />
           <Input
             placeholder={viewMode.left === 'equipment' ? 'Search equipment...' : 'Search templates...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 transition-all duration-300 focus:scale-[1.02] focus:shadow-md"
           />
         </div>
+
+        {/* Compact Mapping Filter - Only for equipment mode */}
+        {viewMode.left === 'equipment' && (
+          <div className="mt-2 flex items-center gap-1">
+            <div className="text-xs text-muted-foreground mr-1">Filter:</div>
+            <button
+              onClick={() => setEquipmentFilter('all')}
+              className={cn(
+                "px-2 py-1 text-xs rounded-full transition-all duration-200 hover:bg-blue-50",
+                equipmentFilter === 'all' ? "bg-blue-100 text-blue-700 ring-1 ring-blue-300" : "text-muted-foreground hover:text-blue-600"
+              )}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setEquipmentFilter('mapped')}
+              className={cn(
+                "px-2 py-1 text-xs rounded-full transition-all duration-200 hover:bg-green-50",
+                equipmentFilter === 'mapped' ? "bg-green-100 text-green-700 ring-1 ring-green-300" : "text-muted-foreground hover:text-green-600"
+              )}
+            >
+              Mapped
+            </button>
+            <button
+              onClick={() => setEquipmentFilter('unmapped')}
+              className={cn(
+                "px-2 py-1 text-xs rounded-full transition-all duration-200 hover:bg-gray-50",
+                equipmentFilter === 'unmapped' ? "bg-gray-100 text-gray-700 ring-1 ring-gray-300" : "text-muted-foreground hover:text-gray-600"
+              )}
+            >
+              Unmapped
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 pb-20">
         {viewMode.left === 'equipment' ? (
           <div className="space-y-3">
             {Object.entries(equipmentByType).length === 0 ? (
-              <div className="text-center py-8">
-                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No equipment detected</p>
-                <p className="text-sm text-muted-foreground">Upload trio files to get started</p>
+              <div className="text-center py-8 animate-in fade-in zoom-in-50 duration-700">
+                <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3 animate-bounce" />
+                <p className="text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">No equipment detected</p>
+                <p className="text-sm text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-500 delay-500">Upload trio files to get started</p>
               </div>
             ) : (
               Object.entries(equipmentByType).map(([type, equipment]) => {
-                const filteredForType = searchTerm 
+                // Apply search filter
+                let filteredForType = searchTerm 
                   ? equipment.filter(eq => 
                       eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                       eq.description?.toLowerCase().includes(searchTerm.toLowerCase())
                     )
                   : equipment;
 
-                if (searchTerm && filteredForType.length === 0) return null;
+                // Apply mapping status filter
+                if (equipmentFilter === 'mapped') {
+                  filteredForType = filteredForType.filter(eq => 
+                    equipmentMappings.some(m => m.bacnetEquipmentId === eq.id)
+                  );
+                } else if (equipmentFilter === 'unmapped') {
+                  filteredForType = filteredForType.filter(eq => 
+                    !equipmentMappings.some(m => m.bacnetEquipmentId === eq.id)
+                  );
+                }
+
+                if (filteredForType.length === 0) return null;
 
                 return (
                   <EquipmentGroup
@@ -202,41 +470,50 @@ export function EquipmentBrowser() {
                     onToggle={() => toggleGroup(type)}
                     onSelectEquipment={handleSelectEquipment}
                     selectedEquipmentId={selectedEquipment?.id}
+                    equipmentMappings={equipmentMappings}
+                    cxAlloyEquipment={cxAlloyEquipment}
                   />
                 );
               })
             )}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <Wrench className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Template management</p>
-            <p className="text-sm text-muted-foreground">Coming soon</p>
-          </div>
+          <TemplateList 
+            onCreateTemplate={handleCreateTemplate}
+            onEditTemplate={handleEditTemplate}
+          />
         )}
       </div>
 
       {/* Footer Stats */}
       {viewMode.left === 'equipment' && Object.keys(equipmentByType).length > 0 && (
-        <div className="p-4 border-t border-border bg-muted/30">
+        <div className="p-4 border-t border-border bg-muted/30 animate-in slide-in-from-bottom duration-500">
           <div className="text-sm text-muted-foreground">
-            <div className="flex justify-between">
+            <div className="flex justify-between hover:scale-105 transition-transform duration-200">
               <span>Equipment Types</span>
-              <span>{Object.keys(equipmentByType).length}</span>
+              <span className="font-semibold animate-in fade-in scale-in-50 duration-300">{Object.keys(equipmentByType).length}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between hover:scale-105 transition-transform duration-200">
               <span>Total Equipment</span>
-              <span>{Object.values(equipmentByType).flat().length}</span>
+              <span className="font-semibold animate-in fade-in scale-in-50 duration-300 delay-75">{Object.values(equipmentByType).flat().length}</span>
             </div>
             {searchTerm && (
-              <div className="flex justify-between text-primary">
+              <div className="flex justify-between text-primary hover:scale-105 transition-transform duration-200 animate-in fade-in slide-in-from-bottom-2 duration-400">
                 <span>Filtered Results</span>
-                <span>{filteredEquipment.length}</span>
+                <span className="font-semibold animate-in fade-in scale-in-50 duration-300 delay-150">{filteredEquipment.length}</span>
               </div>
             )}
           </div>
         </div>
       )}
+
+      {/* Template Modal */}
+      <TemplateModal
+        isOpen={templateModal.isOpen}
+        onClose={handleCloseTemplateModal}
+        template={templateModal.template}
+        mode={templateModal.mode}
+      />
     </div>
   );
 } 

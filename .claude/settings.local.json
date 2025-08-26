@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__executeCode",
+      "Bash(sqlite3:*)",
+      "Bash(mkdir:*)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(mysql:*)",
+      "Bash(open http://localhost:3001/dashboard)",
+      "Bash(cat:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(brew services:*)",
+      "Bash(npx tsx:*)",
+      "mcp__playwright__browser_navigate",
+      "Bash(grep:*)",
+      "WebFetch(domain:guides.smartbuildingsacademy.com)",
+      "Bash(npm run lint)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

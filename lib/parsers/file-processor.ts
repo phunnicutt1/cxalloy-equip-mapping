@@ -238,11 +238,14 @@ export class FileProcessor {
     connectorData?: ConnectorData,
     trioResult?: TrioParseResult | null
   ): EquipmentSource {
+    // Get fileName from available sources
+    const fileName = connectorData?.fileName || trioResult?.fileName || classification.equipmentName;
+    
     const equipmentSource: EquipmentSource = {
-      id: this.generateEquipmentId(classification.originalFileName),
+      id: this.generateEquipmentId(fileName),
       name: classification.equipmentName,
-      type: classification.equipmentType,
-      fileName: classification.originalFileName,
+      type: classification.equipmentType as EquipmentType,
+      fileName,
       points,
       metadata: {
         classification,
@@ -277,11 +280,8 @@ export class FileProcessor {
   ): string[] {
     const tags: string[] = [];
 
-    // Add classification-based tags
-    const config = EquipmentClassifier.getEquipmentConfig(classification.equipmentType);
-    if (config) {
-      tags.push(...config.tags);
-    }
+    // Add equipment type tag
+    tags.push(`type:${classification.equipmentType.toLowerCase().replace(/\s+/g, '-')}`);
 
     // Add vendor tags if available
     if (connectorData?.vendor) {
@@ -308,7 +308,7 @@ export class FileProcessor {
 
     results.forEach(result => {
       // Count equipment types
-      const type = result.equipmentClassification.equipmentType;
+      const type = result.equipmentClassification.equipmentType as EquipmentType;
       equipmentTypeDistribution[type] = (equipmentTypeDistribution[type] || 0) + 1;
 
       // Count points
