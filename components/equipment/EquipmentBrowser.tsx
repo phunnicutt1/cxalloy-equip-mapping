@@ -162,8 +162,11 @@ function EquipmentGroup({
               onClick={() => onSelectEquipment(item)}
               className={cn(
                 "w-full text-left p-3 hover:bg-muted/60 transition-colors duration-200 border-b border-border last:border-b-0 last:rounded-b-lg relative group hover:border-l-4 hover:border-l-primary/30 hover:ring-1 hover:ring-primary/10",
-                selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-500 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
-                equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId === item.id && "bg-green-50/70 ring-2 ring-green-500 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
+                // Blue outline for currently selected mapping pair - matching CxAlloy style
+                selectedEquipmentId === item.id && equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50/30 ring-2 ring-blue-600 ring-offset-2 ring-offset-white border-blue-400 animate-in fade-in scale-in-95 duration-500 shadow-lg rounded-lg p-2",
+                // Standard selected state (not mapped)
+                selectedEquipmentId === item.id && !equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && "bg-blue-50 ring-2 ring-blue-400 ring-offset-1 animate-in fade-in scale-in-95 duration-500",
+                // Green for mapped but not selected
                 equipmentMappings.some(m => m.bacnetEquipmentId === item.id) && selectedEquipmentId !== item.id && "bg-green-50/50 ring-1 ring-green-400 animate-in fade-in duration-700"
               )}
             >

@@ -64,17 +64,25 @@ function CxAlloyEquipmentItem({
   return (
     <div className={cn(
       "border border-border rounded-lg p-2 bg-card transition-all duration-200 relative group",
-      isMapped ? "border-green-200 bg-green-50/50" : "hover:border-primary/50",
-      isHighlighted && "ring-2 ring-blue-500 ring-opacity-50 border-blue-300 bg-blue-50/30 shadow-lg",
-      isMappedToSelectedSource && "ring-2 ring-green-500 ring-opacity-70 border-green-400 bg-green-50/60 shadow-md"
+      isMapped && !isMappedToSelectedSource ? "border-green-200 bg-green-50/50" : !isMapped && "hover:border-primary/50",
+      isMappedToSelectedSource && "ring-2 ring-blue-600 ring-offset-2 ring-offset-white border-blue-400 bg-blue-50/30 shadow-lg"
     )}>
+      {/* Currently Selected Badge */}
+      {isMappedToSelectedSource && selectedSourceName && (
+        <div className="absolute -top-4 right-2 z-10">
+          <div className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+            CURRENTLY SELECTED
+          </div>
+        </div>
+      )}
+      
       <div className="space-y-1.5">
         {/* Mapping Status Bar - Prominent at top */}
         {isMapped && (
           <div className={cn(
             "text-xs px-2 py-1 rounded-md flex items-center justify-between font-medium",
             isMappedToSelectedSource 
-              ? "text-green-800 bg-green-200 border border-green-300" 
+              ? "text-blue-800 bg-blue-200 border border-blue-300" 
               : "text-green-700 bg-green-100 border border-green-200"
           )}>
             <div className="flex items-center gap-1">
@@ -277,36 +285,24 @@ export function CxAlloyPanel() {
       );
     }
 
-    // Smart sorting: if there's a highlighted equipment (mapped to selected data source),
-    // bring it to the top of the list for better visibility
-    if (highlightedEquipment) {
-      const highlighted = equipment.find(eq => eq.id === highlightedEquipment.id);
-      if (highlighted) {
-        const remaining = equipment.filter(eq => eq.id !== highlightedEquipment.id);
-        equipment = [highlighted, ...remaining];
-      }
+    // Only apply special sorting when a data source is selected
+    if (selectedEquipment) {
+      // Sort to bring equipment mapped to the selected data source to the top
+      equipment = equipment.sort((a, b) => {
+        const aMappedToSelected = isMappedToSelectedSource(a.id);
+        const bMappedToSelected = isMappedToSelectedSource(b.id);
+        
+        // Priority: equipment mapped to currently selected data source
+        if (aMappedToSelected && !bMappedToSelected) return -1;
+        if (!aMappedToSelected && bMappedToSelected) return 1;
+        
+        // Otherwise, maintain alphabetical order
+        return a.name.localeCompare(b.name);
+      });
+    } else {
+      // No data source selected - just use alphabetical order
+      equipment = equipment.sort((a, b) => a.name.localeCompare(b.name));
     }
-
-    // Enhanced sorting: prioritize equipment mapped to selected data source, then other mapped equipment, then unmapped
-    equipment = equipment.sort((a, b) => {
-      const aMappedToSelected = isMappedToSelectedSource(a.id);
-      const bMappedToSelected = isMappedToSelectedSource(b.id);
-      const aMapped = isEquipmentMapped(a.id);
-      const bMapped = isEquipmentMapped(b.id);
-      
-      // First priority: equipment mapped to currently selected data source
-      if (aMappedToSelected && !bMappedToSelected) return -1;
-      if (!aMappedToSelected && bMappedToSelected) return 1;
-      
-      // Second priority: if neither is mapped to selected source, prioritize any mapped equipment
-      if (!aMappedToSelected && !bMappedToSelected) {
-        if (aMapped && !bMapped) return -1;
-        if (!aMapped && bMapped) return 1;
-      }
-      
-      // Otherwise, maintain alphabetical order
-      return a.name.localeCompare(b.name);
-    });
 
     return equipment;
   };
