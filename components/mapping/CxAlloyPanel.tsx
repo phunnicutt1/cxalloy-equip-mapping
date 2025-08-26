@@ -12,8 +12,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { 
-  Link, 
-  Unlink,
+  Link as LinkIcon, 
   CheckCircle,
   Circle,
   Building,
@@ -22,7 +21,8 @@ import {
   ArrowRight,
   Search,
   Save,
-  Plus
+  Plus,
+  X
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { CxAlloyEquipment, Equipment } from '../../types/equipment';
@@ -63,116 +63,74 @@ function CxAlloyEquipmentItem({
 }: CxAlloyEquipmentItemProps) {
   return (
     <div className={cn(
-      "border border-border rounded-lg p-3 bg-card transition-all duration-200 relative",
+      "border border-border rounded-lg p-2 bg-card transition-all duration-200 relative group",
       isMapped ? "border-green-200 bg-green-50/50" : "hover:border-primary/50",
       isHighlighted && "ring-2 ring-blue-500 ring-opacity-50 border-blue-300 bg-blue-50/30 shadow-lg",
       isMappedToSelectedSource && "ring-2 ring-green-500 ring-opacity-70 border-green-400 bg-green-50/60 shadow-md"
     )}>
-      <div className="space-y-2">
-        {/* Highlighted Badge */}
-        {isMappedToSelectedSource && selectedSourceName ? (
-          <div className="absolute -top-2 -right-2 z-10">
-            <div className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
-              MAPPED TO SELECTED
+      <div className="space-y-1.5">
+        {/* Mapping Status Bar - Prominent at top */}
+        {isMapped && (
+          <div className={cn(
+            "text-xs px-2 py-1 rounded-md flex items-center justify-between font-medium",
+            isMappedToSelectedSource 
+              ? "text-green-800 bg-green-200 border border-green-300" 
+              : "text-green-700 bg-green-100 border border-green-200"
+          )}>
+            <div className="flex items-center gap-1">
+              <CheckCircle className="h-3 w-3" />
+              <span>MAPPED{mappedBacnetName ? `: ${mappedBacnetName}` : ''}</span>
             </div>
-          </div>
-        ) : isHighlighted && (
-          <div className="absolute -top-2 -right-2 z-10">
-            <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
-              SELECTED MAPPING
-            </div>
+            <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs border border-blue-200">
+              {trackedPointsCount} Tracked
+            </span>
           </div>
         )}
 
-        {/* Equipment Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            {isMapped ? (
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            ) : (
-              <Circle className="h-4 w-4 text-muted-foreground" />
+        {/* Equipment Info - Compact single line */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {!isMapped && (
+              <Circle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
             )}
-            <div>
-              <div className="font-medium text-sm text-foreground">
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm text-foreground truncate">
                 {equipment.name}
               </div>
-              <div className="text-xs text-muted-foreground">
-                {equipment.type}
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <span>{equipment.type}</span>
+                {equipment.location && (
+                  <>
+                    <span>•</span>
+                    <span className="truncate">{equipment.location}</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
           
-          <Button
-            size="sm"
-            variant={isMapped ? "outline" : "default"}
-            onClick={isMapped ? onUnmap : onMap}
-            className={cn(
-              "text-xs",
-              isMapped && "text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-            )}
-          >
-            {isMapped ? (
-              <>
-                <Unlink className="h-3 w-3 mr-1" />
-                Unmap
-              </>
-            ) : (
-              <>
-                <Link className="h-3 w-3 mr-1" />
-                Map
-              </>
-            )}
-          </Button>
-        </div>
-
-        {/* Equipment Details */}
-        {equipment.description && (
-          <div className="text-xs text-muted-foreground">
-            {equipment.description}
-          </div>
-        )}
-
-        {/* Equipment Metadata */}
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          {equipment.location && (
-            <div className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              <span>{equipment.location}</span>
-            </div>
-          )}
-          {equipment.zone && (
-            <span>Zone: {equipment.zone}</span>
-          )}
-          {equipment.system && (
-            <span>System: {equipment.system}</span>
+          {isMapped ? (
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={onUnmap}
+              className="text-[10px] h-5 px-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full"
+            >
+              <X className="h-2.5 w-2.5 mr-0.5" />
+              UNMAP
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={onMap}
+              className="text-xs h-7 px-2"
+            >
+              <LinkIcon className="h-3 w-3 mr-1" />
+              Map
+            </Button>
           )}
         </div>
-
-        {/* Mapping Info */}
-        {isMapped && (
-          <div className="space-y-1">
-            <div className={cn(
-              "text-xs px-2 py-1 rounded flex items-center gap-1",
-              isMappedToSelectedSource 
-                ? "text-green-800 bg-green-200 border border-green-300" 
-                : "text-green-700 bg-green-100"
-            )}>
-              <ArrowRight className="h-3 w-3" />
-              <span>
-                {isMappedToSelectedSource && selectedSourceName 
-                  ? `MAPPED TO: ${selectedSourceName}`
-                  : `Mapped to BACnet equipment${mappedBacnetName ? `: ${mappedBacnetName}` : ''}`
-                }
-              </span>
-            </div>
-            {/* Tracked Points Count */}
-            <div className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
-              <span className="font-medium">
-                {trackedPointsCount} Tracked
-              </span>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -570,7 +528,7 @@ export function CxAlloyPanel() {
 
           {/* Stats */}
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Total: {cxAlloyEquipment.length}</span>
+            <span>Equipment: {cxAlloyEquipment.length}</span>
             <span>Mapped: {mappedEquipment.length}</span>
             <span>Unmapped: {unmappedEquipment.length}</span>
             <span>Tracked: {getTotalTrackedPointsCount()}</span>
@@ -651,7 +609,7 @@ export function CxAlloyPanel() {
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {filteredEquipment.map((equip) => (
               <CxAlloyEquipmentItem
                 key={equip.id}
