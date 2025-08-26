@@ -481,37 +481,31 @@ export function CxAlloyPanel() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="p-4 border-b border-border bg-background">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
+      {/* Compact Header */}
+      <div className="border-b border-border bg-background">
+        {/* Title and Controls Row */}
+        <div className="p-3 pb-2">
+          <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-semibold text-foreground">CxAlloy Mapping</h2>
             <Building className="h-5 w-5 text-primary" />
           </div>
           
-          <p className="text-sm text-muted-foreground">
-            Map BACnet equipment to CxAlloy project equipment
-          </p>
-
-          {/* Search and Filter Controls */}
-          <div className="space-y-2">
-            {/* Search Bar */}
+          {/* Search and Filter Row */}
+          <div className="grid grid-cols-2 gap-2">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="Search CxAlloy equipment..."
+                placeholder="Search equipment..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
+                className="pl-7 h-8 text-xs"
               />
             </div>
-            
-            {/* Filter Dropdown */}
             <Select
               value={viewMode.right}
               onValueChange={(value: 'all' | 'mapped' | 'unmapped') => setViewMode('right', value)}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -521,68 +515,97 @@ export function CxAlloyPanel() {
               </SelectContent>
             </Select>
           </div>
-
-          {/* Stats */}
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Equipment: {cxAlloyEquipment.length}</span>
-            <span>Mapped: {mappedEquipment.length}</span>
-            <span>Unmapped: {unmappedEquipment.length}</span>
-            <span>Tracked: {getTotalTrackedPointsCount()}</span>
-          </div>
         </div>
-      </div>
 
-      {/* Selected Equipment Info */}
-      {selectedEquipment && (
-        <div className="p-3 border-b border-border bg-muted/30">
-          <div className="text-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-medium text-foreground">Selected for Mapping:</div>
-                <div className="text-muted-foreground">{selectedEquipment.name}</div>
+        {/* Selected Equipment & Mapping Info */}
+        {selectedEquipment && (
+          <div className="px-3 pb-3 bg-muted/20">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-foreground">Selected: {selectedEquipment.name}</div>
                 <div className="text-xs text-muted-foreground">{selectedEquipment.type}</div>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleCreateNewEquipment}
-                disabled={creatingNewEquipment}
-                className="text-xs bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300 flex-shrink-0"
-                title="Create new CxAlloy equipment based on this BACnet equipment"
-              >
-                <Plus className="h-3 w-3 sm:mr-1" />
-                <span className="hidden sm:inline">
+              {/* Only show Add New button if no mapping exists */}
+              {!getAllMappedToSelectedSource().length && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCreateNewEquipment}
+                  disabled={creatingNewEquipment}
+                  className="text-xs h-7 px-2 bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300 flex-shrink-0"
+                  title="Create new CxAlloy equipment"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
                   {creatingNewEquipment ? 'Creating...' : 'Add New'}
-                </span>
-              </Button>
+                </Button>
+              )}
             </div>
             
-            {/* Show mapped CxAlloy equipment if any */}
+            {/* Prominent Mapped Equipment Display */}
             {(() => {
               const mappedEquipment = getAllMappedToSelectedSource();
               if (mappedEquipment.length > 0) {
                 return (
-                  <div className="mt-2 pt-2 border-t border-border/50">
+                  <div className="bg-green-50 border border-green-200 rounded p-2">
                     <div className="text-xs font-medium text-green-700 mb-1">
-                      Mapped to CxAlloy Equipment:
+                      ✓ Mapped to CxAlloy Equipment:
                     </div>
-                    <div className="space-y-1">
-                      {mappedEquipment.map((eq, idx) => (
-                        <div key={eq.id} className="flex items-center gap-2 text-xs bg-green-50 px-2 py-1 rounded border border-green-200">
-                          <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                    {mappedEquipment.map((eq) => (
+                      <div key={eq.id} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                           <span className="font-medium text-green-800">{eq.name}</span>
                           <span className="text-green-600">({eq.type})</span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="text-xs text-green-600">{getTrackedPointsCount(eq.id)} tracked</div>
+                      </div>
+                    ))}
                   </div>
                 );
               }
               return null;
             })()}
           </div>
+        )}
+
+        {/* Stats Row */}
+        <div className="px-3 pb-2 flex justify-between text-xs text-muted-foreground bg-muted/10">
+          <span>Equipment: {cxAlloyEquipment.length}</span>
+          <span>Mapped: {mappedEquipment.length}</span>
+          <span>Unmapped: {unmappedEquipment.length}</span>
+          <span>Tracked: {getTotalTrackedPointsCount()}</span>
         </div>
-      )}
+      </div>
+
+      {/* Pinned Currently Selected Card */}
+      {selectedEquipment && (() => {
+        const pinnedEquipment = cxAlloyEquipment.find(eq => 
+          equipmentMappings.some(m => 
+            m.bacnetEquipmentId === selectedEquipment.id && 
+            Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(eq.id)
+          )
+        );
+        
+        if (pinnedEquipment) {
+          return (
+            <div className="px-4 pt-2 pb-3 border-b border-border bg-blue-50/20">
+              <div className="text-xs font-medium text-blue-700 mb-2">Pinned - Currently Selected Mapping</div>
+              <CxAlloyEquipmentItem
+                equipment={pinnedEquipment}
+                isMapped={true}
+                isHighlighted={true}
+                mappedBacnetName={selectedEquipment.name}
+                isMappedToSelectedSource={true}
+                selectedSourceName={selectedEquipment.name}
+                trackedPointsCount={getTrackedPointsCount(pinnedEquipment.id)}
+                onMap={() => handleMap(pinnedEquipment)}
+                onUnmap={() => handleUnmap(pinnedEquipment)}
+              />
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* Equipment List */}
       <div className="flex-1 overflow-y-auto p-4 pb-20">
@@ -606,20 +629,31 @@ export function CxAlloyPanel() {
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredEquipment.map((equip) => (
-              <CxAlloyEquipmentItem
-                key={equip.id}
-                equipment={equip}
-                isMapped={isEquipmentMapped(equip.id)}
-                isHighlighted={highlightedEquipment?.id === equip.id || isMappedToSelectedSource(equip.id)}
-                mappedBacnetName={getMappedBacnetName(equip.id)}
-                isMappedToSelectedSource={isMappedToSelectedSource(equip.id)}
-                selectedSourceName={selectedEquipment?.name}
-                trackedPointsCount={getTrackedPointsCount(equip.id)}
-                onMap={() => handleMap(equip)}
-                onUnmap={() => handleUnmap(equip)}
-              />
-            ))}
+            {filteredEquipment.map((equip) => {
+              // Skip the pinned equipment in the main list
+              const isPinned = selectedEquipment && 
+                equipmentMappings.some(m => 
+                  m.bacnetEquipmentId === selectedEquipment.id && 
+                  Number((m as any).cxalloyEquipmentId || (m as any).cxAlloyEquipmentId) === Number(equip.id)
+                );
+              
+              if (isPinned) return null;
+              
+              return (
+                <CxAlloyEquipmentItem
+                  key={equip.id}
+                  equipment={equip}
+                  isMapped={isEquipmentMapped(equip.id)}
+                  isHighlighted={false}
+                  mappedBacnetName={getMappedBacnetName(equip.id)}
+                  isMappedToSelectedSource={false}
+                  selectedSourceName={selectedEquipment?.name}
+                  trackedPointsCount={getTrackedPointsCount(equip.id)}
+                  onMap={() => handleMap(equip)}
+                  onUnmap={() => handleUnmap(equip)}
+                />
+              );
+            })}
           </div>
         )}
       </div>
