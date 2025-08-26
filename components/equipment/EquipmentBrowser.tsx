@@ -283,6 +283,7 @@ export function EquipmentBrowser() {
   } = useAppStore();
 
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
+  const [equipmentFilter, setEquipmentFilter] = React.useState<'all' | 'mapped' | 'unmapped'>('all');
   const [templateModal, setTemplateModal] = React.useState<{
     isOpen: boolean;
     mode: 'create' | 'edit';
@@ -391,6 +392,40 @@ export function EquipmentBrowser() {
             className="pl-10 transition-all duration-300 focus:scale-[1.02] focus:shadow-md"
           />
         </div>
+
+        {/* Compact Mapping Filter - Only for equipment mode */}
+        {viewMode.left === 'equipment' && (
+          <div className="mt-2 flex items-center gap-1">
+            <div className="text-xs text-muted-foreground mr-1">Filter:</div>
+            <button
+              onClick={() => setEquipmentFilter('all')}
+              className={cn(
+                "px-2 py-1 text-xs rounded-full transition-all duration-200 hover:bg-blue-50",
+                equipmentFilter === 'all' ? "bg-blue-100 text-blue-700 ring-1 ring-blue-300" : "text-muted-foreground hover:text-blue-600"
+              )}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setEquipmentFilter('mapped')}
+              className={cn(
+                "px-2 py-1 text-xs rounded-full transition-all duration-200 hover:bg-green-50",
+                equipmentFilter === 'mapped' ? "bg-green-100 text-green-700 ring-1 ring-green-300" : "text-muted-foreground hover:text-green-600"
+              )}
+            >
+              Mapped
+            </button>
+            <button
+              onClick={() => setEquipmentFilter('unmapped')}
+              className={cn(
+                "px-2 py-1 text-xs rounded-full transition-all duration-200 hover:bg-gray-50",
+                equipmentFilter === 'unmapped' ? "bg-gray-100 text-gray-700 ring-1 ring-gray-300" : "text-muted-foreground hover:text-gray-600"
+              )}
+            >
+              Unmapped
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -405,14 +440,26 @@ export function EquipmentBrowser() {
               </div>
             ) : (
               Object.entries(equipmentByType).map(([type, equipment]) => {
-                const filteredForType = searchTerm 
+                // Apply search filter
+                let filteredForType = searchTerm 
                   ? equipment.filter(eq => 
                       eq.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                       eq.description?.toLowerCase().includes(searchTerm.toLowerCase())
                     )
                   : equipment;
 
-                if (searchTerm && filteredForType.length === 0) return null;
+                // Apply mapping status filter
+                if (equipmentFilter === 'mapped') {
+                  filteredForType = filteredForType.filter(eq => 
+                    equipmentMappings.some(m => m.bacnetEquipmentId === eq.id)
+                  );
+                } else if (equipmentFilter === 'unmapped') {
+                  filteredForType = filteredForType.filter(eq => 
+                    !equipmentMappings.some(m => m.bacnetEquipmentId === eq.id)
+                  );
+                }
+
+                if (filteredForType.length === 0) return null;
 
                 return (
                   <EquipmentGroup
