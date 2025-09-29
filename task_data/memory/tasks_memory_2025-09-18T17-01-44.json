@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "d20cf372-c51c-45b8-934e-be1516d52490",
+      "name": "Relocate auto map controls to equipment header with always-visible styling",
+      "description": "Move auto map controls (threshold indicator, slider, and button) from device points header to equipment header, remove conditional rendering to make them always available, and style them sleekly like the bulk apply button for better contextual placement and improved user experience.",
+      "notes": "This improvement provides better contextual placement since auto mapping affects the equipment list, not device points. Making controls always available improves workflow since auto mapping works regardless of device selection status.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-17T23:21:54.748Z",
+      "updatedAt": "2025-09-17T23:23:15.591Z",
+      "relatedFiles": [
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Update renderWorkbench function to relocate auto map controls from device points header to equipment header",
+          "lineStart": 1445,
+          "lineEnd": 1451
+        }
+      ],
+      "implementationGuide": "Update renderWorkbench() function around lines 1445 and 1451:\\n\\n1. **Remove from Device Points Header (line 1445)**:\\n   - Remove auto map controls from device points header\\n   - Keep only bulk apply button: `${dev ? '<button id=\"bulkApplyBtn\" class=\"btn ghost\" title=\"Apply tracked points to other equipment\">⚡ Bulk Apply</button>' : ''}`\\n\\n2. **Add to Equipment Header (line 1451)**:\\n   - Move auto map controls to equipment header\\n   - Remove conditional rendering (`${dev ? ... : ''}`) to make always visible\\n   - Use sleek styling similar to bulk apply button\\n\\n3. **Styling Integration**:\\n   - Apply compact, integrated design using `btn ghost` styling pattern\\n   - Maintain same IDs (`threshold`, `autoMapBtn`) for event handler compatibility\\n   - Use space-between layout for clean header organization\\n\\nExample implementation:\\n```html\\n<div class=\"panel-header\" style=\"justify-content:space-between;\">\\n  <h3>Project equipment</h3>\\n  <div class=\"equipment-controls\" style=\"display:flex;align-items:center;gap:8px;\">\\n    <span class=\"chip\">Auto-accept ≥ <strong>${Math.round(state.autoMapThreshold*100)}%</strong></span>\\n    <input type=\"range\" min=\"50\" max=\"100\" value=\"${Math.round(state.autoMapThreshold*100)}\" id=\"threshold\">\\n    <button class=\"btn ghost\" id=\"autoMapBtn\">🎯 Auto-map</button>\\n    <button id=\"addEquipBtn\" class=\"btn ghost\" title=\"Create new CxAlloy equipment\">＋</button>\\n  </div>\\n</div>\\n```\\n\\n4. **Preserve Functionality**:\\n   - Maintain existing event handlers (lines 835-843 use same element IDs)\\n   - Keep same threshold slider functionality\\n   - Preserve auto-map button behavior",
+      "verificationCriteria": "Auto map controls appear in equipment header and are always visible. Controls removed from device points header. Threshold slider and auto-map button function correctly in new location. Styling is sleek and consistent with bulk apply button. Equipment header layout maintains visual balance with all controls properly aligned.",
+      "analysisResult": "Improve auto map controls placement and styling by relocating from device points header to equipment header, making them always available, and implementing sleek integrated design similar to the bulk apply button for better contextual relevance and user experience.",
+      "summary": "Successfully relocated auto map controls from device points header to equipment header with always-visible, sleek styling. Removed complex auto map controls from device points header (keeping only bulk apply button), moved threshold indicator, slider, and auto-map button to equipment header with btn ghost styling, added 🎯 icon for visual appeal, made controls always visible regardless of device selection, and preserved all existing functionality through same element IDs. Equipment header now provides better contextual placement since auto mapping affects the equipment list, improving user workflow and visual consistency.",
+      "completedAt": "2025-09-17T23:23:15.591Z"
+    }
+  ]
+}

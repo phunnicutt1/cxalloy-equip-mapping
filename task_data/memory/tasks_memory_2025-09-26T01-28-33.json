@@ -1,0 +1,196 @@
+{
+  "tasks": [
+    {
+      "id": "8ea98327-4d65-4850-bb98-3169ac773943",
+      "name": "Wire Fancybox to load the modal view endpoint",
+      "description": "Update `js/otto-equipment-mapping.js` to open Fancybox with `href` set to the CI route `settings/otto_equipment_mapping/open_equipment_mapping_modal` (type: 'ajax'), 100% width/height, prevent background scroll, and ensure close on ESC. Remove use of function callback for `href`.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-25T15:58:04.991Z",
+      "updatedAt": "2025-09-25T16:00:28.560Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/connected/js/otto-equipment-mapping.js",
+          "type": "TO_MODIFY",
+          "description": "JavaScript that opens the modal"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/application/controllers/settings/Otto_equipment_mapping.php",
+          "type": "REFERENCE",
+          "description": "Controller providing the modal endpoint"
+        }
+      ],
+      "implementationGuide": "Pseudocode: In initializeEventHandlers() -> handleOpenMappingModal(): set $.fancybox({ href: `${projectUrl}/settings/otto_equipment_mapping/open_equipment_mapping_modal`, type: 'ajax', width:'100%', height:'100%', autoSize:false, fitToView:false, closeBtn:true, helpers:{overlay:{locked:true}} });",
+      "verificationCriteria": "Clicking the mapping button opens a full-viewport Fancybox modal loading server HTML, with no background page scroll and ESC closing the modal.",
+      "analysisResult": "Use Fancybox to host the full-viewport equipment mapping workbench. Bootstrap via `_equipment_mapping_modal.php` with config injection and scoped CSS. Reuse existing controller endpoints and model. Normalize minor field names client-side. Ensure accessibility and performance baselines. Provide close behavior on success/cancel and avoid CSS leakage by scoping modal styles.",
+      "summary": "Successfully updated the Fancybox configuration in otto-equipment-mapping.js to use the CI endpoint 'settings/otto_equipment_mapping/open_equipment_mapping_modal' instead of a function callback. Added proper full-screen modal configuration with locked overlay to prevent background scrolling, closeBtn enabled, and ESC key support. Removed the obsolete loadMappingInterface function that was loading mapping-modal.js. The button #open-equip-mapping-modal exists in the equipment mapping content tab and is properly wired to handleOpenMappingModal function.",
+      "completedAt": "2025-09-25T16:00:28.560Z"
+    },
+    {
+      "id": "7786ec69-043b-491c-b546-526af04b9a18",
+      "name": "Bootstrap workbench inside modal view",
+      "description": "Modify `_equipment_mapping_modal.php` to include `css/equipment-mapping-ui.css`, create `#equipment-mapping-app` container, inject `window.equipmentMappingConfig` with endpoints and CSRF (same as `_equipment_mapping_workbench.php`), and load `js/equipment-mapping-interface.js`. Remove loading of `js/mapping-modal.js`. Keep fullscreen Fancybox CSS scoped to modal.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "8ea98327-4d65-4850-bb98-3169ac773943"
+        }
+      ],
+      "createdAt": "2025-09-25T15:58:04.991Z",
+      "updatedAt": "2025-09-25T16:02:04.819Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/connected/application/views/settings/otto/_equipment_mapping_modal.php",
+          "type": "TO_MODIFY",
+          "description": "Modal bootstrap HTML and styles"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/application/views/settings/otto/_equipment_mapping_workbench.php",
+          "type": "REFERENCE",
+          "description": "Reference for config injection content"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/js/equipment-mapping-interface.js",
+          "type": "REFERENCE",
+          "description": "JS app that initializes using window.equipmentMappingConfig"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/css/equipment-mapping-ui.css",
+          "type": "REFERENCE",
+          "description": "Scoped UI CSS used by the workbench"
+        }
+      ],
+      "implementationGuide": "Pseudocode: In `_equipment_mapping_modal.php`, add link to css/equipment-mapping-ui.css; add script that defines window.equipmentMappingConfig with site_url for ajax_* endpoints and CSRF tokens; add a div#equipment-mapping-app; include <script src=.../js/equipment-mapping-interface.js>.",
+      "verificationCriteria": "Opening the modal renders the workbench app which loads devices/equipment via endpoints, and the UI becomes interactive without errors.",
+      "analysisResult": "Use Fancybox to host the full-viewport equipment mapping workbench. Bootstrap via `_equipment_mapping_modal.php` with config injection and scoped CSS. Reuse existing controller endpoints and model. Normalize minor field names client-side. Ensure accessibility and performance baselines. Provide close behavior on success/cancel and avoid CSS leakage by scoping modal styles.",
+      "summary": "Successfully bootstrapped the workbench interface inside the modal view. Added css/equipment-mapping-ui.css link for proper UI styling. Changed container from #app to #equipment-mapping-app to match the JavaScript expectations. Replaced the obsolete mapping-modal.js loading logic with proper window.equipmentMappingConfig injection containing all required endpoints, CSRF tokens, and project data. Included equipment-mapping-interface.js which will initialize the full workbench interface when the modal loads. The configuration mirrors the workbench view exactly, ensuring consistent behavior between modal and standalone workbench modes.",
+      "completedAt": "2025-09-25T16:02:04.818Z"
+    },
+    {
+      "id": "de104d2d-166a-4605-8ea9-e6520fb2ad5e",
+      "name": "Align endpoint data shapes and CSRF handling",
+      "description": "Confirm the controller `ajax_*` endpoints return shapes expected by the UI (devices array with required fields; equipment array with usable `name`, `type` or map `type_name` in JS). Ensure `equipment-mapping-interface.js` sends CSRF token header and form data. Add minimal normalization in JS if needed.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "7786ec69-043b-491c-b546-526af04b9a18"
+        }
+      ],
+      "createdAt": "2025-09-25T15:58:04.991Z",
+      "updatedAt": "2025-09-25T16:10:23.409Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/connected/application/controllers/settings/Otto_equipment_mapping.php",
+          "type": "REFERENCE",
+          "description": "Controller that serves ajax_* endpoints"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/application/models/Equipment_mapping_model.php",
+          "type": "REFERENCE",
+          "description": "Model providing data and operations"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/js/equipment-mapping-interface.js",
+          "type": "TO_MODIFY",
+          "description": "Optional mapping of equipment.type_name to equipment.type"
+        }
+      ],
+      "implementationGuide": "Pseudocode: Inspect UI code paths reading device/equipment fields; if reading equipment.type but response has type_name, map each equipment to add type = type_name client-side before render. Verify CSRF header is set in Ajax.request().",
+      "verificationCriteria": "Initial load succeeds; lists populate; no 403 from CSRF; no console errors about undefined fields.",
+      "analysisResult": "Use Fancybox to host the full-viewport equipment mapping workbench. Bootstrap via `_equipment_mapping_modal.php` with config injection and scoped CSS. Reuse existing controller endpoints and model. Normalize minor field names client-side. Ensure accessibility and performance baselines. Provide close behavior on success/cancel and avoid CSS leakage by scoping modal styles.",
+      "summary": "Successfully aligned endpoint data shapes with UI expectations and confirmed CSRF handling. Added client-side normalization in equipment-mapping-interface.js to map equipment.type_name to equipment.type and equipment.equipment_id to equipment.id for UI compatibility. Verified CSRF tokens are properly sent both as X-CSRF-TOKEN header and in form data. Device data from the model already matches UI field expectations (id, name, type, location, vendor, points). The normalization ensures equipment filtering and rendering work correctly without console errors about undefined fields.",
+      "completedAt": "2025-09-25T16:10:23.409Z"
+    },
+    {
+      "id": "8fedbfd2-9680-475d-a226-9bf653050bbc",
+      "name": "Close modal on success/cancel actions",
+      "description": "Wire UI actions that represent completing or exiting the mapping (e.g., Apply in wizard completion or Cancel) to call Fancybox close and refresh the underlying list if needed.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "7786ec69-043b-491c-b546-526af04b9a18"
+        }
+      ],
+      "createdAt": "2025-09-25T15:58:04.991Z",
+      "updatedAt": "2025-09-25T16:13:29.956Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/connected/js/equipment-mapping-interface.js",
+          "type": "TO_MODIFY",
+          "description": "Add close behavior on success/cancel"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/js/otto-equipment-mapping.js",
+          "type": "TO_MODIFY",
+          "description": "Handle post-close refresh behaviors"
+        }
+      ],
+      "implementationGuide": "Pseudocode: In `equipment-mapping-interface.js`, after successful save/apply operations, call $.fancybox.close() if available. Add a cancel button listener that closes modal. In `otto-equipment-mapping.js` after close, trigger a refresh if a list is present.",
+      "verificationCriteria": "Clicking cancel or completing Apply closes the modal. After close, the underlying page remains usable; any list refresh occurs without errors.",
+      "analysisResult": "Use Fancybox to host the full-viewport equipment mapping workbench. Bootstrap via `_equipment_mapping_modal.php` with config injection and scoped CSS. Reuse existing controller endpoints and model. Normalize minor field names client-side. Ensure accessibility and performance baselines. Provide close behavior on success/cancel and avoid CSS leakage by scoping modal styles.",
+      "summary": "Successfully implemented modal close behavior for all completion and cancellation actions. Added event handlers for wizard cancel (#wizard-cancel), apply (#wizard-apply), complete (#wizard-complete), and go-to-workbench (#wizard-to-workbench) buttons that close the modal. Enhanced auto-map functionality to close modal after successful completion with a 2-second delay. Added ESC key handler for accessibility. Created reusable closeModal() method that safely checks if Fancybox is open before closing. Added afterClose handler in otto-equipment-mapping.js to refresh the underlying mapping list when modal closes, ensuring the host page remains functional and up-to-date.",
+      "completedAt": "2025-09-25T16:13:29.955Z"
+    },
+    {
+      "id": "f1ae4746-a09a-4221-a2db-7245a05bb9cf",
+      "name": "Accessibility and no-leak styling checks",
+      "description": "Ensure focus is trapped in modal (Fancybox default), ESC closes, background scroll is disabled while open, and modal styles do not impact host page when closed. Remove duplicate fullscreen Fancybox CSS from `_otto_mainpage.php` if redundant, relying on modal-scoped CSS only.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "8ea98327-4d65-4850-bb98-3169ac773943"
+        },
+        {
+          "taskId": "7786ec69-043b-491c-b546-526af04b9a18"
+        }
+      ],
+      "createdAt": "2025-09-25T15:58:04.991Z",
+      "updatedAt": "2025-09-25T16:16:46.263Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/connected/application/views/settings/otto/_otto_mainpage.php",
+          "type": "TO_MODIFY",
+          "description": "Remove or comment the duplicated Fancybox fullscreen CSS if not needed"
+        },
+        {
+          "path": "/Users/Patrick/Sites/connected/application/views/settings/otto/_equipment_mapping_modal.php",
+          "type": "REFERENCE",
+          "description": "Source of modal-scoped Fancybox CSS"
+        }
+      ],
+      "implementationGuide": "Pseudocode: Verify body.fancybox-lock is applied; keep modal CSS in `_equipment_mapping_modal.php`; remove duplicated Fancybox CSS block in `_otto_mainpage.php`; manual test ESC and tab navigation.",
+      "verificationCriteria": "While modal is open, page does not scroll, focus is contained, ESC closes; after modal close, host page styling remains normal.",
+      "analysisResult": "Use Fancybox to host the full-viewport equipment mapping workbench. Bootstrap via `_equipment_mapping_modal.php` with config injection and scoped CSS. Reuse existing controller endpoints and model. Normalize minor field names client-side. Ensure accessibility and performance baselines. Provide close behavior on success/cancel and avoid CSS leakage by scoping modal styles.",
+      "summary": "Successfully implemented comprehensive accessibility features and prevented CSS leakage. Removed duplicate Fancybox CSS from _otto_mainpage.php to prevent style conflicts. Enhanced Fancybox configuration with proper ARIA attributes (role=dialog, aria-modal=true, aria-labelledby), focus management (initial focus setting and restoration), ESC key handling, and overlay locking. Added skip link and screen reader support with sr-only title. Configured closeClick:false to prevent accidental modal closure. The modal now properly traps focus, prevents background scrolling via body.fancybox-lock class, and restores focus to the triggering element when closed, ensuring no style leakage to the host page.",
+      "completedAt": "2025-09-25T16:16:46.263Z"
+    },
+    {
+      "id": "85bc3672-bac0-4d3d-b9de-9f0e423db957",
+      "name": "Smoke test performance and error handling",
+      "description": "Test initial modal open and data fetch timings; confirm requests have retries and user-friendly errors. Adjust debounce and reduce initial DOM work where necessary.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "7786ec69-043b-491c-b546-526af04b9a18"
+        },
+        {
+          "taskId": "de104d2d-166a-4605-8ea9-e6520fb2ad5e"
+        }
+      ],
+      "createdAt": "2025-09-25T15:58:04.991Z",
+      "updatedAt": "2025-09-25T16:22:19.867Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/connected/js/equipment-mapping-interface.js",
+          "type": "REFERENCE",
+          "description": "Enhanced AJAX and UI placeholders"
+        }
+      ],
+      "implementationGuide": "Pseudocode: Measure load times; ensure Ajax.request retry logic is active; placeholders show during loading; consider lazy rendering of long lists if needed.",
+      "verificationCriteria": "Modal becomes interactive within ~2s on sample data; failures show fixedAlert or fallback notification; no blocking UI hangs.",
+      "analysisResult": "Use Fancybox to host the full-viewport equipment mapping workbench. Bootstrap via `_equipment_mapping_modal.php` with config injection and scoped CSS. Reuse existing controller endpoints and model. Normalize minor field names client-side. Ensure accessibility and performance baselines. Provide close behavior on success/cancel and avoid CSS leakage by scoping modal styles.",
+      "summary": "Successfully implemented comprehensive performance optimization and error handling. Added missing setLoadingState method with loading overlay and spinner animation. Implemented debounced data loading to prevent excessive API calls. Added performance timing with console warnings for slow operations (>2s for data loading, >100ms for rendering). Enhanced AJAX retry logic with exponential backoff and user-friendly error messages. Implemented batched rendering for large lists (>50 items) using requestAnimationFrame to prevent UI blocking. Added comprehensive error handling for timeouts, network errors, validation errors, and server errors. The modal now provides visual feedback during loading and handles failures gracefully with clear user messaging.",
+      "completedAt": "2025-09-25T16:22:19.867Z"
+    }
+  ]
+}

@@ -27,18 +27,16 @@ interface CompactPointRowProps {
   index: number;
   isSelected: boolean;
   isMapped: boolean;
-  isTemplateActive?: boolean;
   onTrackPoint: (pointId: string) => void;
   onUpdateNavName?: (pointId: string, newNavName: string) => void;
   onUpdateUnits?: (pointId: string, newUnits: string) => void;
 }
 
-export function CompactPointRow({ 
-  point, 
-  index, 
-  isSelected, 
+export function CompactPointRow({
+  point,
+  index,
+  isSelected,
   isMapped,
-  isTemplateActive = false,
   onTrackPoint,
   onUpdateNavName,
   onUpdateUnits
@@ -226,29 +224,21 @@ export function CompactPointRow({
 
         {/* Track Button - Right Aligned */}
         <div className="flex-shrink-0 ml-auto">
-          {isTemplateActive ? (
-            // When template is active, show all points as tracked with visual indicator
-            <div className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded border border-green-200 animate-in fade-in scale-in-95 duration-500 shadow-sm">
-              <Target className="h-3 w-3 animate-pulse" />
-              <span className="text-xs font-medium">Tracked</span>
-            </div>
-          ) : (
-            <Button
-              size="sm"
-              variant={isSelected ? "default" : "ghost"}
-              onClick={() => onTrackPoint(point.originalPointId || point.originalName)}
-              className={cn(
-                "h-6 text-xs px-2 transition-all duration-300 hover:scale-105 hover:shadow-md",
-                isSelected && "animate-in fade-in scale-in-95 duration-500 shadow-sm"
-              )}
-            >
-              <Target className={cn(
-                "h-3 w-3 mr-1 transition-all duration-300",
-                isSelected ? "animate-pulse text-white" : "group-hover:scale-110 group-hover:rotate-12"
-              )} />
-              {isSelected ? 'Tracked' : 'Track'}
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant={isSelected ? "default" : "ghost"}
+            onClick={() => onTrackPoint(point.originalPointId || point.originalName)}
+            className={cn(
+              "h-6 text-xs px-2 transition-all duration-300 hover:scale-105 hover:shadow-md",
+              isSelected && "animate-in fade-in scale-in-95 duration-500 shadow-sm"
+            )}
+          >
+            <Target className={cn(
+              "h-3 w-3 mr-1 transition-all duration-300",
+              isSelected ? "animate-pulse text-white" : "group-hover:scale-110 group-hover:rotate-12"
+            )} />
+            {isSelected ? 'Tracked' : 'Track'}
+          </Button>
         </div>
       </div>
 

@@ -39,9 +39,9 @@ interface AppState {
   equipmentTemplateMap: Record<string, string>; // equipment ID -> template ID
   
   // Point Selection State
-  selectedPoints: Set<string>; // Point IDs selected for template creation
+  selectedPoints: Set<string>; // Point IDs selected for bulk operations
   trackedPointsByEquipment: Record<string, Set<string>>; // equipmentId -> Set of tracked point IDs
-  showPointConfigModal: boolean;
+  showBulkApplyDialog: boolean;
   
   // Panel State
   leftPanelWidth: number;
@@ -119,7 +119,7 @@ interface AppState {
   // Point Selection Actions
   togglePointSelection: (pointId: string) => void;
   clearPointSelection: () => void;
-  setShowPointConfigModal: (show: boolean) => void;
+  setShowBulkApplyDialog: (show: boolean) => void;
   getSelectedPointsData: () => NormalizedPoint[];
   
   // Computed Properties
@@ -167,7 +167,7 @@ export const useAppStore = create<AppState>()(
       // Point Selection State
       selectedPoints: new Set<string>(),
       trackedPointsByEquipment: {},
-      showPointConfigModal: false,
+      showBulkApplyDialog: false,
       
       leftPanelWidth: 380,
       rightPanelWidth: 420,
@@ -531,8 +531,8 @@ export const useAppStore = create<AppState>()(
         }),
       
       clearPointSelection: () => set({ selectedPoints: new Set() }),
-      
-      setShowPointConfigModal: (show) => set({ showPointConfigModal: show }),
+
+      setShowBulkApplyDialog: (show) => set({ showBulkApplyDialog: show }),
       
       // Template Mapping Actions
       setShowTemplateManagementModal: (show) => set({ showTemplateManagementModal: show }),

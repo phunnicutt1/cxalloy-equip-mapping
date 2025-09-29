@@ -44,7 +44,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
 
   // Get unmapped equipment
   const mappedDataSourceIds = new Set(equipmentMappings.map(m => m.bacnetEquipmentId));
-  const mappedCxAlloyIds = new Set(equipmentMappings.map(m => m.cxalloyEquipmentId).filter(id => id !== undefined));
+  const mappedCxAlloyIds = new Set(equipmentMappings.map(m => m.cxAlloyEquipmentId).filter(id => id !== undefined));
   
   const unmappedDataSources = equipment.filter(eq => !mappedDataSourceIds.has(eq.id));
   const unmappedCxAlloyEquipment = cxAlloyEquipment.filter(eq => !mappedCxAlloyIds.has(eq.id));
@@ -156,20 +156,20 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
       
       console.log('[BulkMappingModal] Applying template:', template.name, 'to', selectedTargetEquipment.size, 'equipment');
 
-      // Apply the template to each target equipment
+      // Apply the template to each target CxAlloy equipment
       const targetEquipmentIds = Array.from(selectedTargetEquipment);
       for (const targetId of targetEquipmentIds) {
-        const targetEquipment = getFilteredDataSources().find(eq => eq.id === targetId);
+        const targetEquipment = getFilteredCxAlloyEquipment().find(eq => eq.id === parseInt(targetId));
         if (!targetEquipment) {
-          console.warn('[BulkMappingModal] Target equipment not found:', targetId);
+          console.warn('[BulkMappingModal] Target CxAlloy equipment not found:', targetId);
           continue;
         }
 
         try {
           console.log('[BulkMappingModal] Processing target equipment:', targetEquipment.name);
           
-          // Fetch target equipment points
-          const targetResponse = await fetch(`/api/equipment/${targetEquipment.id}`);
+          // Fetch target CxAlloy equipment points
+          const targetResponse = await fetch(`/api/cxalloy/equipment/${targetEquipment.id}`);
           const targetData = await targetResponse.json();
           
           if (!targetData.success || !targetData.points) {
@@ -177,8 +177,8 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
             results.push({
               pair: {
                 id: `bulk-${targetId}`,
-                sourceDataSourceId: template.id,
-                sourceDataSourceName: template.name,
+                sourceDataSourceId: undefined,  // No datasource yet for unmapped CxAlloy equipment
+                sourceDataSourceName: undefined,
                 targetCxAlloyId: parseInt(targetId),
                 targetCxAlloyName: targetEquipment.name,
                 confidence: 0.0,
@@ -211,8 +211,8 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
           results.push({
             pair: {
               id: `bulk-${targetId}`,
-              sourceDataSourceId: template.id,
-              sourceDataSourceName: template.name,
+              sourceDataSourceId: undefined,  // No datasource yet for unmapped CxAlloy equipment
+              sourceDataSourceName: undefined,
               targetCxAlloyId: parseInt(targetId),
               targetCxAlloyName: targetEquipment.name,
               confidence: application.matchingResults?.averageConfidence || 0.0,
@@ -227,8 +227,8 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
           results.push({
             pair: {
               id: `bulk-${targetId}`,
-              sourceDataSourceId: template.id,
-              sourceDataSourceName: template.name,
+              sourceDataSourceId: undefined,  // No datasource yet for unmapped CxAlloy equipment
+              sourceDataSourceName: undefined,
               targetCxAlloyId: parseInt(targetId),
               targetCxAlloyName: targetEquipment.name,
               confidence: 0.0,
@@ -264,7 +264,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-semibold">Bulk Template Application</h2>
-            <p className="text-gray-600 mt-1">Apply templates to multiple unmapped data sources at once</p>
+            <p className="text-gray-600 mt-1">Apply templates to multiple unmapped CxAlloy equipment at once</p>
           </div>
           <button
             onClick={onClose}
@@ -366,20 +366,19 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Equipment Categories ({unmappedDataSources.length + unmappedCxAlloyEquipment.length})</SelectItem>
+                    <SelectItem value="all">All Equipment Categories ({unmappedCxAlloyEquipment.length})</SelectItem>
                     {allAvailableTypes.map((type) => {
-                      const dataSourceCount = unmappedDataSources.filter(ds => ds.type === type).length;
                       const cxAlloyCount = unmappedCxAlloyEquipment.filter(cx => cx.type === type).length;
                       return (
                         <SelectItem key={type} value={type}>
-                          {type} ({dataSourceCount + cxAlloyCount})
+                          {type} ({cxAlloyCount})
                         </SelectItem>
                       );
                     })}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-1">
-                  Showing {getFilteredDataSources().length} data sources and {getFilteredCxAlloyEquipment().length} CxAlloy equipment
+                  Showing {getFilteredCxAlloyEquipment().length} unmapped CxAlloy equipment
                 </p>
               </div>
 
@@ -394,61 +393,61 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                 </div>
               )}
 
-              {/* Target Equipment Selection */}
+              {/* Target CxAlloy Equipment Selection */}
               <div className="mb-6">
-                <h4 className="font-medium mb-3">Select Equipment to Apply Template To</h4>
+                <h4 className="font-medium mb-3">Select CxAlloy Equipment to Apply Template To</h4>
                   
                   <div className="space-y-4">
                     {/* Select All/Deselect All Buttons */}
                     <div className="flex items-center space-x-2">
                       <Button
                         onClick={() => {
-                          if (selectedTargetEquipment.size === getFilteredDataSources().length) {
+                          if (selectedTargetEquipment.size === getFilteredCxAlloyEquipment().length) {
                             setSelectedTargetEquipment(new Set());
                           } else {
                             setSelectedTargetEquipment(new Set(
-                              getFilteredDataSources().map(eq => eq.id)
+                              getFilteredCxAlloyEquipment().map(eq => eq.id.toString())
                             ));
                           }
                         }}
                         variant="outline"
                         size="sm"
                       >
-                        {selectedTargetEquipment.size === getFilteredDataSources().length 
+                        {selectedTargetEquipment.size === getFilteredCxAlloyEquipment().length 
                           ? 'Deselect All' 
                           : 'Select All'}
                       </Button>
                       <span className="text-sm text-gray-500">
-                        {selectedTargetEquipment.size} of {getFilteredDataSources().length} selected
+                        {selectedTargetEquipment.size} of {getFilteredCxAlloyEquipment().length} selected
                       </span>
                     </div>
 
-                    {/* Equipment List with Checkboxes */}
+                    {/* CxAlloy Equipment List with Checkboxes */}
                     <div className="space-y-2 max-h-96 overflow-y-auto border rounded-lg p-4">
-                      {getFilteredDataSources().map((equipment) => (
+                      {getFilteredCxAlloyEquipment().map((equipment) => (
                           <div 
                             key={equipment.id} 
                             className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
-                              selectedTargetEquipment.has(equipment.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                              selectedTargetEquipment.has(equipment.id.toString()) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
                             }`}
                             onClick={() => {
                               const newSelected = new Set(selectedTargetEquipment);
-                              if (newSelected.has(equipment.id)) {
-                                newSelected.delete(equipment.id);
+                              if (newSelected.has(equipment.id.toString())) {
+                                newSelected.delete(equipment.id.toString());
                               } else {
-                                newSelected.add(equipment.id);
+                                newSelected.add(equipment.id.toString());
                               }
                               setSelectedTargetEquipment(newSelected);
                             }}
                           >
                             <Checkbox 
-                              checked={selectedTargetEquipment.has(equipment.id)}
+                              checked={selectedTargetEquipment.has(equipment.id.toString())}
                               onCheckedChange={(checked) => {
                                 const newSelected = new Set(selectedTargetEquipment);
                                 if (checked) {
-                                  newSelected.add(equipment.id);
+                                  newSelected.add(equipment.id.toString());
                                 } else {
-                                  newSelected.delete(equipment.id);
+                                  newSelected.delete(equipment.id.toString());
                                 }
                                 setSelectedTargetEquipment(newSelected);
                               }}
@@ -463,10 +462,10 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                           </div>
                         ))
                       }
-                      {getFilteredDataSources().length === 0 && (
+                      {getFilteredCxAlloyEquipment().length === 0 && (
                         <div className="text-center py-8 text-gray-500">
-                          <p>No equipment available to apply template to</p>
-                          <p className="text-sm mt-2">All equipment may already be mapped or filtered out</p>
+                          <p>No CxAlloy equipment available to apply template to</p>
+                          <p className="text-sm mt-2">All CxAlloy equipment may already be mapped or filtered out</p>
                         </div>
                       )}
                     </div>
@@ -598,7 +597,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                           <div className="font-medium text-blue-800">Apply Template To ({selectedTargetEquipment.size} equipment):</div>
                           <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
                             {Array.from(selectedTargetEquipment).map(equipmentId => {
-                              const equipment = getFilteredDataSources().find(eq => eq.id === equipmentId);
+                              const equipment = getFilteredCxAlloyEquipment().find(eq => eq.id === parseInt(equipmentId));
                               return equipment ? (
                                 <div key={equipmentId} className="text-blue-700 text-xs flex justify-between">
                                   <span>{equipment.name}</span>
@@ -662,7 +661,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <div className="font-medium text-sm">
-                                Template: {result.pair.sourceDataSourceName} → {result.pair.targetCxAlloyName}
+                                Template: {selectedTemplate?.name} → {result.pair.targetCxAlloyName}
                               </div>
                               <div className="text-xs text-gray-600 mt-1">
                                 Equipment Type: {result.pair.targetCxAlloyName.includes('VAV') ? 'VAV' : result.pair.targetCxAlloyName.includes('AHU') ? 'AHU' : result.pair.targetCxAlloyName.includes('RTU') ? 'RTU' : 'Other'}

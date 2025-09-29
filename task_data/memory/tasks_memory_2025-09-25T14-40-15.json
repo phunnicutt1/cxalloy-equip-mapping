@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "1b19e4d8-976e-4777-8b8c-a0bf9ba5922e",
+      "name": "Enhance Position Calculation with Viewport Validation",
+      "description": "Fix the upper left corner bug by enhancing the ConnectionIndicator.getElementPosition() method with proper viewport validation and bounds checking. Add methods to detect when elements are off-screen or invalid, and implement safe fallback positioning to prevent connections from jumping to invalid coordinates.",
+      "notes": "Critical fix to prevent connection lines from jumping to invalid positions. Must validate element existence and viewport bounds before calculating coordinates.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-20T02:56:45.643Z",
+      "updatedAt": "2025-09-20T02:59:50.668Z",
+      "relatedFiles": [
+        {
+          "path": "/Users/Patrick/Sites/experimental-UI-research/GPT5/backups/Archive2/app.js",
+          "type": "TO_MODIFY",
+          "description": "ConnectionIndicator.getElementPosition method and connection creation functions",
+          "lineStart": 2080,
+          "lineEnd": 2170
+        }
+      ],
+      "implementationGuide": "Extend existing getElementPosition() method in ConnectionIndicator object (lines 2080-2092) with viewport bounds validation:\\n\\n```pseudocode\\ngetElementPosition(element) {\\n  if (!element) return null;\\n  const rect = element.getBoundingClientRect();\\n  \\n  // Validate element is in DOM and has dimensions\\n  if (rect.width === 0 && rect.height === 0) return null;\\n  \\n  // Add viewport visibility detection\\n  const isInViewport = rect.top < window.innerHeight && rect.bottom > 0 && rect.left < window.innerWidth && rect.right > 0;\\n  \\n  return {\\n    ...existing position calculation,\\n    isVisible: isInViewport,\\n    isOffScreen: !isInViewport\\n  };\\n}\\n```\\n\\nUpdate createConnection and createAlternateConnection methods to check for null positions and handle off-screen elements gracefully.",
+      "verificationCriteria": "Connection lines no longer jump to upper left corner when elements are off-screen. Position calculation returns null for invalid elements and connections handle this gracefully.",
+      "analysisResult": "Fix connecting lines system in mapping workbench application by addressing position calculation bugs, implementing proper edge-to-edge connections with arrows, adding scroll-anchored primary connections, implementing auto-scroll functionality, and managing secondary line behavior during scrolling. The solution leverages existing ConnectionIndicator system and scrollEquipmentToCenter functionality while maintaining architectural consistency.",
+      "summary": "Successfully enhanced ConnectionIndicator.getElementPosition() method with comprehensive viewport validation and bounds checking. Added element existence validation, dimension validation, and viewport visibility detection. Both createConnection and createAlternateConnection methods now include null position checks to prevent the upper left corner bug. The enhanced position calculation returns null for invalid elements and includes isVisible/isOffScreen properties for future use.",
+      "completedAt": "2025-09-20T02:59:50.668Z"
+    }
+  ]
+}

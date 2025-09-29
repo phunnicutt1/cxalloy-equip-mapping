@@ -1,0 +1,174 @@
+{
+  "tasks": [
+    {
+      "id": "4377b4b7-ff9b-404f-9d37-2d8f703d74da",
+      "name": "Fix bulk apply tracked points functionality",
+      "description": "Fix the bulk apply function that is not properly updating mapped equipment with tracked points. The function should clear all existing tracked points on target devices and replace them with matching points from the source device, dropping any points that don't exist on the target equipment.",
+      "notes": "The bulk apply should completely replace the point selection on target equipment, not merge with existing selections. Points that don't exist on target equipment should be silently dropped.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-17T23:03:40.456Z",
+      "updatedAt": "2025-09-17T23:06:08.641Z",
+      "relatedFiles": [
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Fix bulkApplyPoints function and ensure proper state synchronization",
+          "lineStart": 724,
+          "lineEnd": 755
+        }
+      ],
+      "implementationGuide": "Fix bulkApplyPoints() function around line 724-755:\\n\\n1. Current logic appears correct but may need explicit state refresh\\n2. Ensure proper clearing of existing point selections before applying new ones\\n3. Add explicit state synchronization after bulk operation\\n4. Verify UI refresh after point selection changes\\n\\nPseudocode:\\n```\\nfunction bulkApplyPoints(sourceDeviceId, selectedEquipmentIds) {\\n  // Get source points (existing logic)\\n  const sourceSelection = getPointSelection(sourceDeviceId);\\n  const selectedPointNames = new Set(sourceDevice.points.filter(p => sourceSelection[p.id]).map(p => p.name));\\n  \\n  for (const equipmentId of selectedEquipmentIds) {\\n    const targetDevice = state.devices.find(d => d.mappedTo === equipmentId);\\n    if (targetDevice && targetDevice.points) {\\n      const targetSelection = getPointSelection(targetDevice.id);\\n      // Clear all existing selections, then apply matching ones\\n      for (const point of targetDevice.points) {\\n        targetSelection[point.id] = selectedPointNames.has(point.name);\\n      }\\n      // Force state refresh for this device\\n      state.pointSelectionByDeviceId[targetDevice.id] = {...targetSelection};\\n    }\\n  }\\n  render(); // Ensure UI refresh\\n}\\n```",
+      "verificationCriteria": "Bulk apply completely replaces point selections on target devices. Points are properly cleared before new selections applied. UI updates immediately after bulk operation. Non-existent points on target devices are handled gracefully.",
+      "analysisResult": "Fix critical bugs introduced during bulk apply feature implementation and implement UI improvements: bulk apply function not updating mapped equipment properly, search functionality broken without proper keyup events and character minimums, missing visual indicators for mapped vs unmapped devices, auto map controls need relocation to device points header, and Alt Workbench view removal while preserving shared functionality.",
+      "summary": "Successfully fixed bulk apply tracked points functionality. The key issue was improper state synchronization - the function was modifying existing objects in place without triggering change detection. Fixed by creating new object references using spread operator to ensure state updates are properly detected. Added explicit state refresh with state.pointSelectionByDeviceId[targetDevice.id] = {...targetSelection}, improved logging for debugging, and maintained the clear-then-apply logic for complete point replacement. Function now properly clears all existing tracked points on target devices and replaces them with matching points from source device.",
+      "completedAt": "2025-09-17T23:06:08.641Z"
+    },
+    {
+      "id": "90bd2ff7-e100-48db-b568-bec9214f95a3",
+      "name": "Restore search functionality with keyup events and debouncing",
+      "description": "Fix broken search functionality in both device and equipment lists. Implement keyup events with 2-character minimum before triggering search, and add proper debouncing to prevent excessive re-renders during typing.",
+      "notes": "Search should trigger immediately when cleared (0 characters) or when 2+ characters entered. Debouncing prevents excessive renders during rapid typing.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-17T23:03:40.456Z",
+      "updatedAt": "2025-09-17T23:07:38.122Z",
+      "relatedFiles": [
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Update search event handlers in bindWorkbenchEvents function",
+          "lineStart": 1837,
+          "lineEnd": 1844
+        }
+      ],
+      "implementationGuide": "Update search event handlers in bindWorkbenchEvents() around lines 1837-1840:\\n\\n1. Replace 'input' events with 'keyup' events\\n2. Add 2-character minimum before triggering search\\n3. Implement debouncing with setTimeout/clearTimeout pattern\\n4. Apply same pattern to both device and equipment search inputs\\n\\nPseudocode:\\n```\\nlet searchDevicesTimeout;\\nlet searchEquipTimeout;\\n\\nconst searchDevices = document.getElementById('searchDevices');\\nif (searchDevices) {\\n  searchDevices.addEventListener('keyup', e => {\\n    clearTimeout(searchDevicesTimeout);\\n    const query = e.target.value;\\n    if (query.length >= 2 || query.length === 0) {\\n      searchDevicesTimeout = setTimeout(() => {\\n        state.searchDevices = query;\\n        render();\\n      }, 300);\\n    }\\n  });\\n}\\n\\n// Similar implementation for equipment search\\n```",
+      "verificationCriteria": "Search triggers on keyup events. 2-character minimum before search activates. Debouncing prevents rapid re-renders. Search clears immediately when input is empty. Both device and equipment searches work correctly.",
+      "analysisResult": "Fix critical bugs introduced during bulk apply feature implementation and implement UI improvements: bulk apply function not updating mapped equipment properly, search functionality broken without proper keyup events and character minimums, missing visual indicators for mapped vs unmapped devices, auto map controls need relocation to device points header, and Alt Workbench view removal while preserving shared functionality.",
+      "summary": "Successfully restored search functionality with keyup events and proper debouncing. Replaced immediate 'input' events with 'keyup' events that include 2-character minimum threshold and 300ms debouncing to prevent excessive re-renders. Search triggers immediately for empty queries (clearing) or queries with 2+ characters. Enhanced clear button functionality to reset both state and input field values while canceling pending timeouts. Applied consistent implementation to both device and equipment search inputs with proper timeout management using clearTimeout() pattern.",
+      "completedAt": "2025-09-17T23:07:38.121Z"
+    },
+    {
+      "id": "9299860d-72b1-4c39-9472-10cb046652ea",
+      "name": "Add visual indicators for mapped vs unmapped devices",
+      "description": "Add clear visual indicators to the BACnet device list (left column) to differentiate between mapped and unmapped devices, similar to the visual treatment used in the equipment list.",
+      "notes": "Visual indicators should be consistent with equipment list styling. Consider using checkmark or badge to indicate mapped status clearly.",
+      "status": "completed",
+      "dependencies": [],
+      "createdAt": "2025-09-17T23:03:40.456Z",
+      "updatedAt": "2025-09-17T23:09:19.172Z",
+      "relatedFiles": [
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Update device list rendering to include visual mapped/unmapped indicators",
+          "lineStart": 1421,
+          "lineEnd": 1430
+        },
+        {
+          "path": "style.css",
+          "type": "REFERENCE",
+          "description": "Reference existing mapping indicator styles for consistency",
+          "lineStart": 1,
+          "lineEnd": 50
+        }
+      ],
+      "implementationGuide": "Update device list rendering in renderWorkbench() around lines 1421-1430:\\n\\n1. Add conditional styling classes based on device.mappedTo status\\n2. Add visual badges or indicators for mapped devices\\n3. Follow equipment list pattern (lines 1458-1461) for consistency\\n4. Consider using similar styling as equipment list 'mapped' class\\n\\nPseudocode:\\n```\\n<div class=\\\"item ${state.selectedDeviceId===d.id?'active':''} ${d.mappedTo?'mapped':''}\\\" data-device-id=\\\"${d.id}\\\">\\n  <div>\\n    <div class=\\\"title\\\">${escapeHtml(d.name)} <span class=\\\"meta\\\">${escapeHtml(d.type)}</span></div>\\n    <div class=\\\"meta\\\">${escapeHtml(d.location)} • ${escapeHtml(d.vendor)} • ${d.points.length} points available</div>\\n  </div>\\n  <div>\\n    ${d.mappedTo ? '<div class=\\\"mapping-indicator\\\">✓ Mapped</div>' : ''}\\n    ${d.suggestion ? confidenceBadge(d.suggestion.score) : '<span class=\\\"confidence\\\">–</span>'}\\n  </div>\\n</div>\\n```",
+      "verificationCriteria": "Mapped devices show clear visual indicators. Unmapped devices have distinct appearance from mapped ones. Visual styling is consistent with equipment list treatment. Indicators don't interfere with existing confidence badges.",
+      "analysisResult": "Fix critical bugs introduced during bulk apply feature implementation and implement UI improvements: bulk apply function not updating mapped equipment properly, search functionality broken without proper keyup events and character minimums, missing visual indicators for mapped vs unmapped devices, auto map controls need relocation to device points header, and Alt Workbench view removal while preserving shared functionality.",
+      "summary": "Successfully added comprehensive visual indicators to differentiate mapped vs unmapped devices in the BACnet device list. Implemented equipment list styling pattern with mapped CSS class, mapping badge showing equipment relationship, and checkmark indicator for immediate visual feedback. Added dynamic equipment lookup to display mapping relationships contextually while preserving existing confidence badges. Device list now provides clear visual differentiation matching equipment list consistency with multiple visual cues for mapped status.",
+      "completedAt": "2025-09-17T23:09:19.172Z"
+    },
+    {
+      "id": "fb5a4292-0bd5-49a8-a079-c8583165d970",
+      "name": "Move auto map controls to device points panel header",
+      "description": "Relocate the auto map controls (confidence threshold slider and auto-map button) from the main toolbar to the device points column header for better contextual placement and improved UI organization.",
+      "notes": "Controls should only appear when a device is selected for context. Maintain existing functionality and event handlers.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "9299860d-72b1-4c39-9472-10cb046652ea"
+        }
+      ],
+      "createdAt": "2025-09-17T23:03:40.456Z",
+      "updatedAt": "2025-09-17T23:10:52.674Z",
+      "relatedFiles": [
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Move auto map controls from toolbar to device points header",
+          "lineStart": 792,
+          "lineEnd": 800
+        },
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Update device points header to include auto map controls",
+          "lineStart": 1436,
+          "lineEnd": 1436
+        }
+      ],
+      "implementationGuide": "Move auto map controls from toolbar (lines 796-798) to device points header (line 1436):\\n\\n1. Remove auto map controls from toolbar in render() function\\n2. Add controls to device points panel header with conditional rendering\\n3. Update event handlers to work with new location\\n4. Ensure proper styling and layout in panel header\\n\\nPseudocode:\\n```\\n// In renderWorkbench(), update device points header:\\n<div class=\\\"panel-header\\\" style=\\\"justify-content:space-between;\\\">\\n  <h3>Device points</h3>\\n  <div class=\\\"auto-map-controls\\\">\\n    ${dev ? `\\n      <span class=\\\"chip\\\">Auto-accept ≥ <strong>${Math.round(state.autoMapThreshold*100)}%</strong></span>\\n      <input type=\\\"range\\\" min=\\\"50\\\" max=\\\"100\\\" value=\\\"${Math.round(state.autoMapThreshold*100)}\\\" id=\\\"threshold\\\">\\n      <button class=\\\"btn primary\\\" id=\\\"autoMapBtn\\\">Auto-map</button>\\n      <button id=\\\"bulkApplyBtn\\\" class=\\\"btn ghost\\\" title=\\\"Apply tracked points to other equipment\\\">⚡ Bulk Apply</button>\\n    ` : ''}\\n  </div>\\n</div>\\n\\n// Remove from toolbar section (lines 794-799)\\n```",
+      "verificationCriteria": "Auto map controls appear in device points header when device selected. Controls removed from main toolbar. Threshold slider and auto-map button function correctly in new location. Bulk apply button remains accessible alongside auto map controls.",
+      "analysisResult": "Fix critical bugs introduced during bulk apply feature implementation and implement UI improvements: bulk apply function not updating mapped equipment properly, search functionality broken without proper keyup events and character minimums, missing visual indicators for mapped vs unmapped devices, auto map controls need relocation to device points header, and Alt Workbench view removal while preserving shared functionality.",
+      "summary": "Successfully relocated auto map controls from main toolbar to device points panel header for improved contextual placement. Moved confidence threshold slider, chip indicator, and auto-map button to appear alongside bulk apply button when device is selected. Removed auto map controls from toolbar while preserving all element IDs for continued event handler functionality. Added proper flexbox styling for control alignment and spacing. Controls now provide better contextual relevance by being located directly with device-related functionality rather than in the global toolbar.",
+      "completedAt": "2025-09-17T23:10:52.674Z"
+    },
+    {
+      "id": "5ccf85b1-fb4c-4fff-9f78-8a8c6e2274cc",
+      "name": "Remove Alt Workbench view and associated code",
+      "description": "Remove the Alt Workbench view button and all associated code including renderAltWorkbench() and bindAltWorkbenchEvents() functions, while preserving shared utility functions that might be used by other parts of the application.",
+      "notes": "Be conservative when removing code. Only remove Alt Workbench specific code, preserve any utility functions that might be used by other components. Test thoroughly to ensure no functionality breaks.",
+      "status": "completed",
+      "dependencies": [
+        {
+          "taskId": "fb5a4292-0bd5-49a8-a079-c8583165d970"
+        }
+      ],
+      "createdAt": "2025-09-17T23:03:40.456Z",
+      "updatedAt": "2025-09-17T23:16:01.017Z",
+      "relatedFiles": [
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Remove Alt Workbench from tabs array",
+          "lineStart": 787,
+          "lineEnd": 789
+        },
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Remove renderAltWorkbench function",
+          "lineStart": 1483,
+          "lineEnd": 1592
+        },
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Remove bindAltWorkbenchEvents function",
+          "lineStart": 1594,
+          "lineEnd": 1690
+        },
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Remove Alt Workbench content div",
+          "lineStart": 807,
+          "lineEnd": 809
+        },
+        {
+          "path": "app.js",
+          "type": "TO_MODIFY",
+          "description": "Update labelFor function to remove alt case",
+          "lineStart": 852,
+          "lineEnd": 862
+        }
+      ],
+      "implementationGuide": "Conservative removal of Alt Workbench specific code:\\n\\n1. Remove 'alt' from tabs array (line 787)\\n2. Remove renderAltWorkbench() function (lines 1483-1592)\\n3. Remove bindAltWorkbenchEvents() function (lines 1594-1690)\\n4. Remove Alt Workbench content div (lines 807-809)\\n5. Remove labelFor() case for 'alt' view\\n6. Remove bindAltWorkbenchEvents() call from render()\\n\\nPRESERVE these shared utilities:\\n- scrollEquipmentToCenter()\\n- highlightMappedEquipment()\\n- clearFloatingConnections()\\n- state.altFilter (if used elsewhere)\\n\\nPseudocode:\\n```\\n// Change tabs array from:\\n${['automap','workbench','alt','matrix'].map(...)}\\n// To:\\n${['automap','workbench','matrix'].map(...)}\\n\\n// Remove entire renderAltWorkbench() function\\n// Remove entire bindAltWorkbenchEvents() function\\n// Remove Alt Workbench content div\\n\\n// Update labelFor() function to remove 'alt' case\\nfunction labelFor(view) {\\n  if (view === 'automap') return 'Wizard';\\n  if (view === 'workbench') return 'Workbench';\\n  // Remove: if (view === 'alt') return 'Alt Workbench';\\n  return 'Matrix';\\n}\\n```",
+      "verificationCriteria": "Alt Workbench tab removed from interface. Alt Workbench view no longer accessible. All Alt Workbench specific code removed. Shared utility functions preserved and working. No broken references or console errors. Standard workbench view remains fully functional.",
+      "analysisResult": "Fix critical bugs introduced during bulk apply feature implementation and implement UI improvements: bulk apply function not updating mapped equipment properly, search functionality broken without proper keyup events and character minimums, missing visual indicators for mapped vs unmapped devices, auto map controls need relocation to device points header, and Alt Workbench view removal while preserving shared functionality.",
+      "summary": "Successfully removed Alt Workbench view and all associated code while preserving shared utility functions. Removed alt from tabs array, eliminated renderAltWorkbench() and bindAltWorkbenchEvents() functions, updated labelFor() and isWorkbenchLike() functions, removed Alt Workbench content div, and cleaned up function calls in render(). Also removed Alt-specific adjustAltViewportLists() helper function. Preserved all shared utilities including scrollEquipmentToCenter(), highlightMappedEquipment(), and clearFloatingConnections() that are used by other components. Alt Workbench view is now completely inaccessible while standard workbench functionality remains intact.",
+      "completedAt": "2025-09-17T23:16:01.016Z"
+    }
+  ]
+}

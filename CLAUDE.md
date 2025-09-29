@@ -3,43 +3,42 @@
 ## Project Overview
 CxAlloy Equipment Mapping & Analytics Platform - A Next.js application for mapping BACnet equipment points to CxAlloy equipment with template-based bulk operations and comprehensive analytics.
 
-## Current State (August 2025)
+## Current State (September 2025)
 
 ### ✅ Working Features
 - **Auto-Process System**: Processes 23 TRIO files (~31,400 lines) from `/public/sample_data/` directory
-- **Equipment Mapping Interface**: Dual-panel UI for mapping BACnet to CxAlloy equipment
-- **Point Tracking System**: Select and manage individual points within mappings
-- **Unified Template System**: Consolidated template management with database persistence
-- **Bulk Mapping Wizard**: Enhanced 3-step wizard with detailed results visualization
-- **Template Database**: Full MySQL persistence replacing localStorage storage
-- **Template Migration**: Automatic migration from legacy localStorage templates
-- **Analytics Dashboard**: Comprehensive insights into template effectiveness and usage
+- **Equipment Mapping Interface**: Three-panel UI for mapping BACnet to CxAlloy equipment
+- **Point Tracking System**: Select and manage individual points with persistent state across equipment
+- **Bulk Apply Tracked Points**: Copy tracked points from source equipment to multiple target equipment with merge/replace options
+- **Smart Mapping Suggestions**: Intelligent equipment pairing suggestions shown in middle column header (confidence-based)
+- **Template Database**: Full MySQL persistence for equipment mapping templates
 - **Database Integration**: Full MySQL persistence with proper relationships
 - **CSV Enhancement**: ConnectorData.csv integration for improved classification
 - **Auto-Classification**: Automatic equipment type detection (AHU, VAV, CV, etc.)
 - **Point Normalization**: Converts BACnet names to human-readable formats
 
-### 🔧 Recent Work Completed
-- **Unified Template System**: Consolidated point tracking and mapping templates into single system
-- **Database Migration**: Moved from localStorage to MySQL database persistence
-- **Enhanced Bulk Mapping**: Improved wizard with detailed results visualization and confidence scoring
-- **Template Database Service**: New TemplateDbService for comprehensive template operations
-- **API Consolidation**: Unified `/app/api/templates/route.ts` endpoint replacing separate systems
-- **State Management Update**: Updated Zustand store for unified template handling
-- **Migration Tools**: Automatic migration from legacy template formats
-- **Error Handling**: Robust JSON parsing and database connection management
+### 🔧 Recent Work Completed (September 2025)
+- **Simplified Point Tracking**: Removed complex point tracking template system in favor of direct bulk apply
+- **Bulk Apply Dialog**: New modal for copying tracked points to multiple equipment with clear/merge options
+- **Smart Suggestions UI**: Moved equipment mapping suggestions from left panel to middle column header
+- **Persistent Point State**: Tracked points automatically restore when switching between equipment
+- **Save All Mappings Fix**: Fixed to save tracked points for ALL mapped equipment, not just selected one
+- **UI Cleanup**: Removed template dropdown from middle column, simplified header layout
+- **State Synchronization**: Added useEffect to sync displayed points with persisted tracked points
 - Successfully processing 23 TRIO files with ~31,400 lines of BACnet data
 - Enhanced CSV processing with ConnectorData.csv integration
-- Expanded API endpoints to 15 different routes for full functionality
+- 15 API endpoints for full functionality
 
 ### 📁 Key Files & Locations
 
 #### Components
-- `/components/templates/BulkMappingModal.tsx` - Bulk mapping wizard implementation
-- `/components/equipment/EquipmentBrowser.tsx` - Equipment selection and mapping UI
-- `/components/points/CompactPointRow.tsx` - Point display and tracking
+- `/components/points/BulkApplyDialog.tsx` - Bulk apply tracked points to multiple equipment (NEW)
+- `/components/points/PointDetails.tsx` - Point selection, tracking, and smart suggestions display
+- `/components/equipment/EquipmentBrowser.tsx` - Equipment selection (data sources, left panel)
+- `/components/mapping/CxAlloyPanel.tsx` - CxAlloy equipment mapping (right panel)
+- `/components/points/CompactPointRow.tsx` - Individual point display and tracking
 - `/components/auto-process/AutoProcessButton.tsx` - Auto-processing trigger
-- `/components/analytics/TemplateAnalyticsDashboard.tsx` - Analytics visualization
+- `/components/ui/switch.tsx` - Toggle switch for bulk apply options (NEW)
 
 #### Services & Logic
 - `/lib/services/unified-template-service.ts` - Consolidated template service (replaces legacy services)
@@ -73,10 +72,12 @@ CxAlloy Equipment Mapping & Analytics Platform - A Next.js application for mappi
 
 1. **Process Data**: Click "Process All Files" to load TRIO files
 2. **Select Equipment**: Choose BACnet equipment from left panel
-3. **Map to CxAlloy**: Select corresponding CxAlloy equipment from right panel
-4. **Track Points**: Select points to include in the mapping
-5. **Create Template**: Save the mapping as a reusable template
-6. **Bulk Operations**: Use templates for bulk mapping similar equipment
+3. **Map to CxAlloy**:
+   - Click Map button on CxAlloy equipment in right panel
+   - OR use Smart Suggestion button that appears in middle column header
+4. **Track Points**: Click Track button on individual points in middle column
+5. **Bulk Apply Points**: Click "Bulk Apply Tracked Points" button to copy points to other equipment
+6. **Save Mappings**: Click "Save Mappings" to persist all equipment mappings and tracked points to database
 
 ### 🐛 Known Issues & Considerations
 
@@ -84,8 +85,8 @@ CxAlloy Equipment Mapping & Analytics Platform - A Next.js application for mappi
 2. **Initial Setup Required**: Run `node scripts/setup-templates.js` to initialize template database
 3. **Sample Data Processing**: 23 TRIO files in `/public/sample_data/` totaling ~31,400 lines
 4. **Processing Performance**: Large file processing may take several seconds
-5. **Migration Period**: Legacy localStorage templates will be automatically migrated
-6. **Template Creation Workflow**: Templates can be created from both point tracking and equipment mapping
+5. **Point State Persistence**: Tracked points are stored in `trackedPointsByEquipment` and automatically restored when switching equipment
+6. **Bulk Apply**: Target equipment must already be mapped to appear in bulk apply dialog
 
 ### 💡 Commands & Testing
 
@@ -105,14 +106,18 @@ npm run typecheck
 
 ### 🔄 State Management
 - Uses Zustand for global state (`/store/app-store.ts`)
-- **Updated for Unified Templates**:
-  - `templates`: Unified template list (replaces separate template arrays)
-  - `equipment`: BACnet equipment list
+- **Key State Properties**:
+  - `equipment`: BACnet equipment list with points
   - `cxAlloyEquipment`: CxAlloy equipment list
-  - `equipmentMappings`: Current mappings
-  - `selectedEquipment`: Currently selected items
-  - `templateApplications`: Template usage history
-- **Backward Compatibility**: Legacy template methods preserved during transition
+  - `equipmentMappings`: Current equipment mappings
+  - `selectedEquipment`: Currently selected equipment
+  - `selectedPoints`: Currently displayed point selections (UI state)
+  - `trackedPointsByEquipment`: Persistent tracked points for each equipment (Record<equipmentId, Set<pointId>>)
+  - `showBulkApplyDialog`: Controls bulk apply dialog visibility
+- **Point Tracking Logic**:
+  - When points are tracked, they're stored in both `selectedPoints` (current view) and `trackedPointsByEquipment` (persistent)
+  - When equipment changes, `selectedPoints` is synced from `trackedPointsByEquipment`
+  - Bulk apply reads from `trackedPointsByEquipment` to get all tracked points for each equipment
 
 ### 📊 Database Schema
 ```sql

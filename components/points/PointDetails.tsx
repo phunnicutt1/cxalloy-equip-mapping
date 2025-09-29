@@ -14,9 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { 
-  Info, 
-  List, 
+import {
+  Info,
+  List,
   Filter,
   FileText,
   Zap,
@@ -29,10 +29,12 @@ import {
   X,
   Search,
   FilterX,
-  Save
+  Copy
 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { PointConfigModal } from './PointConfigModal';
+import { BulkApplyDialog } from './BulkApplyDialog';
+import { findMappingSuggestions, type NameMatchSuggestion } from '../../lib/utils/smart-matching';
+import { Link2, ArrowRight } from 'lucide-react';
 
 interface PointRowProps {
   point: NormalizedPoint;
@@ -164,53 +166,56 @@ function PointRow({ point, index, isSelected, onTrackPoint }: PointRowProps) {
 export function PointDetails() {
   const {
     selectedEquipment,
-    selectedTemplate,
-    viewMode,
-    templates: equipmentTemplates,
-    getSelectedTemplate,
-    setSelectedTemplate,
-    setViewMode,
     getSelectedEquipmentPoints,
     selectedPoints,
     togglePointSelection,
     clearPointSelection,
-    setShowPointConfigModal,
-    showPointConfigModal,
+    setShowBulkApplyDialog,
+    showBulkApplyDialog,
+    cxAlloyEquipment,
+    addEquipmentMapping,
+    recordEquipmentMapping,
     getSelectedPointsData,
     equipmentMappings,
     recordPointEdit,
-    fetchEquipmentTemplates
+    trackedPointsByEquipment
   } = useAppStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [unitsFilter, setUnitsFilter] = useState('');
   const [objectTypeFilter, setObjectTypeFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
-  const templateDropdownRef = useRef<HTMLDivElement>(null);
 
   const points = getSelectedEquipmentPoints();
   const selectedPointsData = getSelectedPointsData();
   const isMappedEquipment = equipmentMappings?.some(m => m.bacnetEquipmentId === selectedEquipment?.id) || false;
 
-  // Fetch templates when component mounts
-  React.useEffect(() => {
-    fetchEquipmentTemplates();
-  }, [fetchEquipmentTemplates]);
+  // Sync tracked points when equipment changes
+  // Compute a stable key for the tracked points to detect changes
+  const trackedPointsForEquipment = selectedEquipment ? trackedPointsByEquipment[selectedEquipment.id] : null;
+  const trackedPointsKey = React.useMemo(() => {
+    if (!trackedPointsForEquipment || trackedPointsForEquipment.size === 0) return '';
+    return Array.from(trackedPointsForEquipment).sort().join(',');
+  }, [trackedPointsForEquipment]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (templateDropdownRef.current && !templateDropdownRef.current.contains(event.target as Node)) {
-        setShowTemplateDropdown(false);
-      }
-    };
+    if (!selectedEquipment) {
+      clearPointSelection();
+      return;
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    // Get tracked points for this equipment from the persistent store
+    const trackedPoints = trackedPointsByEquipment[selectedEquipment.id];
+
+    if (trackedPoints && trackedPoints.size > 0) {
+      // Update the selectedPoints in the store to match tracked points
+      useAppStore.setState({ selectedPoints: new Set(trackedPoints) });
+    } else {
+      // Clear selections if no tracked points for this equipment
+      useAppStore.setState({ selectedPoints: new Set() });
+    }
+  }, [selectedEquipment?.id, trackedPointsKey]);
+
 
   // Filter points based on search and filter criteria
   const filteredPoints = useMemo(() => {
@@ -253,67 +258,97 @@ export function PointDetails() {
     togglePointSelection(pointId);
   };
 
-  const handleCreateTemplate = () => {
-    if (selectedPoints.size > 0) {
-      // Always go directly to the point configuration modal
-      setShowPointConfigModal(true);
+  const handleBulkApply = () => {
+    if (selectedPoints.size > 0 && isMappedEquipment) {
+      setShowBulkApplyDialog(true);
     }
   };
 
-  const createMappingTemplateFromCurrentMapping = async () => {
-    if (!selectedEquipment || !isMappedEquipment) {
-      alert('Equipment must be mapped to create a mapping template');
-      return;
-    }
-
-    // Find the mapping for this equipment
-    const mapping = equipmentMappings?.find(m => m.bacnetEquipmentId === selectedEquipment.id);
-    if (!mapping) {
-      alert('Could not find equipment mapping');
-      return;
-    }
-
-    // Find the CxAlloy equipment
-    const { cxAlloyEquipment } = useAppStore.getState();
-    const cxAlloyEq = cxAlloyEquipment.find(eq => eq.id === mapping.cxAlloyEquipmentId);
-    if (!cxAlloyEq) {
-      alert('Could not find CxAlloy equipment');
-      return;
-    }
-
-    // Get selected points data
-    const selectedPointsData = getSelectedPointsData();
-
-    // Prompt for template name
-    const templateName = prompt('Enter a name for this mapping template:', `${cxAlloyEq.type} - ${cxAlloyEq.name} Template`);
-    if (!templateName?.trim()) return;
-
-    const templateDescription = prompt('Enter a description (optional):', `Template based on ${selectedEquipment.name} → ${cxAlloyEq.name} mapping with ${selectedPointsData.length} tracked points`);
+  // Handle smart suggestion click
+  const handleSuggestionClick = async (suggestion: NameMatchSuggestion) => {
+    if (!selectedEquipment) return;
 
     try {
-      const { UnifiedTemplateService } = await import('../../lib/services/unified-template-service');
-      const template = await UnifiedTemplateService.createTemplateFromMappedEquipment(
-        cxAlloyEq,
-        selectedEquipment,
-        selectedPointsData,
-        templateName,
-        templateDescription || undefined,
-        'user'
+      // Find the CxAlloy equipment
+      const cxAlloyEq = cxAlloyEquipment.find(eq => eq.name === suggestion.equipmentName);
+      if (!cxAlloyEq) {
+        console.error('CxAlloy equipment not found:', suggestion.equipmentName);
+        return;
+      }
+
+      // Create the equipment mapping
+      const mapping = {
+        id: `suggestion-${selectedEquipment.id}-${cxAlloyEq.id}`,
+        bacnetEquipmentId: selectedEquipment.id,
+        bacnetEquipmentName: selectedEquipment.name,
+        bacnetEquipmentType: selectedEquipment.type || 'Unknown',
+        cxalloyEquipmentId: Number(cxAlloyEq.id),
+        cxAlloyEquipmentName: cxAlloyEq.name,
+        cxalloyCategory: cxAlloyEq.type as any,
+        mappingType: 'automatic' as const,
+        confidence: suggestion.confidence,
+        mappingReason: suggestion.matchReason || 'Suggestion mapping',
+        totalBacnetPoints: selectedEquipment.totalPoints || 0,
+        mappedPointsCount: 0,
+        unmappedPointsCount: 0,
+        isActive: true,
+        isVerified: suggestion.confidence >= 0.8,
+        verifiedBy: suggestion.confidence >= 0.8 ? 'auto-suggestion' : undefined,
+        verifiedAt: suggestion.confidence >= 0.8 ? new Date() : undefined,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        createdBy: 'suggestion-mapping',
+        mappingMethod: 'automatic' as const,
+        mappedAt: new Date()
+      };
+
+      // Add the mapping to the store
+      addEquipmentMapping(mapping as any);
+
+      // Save to database
+      try {
+        const saveResponse = await fetch('/api/save-mappings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            equipmentMappings: [{
+              bacnetEquipmentId: selectedEquipment.id,
+              bacnetEquipmentName: selectedEquipment.name,
+              cxalloyEquipmentId: Number(cxAlloyEq.id),
+              cxalloyEquipmentName: cxAlloyEq.name,
+              trackedPoints: []
+            }]
+          })
+        });
+
+        const saveResult = await saveResponse.json();
+        if (!saveResult.success) {
+          console.error('Failed to save mapping:', saveResult.error);
+        } else {
+          console.log('Mapping saved successfully for:', selectedEquipment.name);
+        }
+      } catch (saveError) {
+        console.error('Error saving mapping:', saveError);
+      }
+
+      // Record audit trail
+      await recordEquipmentMapping(
+        selectedEquipment.id,
+        selectedEquipment.name,
+        typeof cxAlloyEq.id === 'string' ? parseInt(cxAlloyEq.id) : cxAlloyEq.id,
+        cxAlloyEq.name,
+        'created',
+        'manual',
+        suggestion.confidence,
+        selectedEquipment.totalPoints || 0
       );
 
-      console.log('[PointDetails] Mapping template created:', template);
-      alert(`Mapping template "${templateName}" created successfully! You can now use it in Bulk Mapping.`);
-      
-      // Refresh templates in the store
-      fetchEquipmentTemplates();
+      console.log('Auto-mapped equipment:', selectedEquipment.name, '→', cxAlloyEq.name);
     } catch (error) {
-      console.error('[PointDetails] Error creating mapping template:', error);
-      alert('Failed to create mapping template. Please try again.');
+      console.error('Failed to create auto-mapping:', error);
     }
-  };
-
-  const handleCloseModal = () => {
-    setShowPointConfigModal(false);
   };
 
   const handleUpdateNavName = async (pointId: string, newNavName: string) => {
@@ -394,66 +429,28 @@ export function PointDetails() {
     <div className="h-full flex flex-col bg-background">
       {/* Header */}
       <div className="p-4 border-b border-border bg-background space-y-3">
-        {/* Equipment Info with Template Controls */}
+        {/* Equipment Info with Bulk Apply Button */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-lg font-semibold text-foreground">
                 {selectedEquipment.name}
               </h2>
-              
-              {/* Template Pill/Dropdown */}
-              <div className="relative" ref={templateDropdownRef}>
-                {!showTemplateDropdown ? (
-                  // Template Pill
-                  <button
-                    onClick={() => setShowTemplateDropdown(true)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
-                      getSelectedTemplate() 
-                        ? "bg-blue-100 text-blue-700 hover:bg-blue-200" 
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    )}
-                  >
-                    {getSelectedTemplate()?.name || 'No Template'}
-                  </button>
-                ) : (
-                  // Template Dropdown
-                  <div className="absolute right-0 top-0 z-50 bg-white border border-border rounded-lg shadow-lg min-w-[200px]">
-                    <div className="py-1">
-                      <button
-                        onClick={() => {
-                          setSelectedTemplate(null);
-                          setShowTemplateDropdown(false);
-                        }}
-                        className={cn(
-                          "w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors",
-                          !getSelectedTemplate() && "bg-muted font-medium"
-                        )}
-                      >
-                        No Template
-                      </button>
-                      {equipmentTemplates.map((template) => (
-                        <button
-                          key={template.id}
-                          onClick={() => {
-                            setSelectedTemplate(template.id);
-                            setShowTemplateDropdown(false);
-                          }}
-                          className={cn(
-                            "w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors",
-                            getSelectedTemplate()?.id === template.id && "bg-muted font-medium"
-                          )}
-                        >
-                          {template.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+
+              {/* Bulk Apply Tracked Points Button - Only show when mapped and has tracked points */}
+              {isMappedEquipment && selectedPoints.size > 0 && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleBulkApply}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="h-4 w-4" />
+                  Bulk Apply Tracked Points
+                </Button>
+              )}
             </div>
-            
+
             <p className="text-sm text-muted-foreground">
               {selectedEquipment.description || 'Data source points and configuration'}
               {isMappedEquipment && (
@@ -464,18 +461,38 @@ export function PointDetails() {
             </p>
           </div>
           
-          {/* Save as Template Button - Show when points are selected */}
-          {selectedPoints.size > 0 && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={handleCreateTemplate}
-              className="flex-shrink-0"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save as Template
-            </Button>
-          )}
+          {/* Smart Suggestions - Show for unmapped equipment */}
+          {selectedEquipment && !isMappedEquipment && (() => {
+            const suggestions = findMappingSuggestions(
+              selectedEquipment.name,
+              selectedEquipment.type,
+              cxAlloyEquipment.map(eq => ({
+                id: typeof eq.id === 'string' ? parseInt(eq.id) : eq.id,
+                name: eq.name,
+                type: eq.type,
+                description: eq.description || '',
+                space: eq.space || ''
+              }))
+            );
+            const topSuggestion = suggestions[0];
+
+            if (!topSuggestion || topSuggestion.confidence < 0.6) return null;
+
+            return (
+              <button
+                onClick={() => handleSuggestionClick(topSuggestion)}
+                className="px-3 py-1.5 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 group cursor-pointer animate-in fade-in slide-in-from-right-2 duration-500"
+              >
+                <div className="flex items-center gap-2 text-xs">
+                  <Link2 className="h-3.5 w-3.5 text-blue-600" />
+                  <span className="text-blue-700 font-medium">Suggested:</span>
+                  <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
+                  <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
+                  <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors duration-200" />
+                </div>
+              </button>
+            );
+          })()}
         </div>
 
         {/* Search and Filters */}
@@ -501,7 +518,7 @@ export function PointDetails() {
               <SelectContent>
                 <SelectItem value="all">All Units</SelectItem>
                 {uniqueUnits.map(unit => (
-                  <SelectItem key={unit} value={unit}>{unit}</SelectItem>
+                  <SelectItem key={unit} value={unit || ''}>{unit}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -597,7 +614,6 @@ export function PointDetails() {
                 index={index}
                 isSelected={selectedPoints.has(point.originalPointId || point.originalName)}
                 isMapped={isMappedEquipment}
-                isTemplateActive={!!getSelectedTemplate()}
                 onTrackPoint={handleTrackPoint}
                 onUpdateNavName={isMappedEquipment ? handleUpdateNavName : undefined}
                 onUpdateUnits={isMappedEquipment ? handleUpdateUnits : undefined}
@@ -628,24 +644,25 @@ export function PointDetails() {
                 <X className="h-3 w-3 mr-1" />
                 Clear ({selectedPoints.size})
               </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleCreateTemplate}
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                Configure
-              </Button>
+              {isMappedEquipment && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleBulkApply}
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  Bulk Apply
+                </Button>
+              )}
             </div>
           )}
         </div>
       </div>
       
-      {/* Point Configuration Modal */}
-      <PointConfigModal
-        isOpen={showPointConfigModal}
-        onClose={handleCloseModal}
-        selectedPoints={selectedPointsData}
+      {/* Bulk Apply Dialog */}
+      <BulkApplyDialog
+        isOpen={showBulkApplyDialog}
+        onClose={() => setShowBulkApplyDialog(false)}
       />
     </div>
   );

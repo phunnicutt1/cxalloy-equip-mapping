@@ -18,7 +18,8 @@
       "WebFetch(domain:guides.smartbuildingsacademy.com)",
       "Bash(npm run lint)",
       "Bash(npm run typecheck:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

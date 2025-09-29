@@ -7,21 +7,18 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Equipment } from '../../types/equipment';
 import { 
-  Search, 
-  ChevronDown, 
+  Search,
+  ChevronDown,
   ChevronRight,
   Package,
   Wrench,
   Plus,
-  ArrowRight,
   CheckCircle2,
-  X,
-  Link2
+  X
 } from 'lucide-react';
 import { TemplateList } from '../templates/TemplateList';
 import { TemplateModal } from '../templates/TemplateModal';
 import type { EquipmentTemplate } from '../../types/equipment';
-import { findMappingSuggestions, shouldShowCreateNewOption, type NameMatchSuggestion } from '../../lib/utils/smart-matching';
 
 interface EquipmentGroupProps {
   type: string;
@@ -44,96 +41,7 @@ function EquipmentGroup({
   equipmentMappings,
   cxAlloyEquipment
 }: EquipmentGroupProps) {
-  const { addEquipmentMapping, recordEquipmentMapping, removeEquipmentMapping, setSelectedEquipment } = useAppStore();
-
-  const handleSuggestionClick = async (event: React.MouseEvent, bacnetEquipment: Equipment, suggestion: NameMatchSuggestion) => {
-    event.stopPropagation(); // Prevent parent button click
-    
-    try {
-      // Find the CxAlloy equipment
-      const cxAlloyEq = cxAlloyEquipment.find(eq => eq.name === suggestion.equipmentName);
-      if (!cxAlloyEq) {
-        console.error('CxAlloy equipment not found:', suggestion.equipmentName);
-        return;
-      }
-
-      // Create the equipment mapping (complete format matching CxAlloyPanel)
-      const mapping = {
-        id: `suggestion-${bacnetEquipment.id}-${cxAlloyEq.id}`,
-        bacnetEquipmentId: bacnetEquipment.id,
-        bacnetEquipmentName: bacnetEquipment.name,
-        bacnetEquipmentType: bacnetEquipment.type || 'Unknown',
-        cxalloyEquipmentId: Number(cxAlloyEq.id),
-        cxAlloyEquipmentName: cxAlloyEq.name,
-        cxalloyCategory: cxAlloyEq.type as any,
-        mappingType: 'automatic' as const,
-        confidence: suggestion.confidence,
-        mappingReason: suggestion.matchReason || 'Suggestion mapping',
-        totalBacnetPoints: bacnetEquipment.totalPoints || 0,
-        mappedPointsCount: 0,
-        unmappedPointsCount: 0,
-        isActive: true,
-        isVerified: suggestion.confidence >= 0.8,
-        verifiedBy: suggestion.confidence >= 0.8 ? 'auto-suggestion' : undefined,
-        verifiedAt: suggestion.confidence >= 0.8 ? new Date() : undefined,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        createdBy: 'suggestion-mapping',
-        mappingMethod: 'automatic' as const,
-        mappedAt: new Date()
-      };
-
-      // Add the mapping to the store
-      addEquipmentMapping(mapping as any);
-
-      // Select the BACnet equipment to show the mapping in the UI
-      setSelectedEquipment(bacnetEquipment);
-
-      // Immediately save the EK Skyspark ID to the database
-      try {
-        const saveResponse = await fetch('/api/save-mappings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            equipmentMappings: [{
-              bacnetEquipmentId: bacnetEquipment.id,
-              bacnetEquipmentName: bacnetEquipment.name,
-              cxalloyEquipmentId: Number(cxAlloyEq.id),
-              cxalloyEquipmentName: cxAlloyEq.name,
-              trackedPoints: [] // No tracked points for suggestion mapping
-            }]
-          })
-        });
-
-        const saveResult = await saveResponse.json();
-        if (!saveResult.success) {
-          console.error('Failed to save EK Skyspark ID:', saveResult.error);
-        } else {
-          console.log('EK Skyspark ID saved successfully for:', bacnetEquipment.name);
-        }
-      } catch (saveError) {
-        console.error('Error saving EK Skyspark ID:', saveError);
-      }
-
-      // Record audit trail
-      await recordEquipmentMapping(
-        bacnetEquipment.id,
-        bacnetEquipment.name,
-        cxAlloyEq.id,
-        cxAlloyEq.name,
-        'created',
-        'manual',
-        suggestion.confidence,
-        bacnetEquipment.totalPoints || 0
-      );
-
-      console.log('Auto-mapped equipment:', bacnetEquipment.name, '→', cxAlloyEq.name);
-    } catch (error) {
-      console.error('Failed to create auto-mapping:', error);
-    }
-  };
+  const { removeEquipmentMapping } = useAppStore();
   return (
     <div className="border border-border rounded-lg bg-card">
       <button
@@ -226,37 +134,6 @@ function EquipmentGroup({
                     <span className="text-muted-foreground">{item.vendor}</span>
                   )}
                 </div>
-                
-                {/* Smart suggestions for unmapped equipment */}
-                {(() => {
-                  const isMapped = equipmentMappings.some(m => m.bacnetEquipmentId === item.id);
-                  if (isMapped) return null;
-                  
-                  const suggestions = findMappingSuggestions(item.name, item.type, cxAlloyEquipment);
-                  if (suggestions.length === 0) return null;
-                  
-                  const topSuggestion = suggestions[0];
-                  if (topSuggestion.confidence < 0.6) return null;
-                  
-                  return (
-                    <div
-                      onClick={(e) => handleSuggestionClick(e, item, topSuggestion)}
-                      className="mt-2 w-full px-3 py-1.5 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200 group cursor-pointer animate-in fade-in slide-in-from-bottom-2 duration-700"
-                    >
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <Link2 className="h-3.5 w-3.5 text-blue-600" />
-                          <span className="text-blue-700 font-medium">Click to Map:</span>
-                          <div className="flex items-center gap-1">
-                            <span className="text-blue-600 font-medium">{topSuggestion.equipmentName}</span>
-                            <span className="text-blue-500">({Math.round(topSuggestion.confidence * 100)}%)</span>
-                          </div>
-                        </div>
-                        <ArrowRight className="h-3 w-3 text-blue-500 group-hover:text-blue-600 transition-colors duration-200" />
-                      </div>
-                    </div>
-                  );
-                })()}
               </div>
             </button>
           ))}

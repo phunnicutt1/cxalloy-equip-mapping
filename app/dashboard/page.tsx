@@ -7,18 +7,16 @@ import { PointDetails } from '../../components/points/PointDetails';
 import { CxAlloyPanel } from '../../components/mapping/CxAlloyPanel';
 import AutoMappingResultsModal from '../../components/modals/AutoMappingResultsModal';
 import { TemplateManagementModal } from '../../components/templates/TemplateManagementModal';
-import { BulkMappingModal } from '../../components/templates/BulkMappingModal';
 import { useAppStore } from '../../store/app-store';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RefreshCw, Download, Save, TestTube, Upload, BarChart3, Zap, Copy, Layers, Paperclip } from 'lucide-react';
 import { EquipmentMapping } from '../../types/auto-mapping';
 
-function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping, onSaveMappings, savingMappings }: { 
-  onRefresh: () => void; 
-  loading: boolean; 
+function DashboardHeader({ onRefresh, loading, onAutoMap, onSaveMappings, savingMappings }: {
+  onRefresh: () => void;
+  loading: boolean;
   onAutoMap: () => void;
-  onBulkMapping: () => void;
   onSaveMappings: () => void;
   savingMappings: boolean;
 }) {
@@ -38,10 +36,6 @@ function DashboardHeader({ onRefresh, loading, onAutoMap, onBulkMapping, onSaveM
         <Button variant="outline" onClick={onAutoMap} disabled={loading}>
           <Zap className={`w-4 h-4 mr-2 ${loading ? 'animate-pulse' : ''}`} />
           {loading ? 'Auto Mapping...' : 'Auto Map Equipment'}
-        </Button>
-        <Button variant="outline" onClick={onBulkMapping}>
-          <Layers className="w-4 h-4 mr-2" />
-         Bulk Point Templates
         </Button>
         <Button variant="outline" onClick={onSaveMappings} disabled={savingMappings}>
           <Save className={`w-4 h-4 mr-2 ${savingMappings ? 'animate-pulse' : ''}`} />
@@ -65,12 +59,11 @@ export default function DashboardPage() {
     autoMappingInProgress,
     showTemplateManagementModal,
     setShowTemplateManagementModal,
-    showBulkMappingModal,
-    setShowBulkMappingModal,
     setSelectedEquipment,
     equipmentMappings,
     selectedPoints,
-    getSelectedPointsData
+    getSelectedPointsData,
+    trackedPointsByEquipment
   } = useAppStore();
   const [error, setError] = useState<string | null>(null);
   const [showMappingModal, setShowMappingModal] = useState(false);
@@ -167,30 +160,45 @@ export default function DashboardPage() {
       const mappingsToSave = equipmentMappings.map(mapping => {
         // Debug: Log the mapping object to see its structure
         console.log('[Dashboard] Mapping object:', mapping);
-        
+
         // Get equipment names from the arrays
         const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
         // Try both property names to handle different type definitions
         const cxalloyId = (mapping as any).cxalloyEquipmentId || (mapping as any).cxAlloyEquipmentId;
         const cxalloyEquipment = cxAlloyEquipment.find(eq => eq.id === cxalloyId?.toString());
-        
-        // Get tracked points for this equipment
-        const trackedPoints = getSelectedPointsData().filter(point => 
-          point.equipmentId === mapping.bacnetEquipmentId
-        ).map(point => ({
-          id: point.originalPointId || point.originalName,
-          originalName: point.originalName,
-          normalizedName: point.normalizedName,
-          displayName: point.originalName, // Use originalName as displayName
-          description: point.originalDescription || point.normalizedName,
-          category: point.category || 'Unknown',
-          dataType: point.dataType || 'Unknown',
-          units: point.units || '',
-          bacnetObjectType: point.objectType,
-          bacnetObjectInstance: point.objectInstance,
-          vendorName: 'Unknown' // vendorName not available in NormalizedPoint
-        }));
-        
+
+        // Get tracked points for THIS specific equipment from trackedPointsByEquipment
+        const trackedPointIds = trackedPointsByEquipment[mapping.bacnetEquipmentId] || new Set();
+
+        // Convert tracked point IDs to full point data
+        const trackedPoints = Array.from(trackedPointIds).map(pointId => {
+          // Find the point in the equipment's points array
+          const point = bacnetEquipment?.points?.find(p =>
+            (p.originalPointId || p.originalName) === pointId
+          );
+
+          if (!point) {
+            console.warn(`[Dashboard] Point ${pointId} not found in equipment ${mapping.bacnetEquipmentId}`);
+            return null;
+          }
+
+          return {
+            id: point.originalPointId || point.originalName,
+            originalName: point.originalName,
+            normalizedName: point.normalizedName,
+            displayName: point.originalName,
+            description: point.originalDescription || point.normalizedName,
+            category: point.category || 'Unknown',
+            dataType: point.dataType || 'Unknown',
+            units: point.units || '',
+            bacnetObjectType: point.objectType,
+            bacnetObjectInstance: point.objectInstance,
+            vendorName: 'Unknown'
+          };
+        }).filter(Boolean); // Remove null entries
+
+        console.log(`[Dashboard] Equipment ${bacnetEquipment?.name}: ${trackedPoints.length} tracked points`);
+
         return {
           bacnetEquipmentId: mapping.bacnetEquipmentId,
           bacnetEquipmentName: bacnetEquipment?.name || 'Unknown',
@@ -225,7 +233,7 @@ export default function DashboardPage() {
     } finally {
       setSavingMappings(false);
     }
-  }, [equipmentMappings, getSelectedPointsData]);
+  }, [equipmentMappings, equipment, cxAlloyEquipment, trackedPointsByEquipment]);
 
   const handleApplyMapping = async (mapping: EquipmentMapping) => {
     try {
@@ -337,11 +345,10 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-muted/40">
-      <DashboardHeader 
-        onRefresh={handleRefresh} 
-        loading={isLoading || autoMappingInProgress} 
+      <DashboardHeader
+        onRefresh={handleRefresh}
+        loading={isLoading || autoMappingInProgress}
         onAutoMap={handleAutoMap}
-        onBulkMapping={() => setShowBulkMappingModal(true)}
         onSaveMappings={handleSaveMappings}
         savingMappings={savingMappings}
       />
@@ -380,16 +387,6 @@ export default function DashboardPage() {
         onTemplateCreated={(template) => {
           console.log('[Dashboard] Template created:', template);
           // Optionally refresh templates or show success message
-        }}
-      />
-      
-      <BulkMappingModal
-        isOpen={showBulkMappingModal}
-        onClose={() => setShowBulkMappingModal(false)}
-        onBulkMappingComplete={(results) => {
-          console.log('[Dashboard] Bulk mapping completed:', results);
-          // Refresh equipment data to show new mappings
-          fetchEquipment(1, {});
         }}
       />
 
