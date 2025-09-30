@@ -259,7 +259,7 @@ export function PointDetails() {
   };
 
   const handleBulkApply = () => {
-    if (selectedPoints.size > 0 && isMappedEquipment) {
+    if (selectedPoints.size > 0) {
       setShowBulkApplyDialog(true);
     }
   };
@@ -437,13 +437,14 @@ export function PointDetails() {
                 {selectedEquipment.name}
               </h2>
 
-              {/* Bulk Apply Tracked Points Button - Only show when mapped and has tracked points */}
-              {isMappedEquipment && selectedPoints.size > 0 && (
+              {/* Bulk Apply Tracked Points Button - Show when has tracked points */}
+              {selectedPoints.size > 0 && (
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleBulkApply}
                   className="flex items-center gap-2"
+                  title="Copy tracked points to other mapped CxAlloy equipment"
                 >
                   <Copy className="h-4 w-4" />
                   Bulk Apply Tracked Points

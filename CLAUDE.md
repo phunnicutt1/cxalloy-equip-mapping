@@ -183,3 +183,21 @@ DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
 
 ## Contact & Support
 For issues or questions about this codebase, refer to the README.md for usage instructions or check the GitHub repository issues.
+- When Save Mappings is clicked:
+
+  1. Equipment Update (Working before):
+    - Updates equipment table with ek_skyspark = bacnetEquipmentId
+  2. Point Persistence (Fixed now):
+    - For each tracked point:
+        - Inserts/updates point table with point name and description
+      - Retrieves point_id from database
+      - Inserts/updates equipmentpoint table with:
+            - fk_equipment = CxAlloy equipment ID
+        - fk_point = point_id from point table
+        - ek_skyspark = BACnet point ID (from point.id)
+        - name = display name
+        - is_tracked = 1
+  3. Error Handling:
+    - Catches and logs each point failure without stopping the process
+    - Reports all errors back to user
+    - Shows detailed error messages for debugging

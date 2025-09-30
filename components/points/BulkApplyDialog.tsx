@@ -224,9 +224,10 @@ export function BulkApplyDialog({ isOpen, onClose }: BulkApplyDialogProps) {
             <div className="flex-1 overflow-y-auto p-2 space-y-1">
               {availableTargets.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-                  <div className="text-center">
+                  <div className="text-center p-4">
                     <Info className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p>No other mapped equipment available</p>
+                    <p className="font-medium">No mapped equipment available</p>
+                    <p className="text-xs mt-2">Map other equipment to CxAlloy first to use bulk apply</p>
                   </div>
                 </div>
               ) : (

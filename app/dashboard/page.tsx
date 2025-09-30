@@ -219,17 +219,55 @@ export default function DashboardPage() {
       });
       
       const data = await response.json();
-      
+
       if (data.success) {
         console.log('[Dashboard] Mappings saved successfully:', data.data);
-        alert(`Successfully saved ${data.data.equipmentMappingsSaved} equipment mappings and ${data.data.totalPointsSaved} tracked points to CxAlloy database!`);
+
+        // Build detailed message
+        let message = `Successfully saved ${data.data.equipmentMappingsSaved} equipment mappings and ${data.data.totalPointsSaved} tracked points to CxAlloy database!`;
+
+        if (data.data.totalPointsFailed > 0) {
+          message += `\n\n⚠️ Warning: ${data.data.totalPointsFailed} points failed to save.`;
+
+          // Show first few errors
+          if (data.data.errors && data.data.errors.length > 0) {
+            const errorSummary = data.data.errors.slice(0, 3).map((e: any) =>
+              `  • ${e.equipment} - ${e.point}: ${e.error}`
+            ).join('\n');
+            message += `\n\nFirst errors:\n${errorSummary}`;
+
+            if (data.data.errors.length > 3) {
+              message += `\n... and ${data.data.errors.length - 3} more errors (check console for details)`;
+            }
+          }
+
+          console.error('[Dashboard] Point save errors:', data.data.errors);
+        }
+
+        alert(message);
       } else {
         console.error('[Dashboard] Save mappings API error:', data);
-        throw new Error(data.details || data.error || 'Failed to save mappings');
+
+        // Build detailed error message
+        let errorMessage = data.message || data.error || 'Failed to save mappings';
+
+        if (data.data?.errors && data.data.errors.length > 0) {
+          const errorDetails = data.data.errors.slice(0, 5).map((e: any) =>
+            `  • ${e.equipment} - ${e.point}: ${e.error}`
+          ).join('\n');
+          errorMessage += `\n\nErrors:\n${errorDetails}`;
+
+          if (data.data.errors.length > 5) {
+            errorMessage += `\n... and ${data.data.errors.length - 5} more errors`;
+          }
+        }
+
+        throw new Error(errorMessage);
       }
     } catch (err) {
       console.error('[Dashboard] Save mappings error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save mappings');
+      alert(`Error saving mappings:\n\n${err instanceof Error ? err.message : 'Failed to save mappings'}`);
     } finally {
       setSavingMappings(false);
     }

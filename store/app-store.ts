@@ -498,33 +498,31 @@ export const useAppStore = create<AppState>()(
         set((state) => {
           const newSelected = new Set(state.selectedPoints);
           const isSelecting = !newSelected.has(pointId);
-          
+
           if (isSelecting) {
             newSelected.add(pointId);
           } else {
             newSelected.delete(pointId);
           }
-          
-          // Also update per-equipment tracking for mapped equipment
+
+          // Also update per-equipment tracking (for all equipment, not just mapped)
           const newTrackedByEquipment = { ...state.trackedPointsByEquipment };
           if (state.selectedEquipment) {
             const equipmentId = state.selectedEquipment.id;
-            const isMapped = state.equipmentMappings.some(m => m.bacnetEquipmentId === equipmentId);
-            
-            if (isMapped) {
-              if (!newTrackedByEquipment[equipmentId]) {
-                newTrackedByEquipment[equipmentId] = new Set();
-              }
-              
-              if (isSelecting) {
-                newTrackedByEquipment[equipmentId].add(pointId);
-              } else {
-                newTrackedByEquipment[equipmentId].delete(pointId);
-              }
+
+            // Track points for any equipment, mapped or not
+            if (!newTrackedByEquipment[equipmentId]) {
+              newTrackedByEquipment[equipmentId] = new Set();
+            }
+
+            if (isSelecting) {
+              newTrackedByEquipment[equipmentId].add(pointId);
+            } else {
+              newTrackedByEquipment[equipmentId].delete(pointId);
             }
           }
-          
-          return { 
+
+          return {
             selectedPoints: newSelected,
             trackedPointsByEquipment: newTrackedByEquipment
           };
