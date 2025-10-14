@@ -7,11 +7,13 @@ import { PointDetails } from '../../components/points/PointDetails';
 import { CxAlloyPanel } from '../../components/mapping/CxAlloyPanel';
 import AutoMappingResultsModal from '../../components/modals/AutoMappingResultsModal';
 import { TemplateManagementModal } from '../../components/templates/TemplateManagementModal';
+import { MissingPointsReportModal } from '../../components/modals/MissingPointsReportModal';
 import { useAppStore } from '../../store/app-store';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RefreshCw, Download, Save, TestTube, Upload, BarChart3, Zap, Copy, Layers, Paperclip } from 'lucide-react';
 import { EquipmentMapping } from '../../types/auto-mapping';
+import { apiAdapter } from '../../lib/api-adapter';
 
 function DashboardHeader({ onRefresh, loading, onAutoMap, onSaveMappings, savingMappings }: {
   onRefresh: () => void;
@@ -23,9 +25,9 @@ function DashboardHeader({ onRefresh, loading, onAutoMap, onSaveMappings, saving
   return (
     <div className="flex items-center justify-between p-4 bg-background border-b">
       <div>
-        <h1 className="text-xl font-bold">CxAlloy Equipment Mapping</h1>
+        <h1 className="text-xl font-bold">CxAlloy Equipment Mapping Interface</h1>
         <p className="text-sm text-muted-foreground">
-          Building Automation Equipment Mapping for BACnet trio files
+          Building Automation Device Mapping
         </p>
       </div>
       <div className="flex items-center space-x-2">
@@ -69,18 +71,27 @@ export default function DashboardPage() {
   const [showMappingModal, setShowMappingModal] = useState(false);
   const [savingMappings, setSavingMappings] = useState(false);
   const [showExactPrompt, setShowExactPrompt] = useState(false);
+  const [missingPointsReport, setMissingPointsReport] = useState<Array<{
+    equipmentName: string;
+    missingPoints: string[];
+  }> | null>(null);
 
   const fetchCxAlloyEquipment = useCallback(async () => {
     try {
-      console.log('[Dashboard] Fetching CxAlloy equipment for project 2...');
-      const response = await fetch('/api/cxalloy/equipment?projectId=2');
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.equipment) {
-          console.log(`[Dashboard] Loaded ${data.equipment.length} CxAlloy equipment items`);
-          setCxAlloyEquipment(data.equipment);
-        }
+      // Get projectId from global variable (set by CodeIgniter) or default to 2
+      const projectId = typeof window !== 'undefined'
+        ? (window as any).__EQUIPMENT_MAPPING_PROJECT_ID__ || 2
+        : 2;
+
+      // Use mock data by default (set to false to use real database)
+      const useMock = true;
+
+      console.log(`[Dashboard] Fetching CxAlloy equipment for project ${projectId}... (useMock: ${useMock})`);
+      const data = await apiAdapter.fetchCxAlloyEquipment(projectId, useMock);
+
+      if (data.success && data.equipment) {
+        console.log(`[Dashboard] Loaded ${data.equipment.length} CxAlloy equipment items${data.isMockData ? ' (MOCK DATA)' : ''}`);
+        setCxAlloyEquipment(data.equipment);
       } else {
         console.error('[Dashboard] Failed to fetch CxAlloy equipment');
       }
@@ -152,23 +163,60 @@ export default function DashboardPage() {
   const handleSaveMappings = useCallback(async () => {
     setError(null);
     setSavingMappings(true);
-    
+
     try {
       console.log('[Dashboard] Starting save mappings...');
-      
+      console.log('[Dashboard] Equipment mappings:', equipmentMappings.length);
+      console.log('[Dashboard] Tracked points by equipment:', trackedPointsByEquipment);
+
+      // Track missing points for reporting
+      const missingPointsData: Array<{
+        equipmentName: string;
+        missingPoints: string[];
+      }> = [];
+
       // Prepare mappings data with tracked points
-      const mappingsToSave = equipmentMappings.map(mapping => {
+      const mappingsToSave = await Promise.all(equipmentMappings.map(async (mapping) => {
         // Debug: Log the mapping object to see its structure
         console.log('[Dashboard] Mapping object:', mapping);
 
-        // Get equipment names from the arrays
-        const bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
+        // Fetch full equipment data with points
+        let bacnetEquipment = equipment.find(eq => eq.id === mapping.bacnetEquipmentId);
+
+        // If equipment doesn't have points, fetch them
+        if (bacnetEquipment && (!bacnetEquipment.points || bacnetEquipment.points.length === 0)) {
+          console.log('[Dashboard] Equipment has no points loaded, fetching...');
+          try {
+            const response = await fetch(`/api/equipment/${bacnetEquipment.id}`);
+            const data = await response.json();
+            if (data.success && data.points) {
+              bacnetEquipment = {
+                ...bacnetEquipment,
+                points: data.points
+              };
+              console.log('[Dashboard] Loaded', data.points.length, 'points for equipment');
+            }
+          } catch (err) {
+            console.error('[Dashboard] Failed to fetch equipment points:', err);
+          }
+        }
+
+        console.log('[Dashboard] bacnetEquipment:', bacnetEquipment);
+        console.log('[Dashboard] bacnetEquipment.points:', bacnetEquipment?.points);
+        console.log('[Dashboard] bacnetEquipment.points.length:', bacnetEquipment?.points?.length);
+
         // Try both property names to handle different type definitions
         const cxalloyId = (mapping as any).cxalloyEquipmentId || (mapping as any).cxAlloyEquipmentId;
         const cxalloyEquipment = cxAlloyEquipment.find(eq => eq.id === cxalloyId?.toString());
 
         // Get tracked points for THIS specific equipment from trackedPointsByEquipment
         const trackedPointIds = trackedPointsByEquipment[mapping.bacnetEquipmentId] || new Set();
+        console.log(`[Dashboard] Looking for tracked points with equipment ID: ${mapping.bacnetEquipmentId}`);
+        console.log('[Dashboard] trackedPointIds for this equipment:', trackedPointIds);
+        console.log('[Dashboard] trackedPointIds size:', trackedPointIds.size);
+
+        // Track missing points for this equipment
+        const missingForThisEquipment: string[] = [];
 
         // Convert tracked point IDs to full point data
         const trackedPoints = Array.from(trackedPointIds).map(pointId => {
@@ -179,6 +227,7 @@ export default function DashboardPage() {
 
           if (!point) {
             console.warn(`[Dashboard] Point ${pointId} not found in equipment ${mapping.bacnetEquipmentId}`);
+            missingForThisEquipment.push(pointId);
             return null;
           }
 
@@ -197,6 +246,14 @@ export default function DashboardPage() {
           };
         }).filter(Boolean); // Remove null entries
 
+        // Record missing points for this equipment if any
+        if (missingForThisEquipment.length > 0) {
+          missingPointsData.push({
+            equipmentName: bacnetEquipment?.name || cxalloyEquipment?.name || 'Unknown Equipment',
+            missingPoints: missingForThisEquipment
+          });
+        }
+
         console.log(`[Dashboard] Equipment ${bacnetEquipment?.name}: ${trackedPoints.length} tracked points`);
 
         return {
@@ -206,12 +263,17 @@ export default function DashboardPage() {
           cxalloyEquipmentName: cxalloyEquipment?.name || 'Unknown',
           trackedPoints
         };
-      });
+      }));
       
       console.log(`[Dashboard] Saving ${mappingsToSave.length} equipment mappings with tracked points...`);
-      
-      console.log('[Dashboard] Sending mappings to API:', mappingsToSave);
-      
+
+      // Log summary of what we're sending
+      mappingsToSave.forEach(m => {
+        console.log(`[Dashboard] → ${m.bacnetEquipmentName} (${m.bacnetEquipmentId}) → ${m.cxalloyEquipmentName} (${m.cxalloyEquipmentId}): ${m.trackedPoints.length} points`);
+      });
+
+      console.log('[Dashboard] Full payload:', JSON.stringify(mappingsToSave, null, 2));
+
       const response = await fetch('/api/save-mappings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -223,8 +285,18 @@ export default function DashboardPage() {
       if (data.success) {
         console.log('[Dashboard] Mappings saved successfully:', data.data);
 
+        // Show missing points report if any points were not found
+        if (missingPointsData.length > 0) {
+          setMissingPointsReport(missingPointsData);
+        }
+
         // Build detailed message
         let message = `Successfully saved ${data.data.equipmentMappingsSaved} equipment mappings and ${data.data.totalPointsSaved} tracked points to CxAlloy database!`;
+
+        if (missingPointsData.length > 0) {
+          const totalMissing = missingPointsData.reduce((sum, item) => sum + item.missingPoints.length, 0);
+          message += `\n\n⚠️ Note: ${totalMissing} tracked points could not be found on ${missingPointsData.length} equipment(s) and were not saved. A detailed report will be shown.`;
+        }
 
         if (data.data.totalPointsFailed > 0) {
           message += `\n\n⚠️ Warning: ${data.data.totalPointsFailed} points failed to save.`;
@@ -377,9 +449,19 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    // Initial data load
-    handleRefresh();
-  }, [handleRefresh]);
+    // Initial data load - only run once on mount
+    // Skip auto-refresh when embedded in CodeIgniter
+    const isEmbedded = typeof (window as any).__EQUIPMENT_MAPPING_API__ !== 'undefined';
+
+    if (!isEmbedded) {
+      handleRefresh();
+    } else {
+      // Just load the equipment data without refresh
+      fetchEquipment(1, {});
+      fetchCxAlloyEquipment();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-muted/40">
@@ -427,6 +509,15 @@ export default function DashboardPage() {
           // Optionally refresh templates or show success message
         }}
       />
+
+      {/* Missing Points Report Modal */}
+      {missingPointsReport && (
+        <MissingPointsReportModal
+          isOpen={missingPointsReport !== null}
+          onClose={() => setMissingPointsReport(null)}
+          missingPointsData={missingPointsReport}
+        />
+      )}
 
       {/* Exact Matches Prompt */}
       <Dialog open={showExactPrompt} onOpenChange={setShowExactPrompt}>

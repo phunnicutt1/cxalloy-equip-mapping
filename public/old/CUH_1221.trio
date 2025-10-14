@@ -1,0 +1,3591 @@
+dis:Effective Setpoint
+bacnetCur:AI329
+kind:Number
+point
+unit:°C
+---
+dis:Light Sensor Level
+bacnetCur:AI2
+kind:Number
+point
+---
+dis:Paired ZigBee Devices
+bacnetCur:AI330
+kind:Number
+point
+---
+dis:RH Temperature Raw Value
+bacnetCur:AI32
+kind:Number
+point
+---
+dis:Relative Humidity Raw Value
+bacnetCur:AI4
+kind:Number
+point
+unit:"%RH"
+---
+dis:"SH Therm. Raw Value"
+bacnetCur:AI341
+kind:Number
+point
+---
+dis:"Therm. Raw Value"
+bacnetCur:AI340
+kind:Number
+point
+---
+dis:UI16 Raw Value
+bacnetCur:AI33
+kind:Number
+point
+---
+dis:UI17 Raw Value
+bacnetCur:AI34
+kind:Number
+point
+---
+dis:UI19 Raw Value
+bacnetCur:AI31
+kind:Number
+point
+---
+dis:UI20 Raw Value
+bacnetCur:AI5
+kind:Number
+point
+---
+dis:UI22 Raw Value
+bacnetCur:AI8
+kind:Number
+point
+---
+dis:UI23 Raw Value
+bacnetCur:AI7
+kind:Number
+point
+---
+dis:UI24 Raw Value
+bacnetCur:AI9
+kind:Number
+point
+---
+dis:Wi-Fi Module Boot Count
+bacnetCur:AI343
+kind:Number
+point
+---
+dis:Wi-Fi Network Signal Strength
+bacnetCur:AI342
+kind:Number
+point
+unit:"%"
+---
+dis:Wireless Device 1 - CO2
+bacnetCur:AI385
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 1 - Humidity
+bacnetCur:AI365
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 1 - Temperature
+bacnetCur:AI315
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 10 - CO2
+bacnetCur:AI394
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 10 - Humidity
+bacnetCur:AI374
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 10 - Temperature
+bacnetCur:AI324
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 11 - CO2
+bacnetCur:AI395
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 11 - Humidity
+bacnetCur:AI375
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 11 - Temperature
+bacnetCur:AI355
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 12 - CO2
+bacnetCur:AI396
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 12 - Humidity
+bacnetCur:AI376
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 12 - Temperature
+bacnetCur:AI356
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 13 - CO2
+bacnetCur:AI397
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 13 - Humidity
+bacnetCur:AI377
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 13 - Temperature
+bacnetCur:AI357
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 14 - CO2
+bacnetCur:AI398
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 14 - Humidity
+bacnetCur:AI378
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 14 - Temperature
+bacnetCur:AI358
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 15 - CO2
+bacnetCur:AI399
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 15 - Humidity
+bacnetCur:AI379
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 15 - Temperature
+bacnetCur:AI359
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 16 - CO2
+bacnetCur:AI400
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 16 - Humidity
+bacnetCur:AI380
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 16 - Temperature
+bacnetCur:AI360
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 17 - CO2
+bacnetCur:AI401
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 17 - Humidity
+bacnetCur:AI381
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 17 - Temperature
+bacnetCur:AI361
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 18 - CO2
+bacnetCur:AI402
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 18 - Humidity
+bacnetCur:AI382
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 18 - Temperature
+bacnetCur:AI362
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 19 - CO2
+bacnetCur:AI403
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 19 - Humidity
+bacnetCur:AI383
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 19 - Temperature
+bacnetCur:AI363
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 2 - CO2
+bacnetCur:AI386
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 2 - Humidity
+bacnetCur:AI366
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 2 - Temperature
+bacnetCur:AI316
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 20 - CO2
+bacnetCur:AI404
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 20 - Humidity
+bacnetCur:AI384
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 20 - Temperature
+bacnetCur:AI364
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 3 - CO2
+bacnetCur:AI387
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 3 - Humidity
+bacnetCur:AI367
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 3 - Temperature
+bacnetCur:AI317
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 4 - CO2
+bacnetCur:AI388
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 4 - Humidity
+bacnetCur:AI368
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 4 - Temperature
+bacnetCur:AI318
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 5 - CO2
+bacnetCur:AI389
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 5 - Humidity
+bacnetCur:AI369
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 5 - Temperature
+bacnetCur:AI319
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 6 - CO2
+bacnetCur:AI390
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 6 - Humidity
+bacnetCur:AI370
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 6 - Temperature
+bacnetCur:AI320
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 7 - CO2
+bacnetCur:AI391
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 7 - Humidity
+bacnetCur:AI371
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 7 - Temperature
+bacnetCur:AI321
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 8 - CO2
+bacnetCur:AI392
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 8 - Humidity
+bacnetCur:AI372
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 8 - Temperature
+bacnetCur:AI322
+kind:Number
+point
+unit:°C
+---
+dis:Wireless Device 9 - CO2
+bacnetCur:AI393
+kind:Number
+point
+unit:ppm
+---
+dis:Wireless Device 9 - Humidity
+bacnetCur:AI373
+kind:Number
+point
+unit:"%RH"
+---
+dis:Wireless Device 9 - Temperature
+bacnetCur:AI323
+kind:Number
+point
+unit:°C
+---
+dis:PI Cooling Demand
+bacnetCur:AO22
+bacnetWrite:AO22
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:PI Heating Demand
+bacnetCur:AO21
+bacnetWrite:AO21
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:UO10 Analog Output
+bacnetCur:AO126
+bacnetWrite:AO126
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UO11 Analog Output
+bacnetCur:AO123
+bacnetWrite:AO123
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UO12 Analog Output
+bacnetCur:AO124
+bacnetWrite:AO124
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UO9 Analog Output
+bacnetCur:AO125
+bacnetWrite:AO125
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:Ambient High Temperature Threshold
+bacnetCur:AV275
+bacnetWrite:AV275
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Ambient Low Temperature Threshold
+bacnetCur:AV209
+bacnetWrite:AV209
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:BACnet Stack Poll Rate
+bacnetCur:AV16
+bacnetWrite:AV16
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:CO2 Level
+bacnetCur:AV106
+bacnetWrite:AV106
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ppm
+writable
+---
+dis:COM Address
+bacnetCur:AV10
+bacnetWrite:AV10
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:CPH
+bacnetCur:AV84
+bacnetWrite:AV84
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Calibrate Humidity Sensor
+bacnetCur:AV8
+bacnetWrite:AV8
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:Calibrate Room Temperature Sensor
+bacnetCur:AV7
+bacnetWrite:AV7
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ΔK
+writable
+---
+dis:Cooling Demand Limit
+bacnetCur:AV89
+bacnetWrite:AV89
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Cooling Setpoint Limit
+bacnetCur:AV59
+bacnetWrite:AV59
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Default Heating Setpoint
+bacnetCur:AV45
+bacnetWrite:AV45
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Dehumidification Hysteresis
+bacnetCur:AV72
+bacnetWrite:AV72
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:Dehumidification Max Cooling Limit
+bacnetCur:AV73
+bacnetWrite:AV73
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Dehumidification Setpoint
+bacnetCur:AV71
+bacnetWrite:AV71
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:ECM Fan High Voltage
+bacnetCur:AV214
+bacnetWrite:AV214
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:ECM Fan Low Voltage
+bacnetCur:AV212
+bacnetWrite:AV212
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:ECM Fan Medium Voltage
+bacnetCur:AV213
+bacnetWrite:AV213
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:Floating Actuator Timing
+bacnetCur:AV90
+bacnetWrite:AV90
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:min
+writable
+---
+dis:Freezer High Temperature Threshold
+bacnetCur:AV278
+bacnetWrite:AV278
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Heating Demand Limit
+bacnetCur:AV88
+bacnetWrite:AV88
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Heating Setpoint Limit
+bacnetCur:AV58
+bacnetWrite:AV58
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Keyboard Value
+bacnetCur:AV92
+bacnetWrite:AV92
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Load Shedding Offset
+bacnetCur:AV211
+bacnetWrite:AV211
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ΔK
+writable
+---
+dis:Low Backlight
+bacnetCur:AV3
+bacnetWrite:AV3
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"Lua Parameter A (AV25)"
+bacnetCur:AV25
+bacnetDesc:"Param. A (AV25)"
+bacnetWrite:AV25
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter B (AV26)"
+bacnetCur:AV26
+bacnetDesc:"Param. B (AV26)"
+bacnetWrite:AV26
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter C (AV27)"
+bacnetCur:AV27
+bacnetDesc:"Param. C (AV27)"
+bacnetWrite:AV27
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter D (AV28)"
+bacnetCur:AV28
+bacnetDesc:"Param. D (AV28)"
+bacnetWrite:AV28
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter E (AV29)"
+bacnetCur:AV29
+bacnetDesc:"Param. E (AV29)"
+bacnetWrite:AV29
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter F (AV30)"
+bacnetCur:AV30
+bacnetDesc:"Param. F (AV30)"
+bacnetWrite:AV30
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter G (AV225)"
+bacnetCur:AV225
+bacnetDesc:"Param. G AV225"
+bacnetWrite:AV225
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter H (AV226)"
+bacnetCur:AV226
+bacnetDesc:"Param. H AV226"
+bacnetWrite:AV226
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter I (AV227)"
+bacnetCur:AV227
+bacnetDesc:"Param. I AV227"
+bacnetWrite:AV227
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter J (AV228)"
+bacnetCur:AV228
+bacnetDesc:"Param. J AV228"
+bacnetWrite:AV228
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter K (AV229)"
+bacnetCur:AV229
+bacnetDesc:"Param. K AV229"
+bacnetWrite:AV229
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:"Lua Parameter L (AV230)"
+bacnetCur:AV230
+bacnetDesc:"Param. L AV230"
+bacnetWrite:AV230
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Main Password
+bacnetCur:AV56
+bacnetWrite:AV56
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Minimum Deadband
+bacnetCur:AV63
+bacnetWrite:AV63
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ΔK
+writable
+---
+dis:Night Backlight
+bacnetCur:AV4
+bacnetWrite:AV4
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:Number of Pipes
+bacnetCur:AV52
+bacnetWrite:AV52
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Occupied Cool Setpoint
+bacnetCur:AV40
+bacnetWrite:AV40
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Occupied Heat Setpoint
+bacnetCur:AV39
+bacnetWrite:AV39
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Outdoor Temperature
+bacnetCur:AV101
+bacnetWrite:AV101
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Proportional Band
+bacnetCur:AV65
+bacnetWrite:AV65
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:Purge Open
+bacnetCur:AV6
+bacnetWrite:AV6
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:min
+writable
+---
+dis:Purge Sample Period
+bacnetCur:AV5
+bacnetWrite:AV5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:h
+writable
+---
+dis:Refrigeration High Temperature Threshold
+bacnetCur:AV276
+bacnetWrite:AV276
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Refrigeration Low Temperature Threshold
+bacnetCur:AV277
+bacnetWrite:AV277
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Room Humidity
+bacnetCur:AV103
+bacnetWrite:AV103
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:Room Temperature
+bacnetCur:AV100
+bacnetWrite:AV100
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Standby Cool Setpoint
+bacnetCur:AV42
+bacnetWrite:AV42
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Standby Heat Setpoint
+bacnetCur:AV41
+bacnetWrite:AV41
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Standby Screen Delay
+bacnetCur:AV270
+bacnetWrite:AV270
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:s
+writable
+---
+dis:Standby Temperature Differential
+bacnetCur:AV46
+bacnetWrite:AV46
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ΔK
+writable
+---
+dis:Standby Time
+bacnetCur:AV67
+bacnetWrite:AV67
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:h
+writable
+---
+dis:Temperature Alarm Hysteresis
+bacnetCur:AV210
+bacnetWrite:AV210
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:ΔK
+writable
+---
+dis:Temporary Occupancy Time
+bacnetCur:AV62
+bacnetWrite:AV62
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:h
+writable
+---
+dis:UI16 Analog Input
+bacnetCur:AV111
+bacnetWrite:AV111
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI16 Temperature
+bacnetCur:AV117
+bacnetWrite:AV117
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI17 Analog Input
+bacnetCur:AV112
+bacnetWrite:AV112
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI17 Temperature
+bacnetCur:AV118
+bacnetWrite:AV118
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI19 Analog Input
+bacnetCur:AV108
+bacnetWrite:AV108
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI19 Changeover Temperature
+bacnetCur:AV104
+bacnetWrite:AV104
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI19 Lua
+bacnetCur:AV202
+bacnetWrite:AV202
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:UI19 Temperature
+bacnetCur:AV119
+bacnetWrite:AV119
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI20 Analog Input
+bacnetCur:AV113
+bacnetWrite:AV113
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI20 Lua
+bacnetCur:AV203
+bacnetWrite:AV203
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:UI20 Remote Temperature
+bacnetCur:AV105
+bacnetWrite:AV105
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI20 Temperature
+bacnetCur:AV120
+bacnetWrite:AV120
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI22 Analog Input
+bacnetCur:AV114
+bacnetWrite:AV114
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI22 Lua
+bacnetCur:AV204
+bacnetWrite:AV204
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:UI22 Supply Temperature
+bacnetCur:AV102
+bacnetWrite:AV102
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI22 Temperature
+bacnetCur:AV121
+bacnetWrite:AV121
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI23 Analog Input
+bacnetCur:AV115
+bacnetWrite:AV115
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI23 Lua
+bacnetCur:AV205
+bacnetWrite:AV205
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:UI23 Temperature
+bacnetCur:AV122
+bacnetWrite:AV122
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:UI24 Analog Input
+bacnetCur:AV107
+bacnetWrite:AV107
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:V
+writable
+---
+dis:UI24 Lua
+bacnetCur:AV206
+bacnetWrite:AV206
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:UI24 Temperature
+bacnetCur:AV109
+bacnetWrite:AV109
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Unoccupied Cool Setpoint
+bacnetCur:AV44
+bacnetWrite:AV44
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Unoccupied Heat Setpoint
+bacnetCur:AV43
+bacnetWrite:AV43
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°C
+writable
+---
+dis:Unoccupied Time
+bacnetCur:AV68
+bacnetWrite:AV68
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:h
+writable
+---
+dis:User HMI
+bacnetCur:AV2
+bacnetWrite:AV2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:User Password
+bacnetCur:AV57
+bacnetWrite:AV57
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:UI16 Binary Input
+bacnetCur:BI29
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:UI17 Binary Input
+bacnetCur:BI30
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:UI19 Binary Input
+bacnetCur:BI91
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:UI20 Binary Input
+bacnetCur:BI94
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:UI22 Binary Input
+bacnetCur:BI95
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:UI23 Binary Input
+bacnetCur:BI96
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:UI24 Binary Input
+bacnetCur:BI97
+enum:"Activated,Not activ."
+kind:Bool
+point
+---
+dis:BO1 Binary Output
+bacnetCur:BO103
+bacnetWrite:BO103
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:BO2 Low Speed Fan Output
+bacnetCur:BO97
+bacnetWrite:BO97
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:BO3 Medium Speed Fan Output
+bacnetCur:BO96
+bacnetWrite:BO96
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:BO4 High Speed Fan Output
+bacnetCur:BO95
+bacnetWrite:BO95
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:BO8 Auxiliary Binary Output
+bacnetCur:BO98
+bacnetWrite:BO98
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:UO10 Binary Output
+bacnetCur:BO94
+bacnetWrite:BO94
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:UO11 Binary Output
+bacnetCur:BO101
+bacnetWrite:BO101
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:UO12 Binary Output
+bacnetCur:BO102
+bacnetWrite:BO102
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:UO9 Binary Output
+bacnetCur:BO93
+bacnetWrite:BO93
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Clock Alarm
+bacnetCur:BV8
+bacnetWrite:BV8
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Dehumidification Status
+bacnetCur:BV38
+bacnetWrite:BV38
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Display Long Screen Message
+bacnetCur:BV7
+bacnetWrite:BV7
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Door Contact Installed
+bacnetCur:BV2
+bacnetWrite:BV2
+bacnetWriteLevel:16
+cmd
+enum:"No,Yes"
+kind:Bool
+point
+writable
+---
+dis:Door Contact Status
+bacnetCur:BV1
+bacnetWrite:BV1
+bacnetWriteLevel:16
+cmd
+enum:"Closed,Opened"
+kind:Bool
+point
+writable
+---
+dis:Exception Status
+bacnetCur:BV10
+bacnetWrite:BV10
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Filter Alarm
+bacnetCur:BV36
+bacnetWrite:BV36
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Force High Backlight
+bacnetCur:BV6
+bacnetWrite:BV6
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:High Temperature
+bacnetCur:BV53
+bacnetWrite:BV53
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Load Shedding Demand
+bacnetCur:BV48
+bacnetWrite:BV48
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Load Shedding Override
+bacnetCur:BV50
+bacnetWrite:BV50
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Load Shedding Status
+bacnetCur:BV49
+bacnetWrite:BV49
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Low Battery Alarm
+bacnetCur:BV5
+bacnetWrite:BV5
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Low Temperature
+bacnetCur:BV47
+bacnetWrite:BV47
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:PIR Local Motion
+bacnetCur:BV32
+bacnetWrite:BV32
+bacnetWriteLevel:16
+cmd
+enum:"No motion,Motion"
+kind:Bool
+point
+writable
+---
+dis:Service Alarm
+bacnetCur:BV37
+bacnetWrite:BV37
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Smart Recovery Status
+bacnetCur:BV40
+bacnetWrite:BV40
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Water Leak
+bacnetCur:BV44
+bacnetWrite:BV44
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Water Leak Sensor Installed
+bacnetCur:BV45
+bacnetWrite:BV45
+bacnetWriteLevel:16
+cmd
+enum:"No,Yes"
+kind:Bool
+point
+writable
+---
+dis:Water leak sensor status
+bacnetCur:BV46
+bacnetWrite:BV46
+bacnetWriteLevel:16
+cmd
+enum:"Normal,Leak"
+kind:Bool
+point
+writable
+---
+dis:Window Alarm
+bacnetCur:BV35
+bacnetWrite:BV35
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:Window Contact Installed
+bacnetCur:BV4
+bacnetWrite:BV4
+bacnetWriteLevel:16
+cmd
+enum:"No,Yes"
+kind:Bool
+point
+writable
+---
+dis:Window Contact Status
+bacnetCur:BV3
+bacnetWrite:BV3
+bacnetWriteLevel:16
+cmd
+enum:"Closed,Opened"
+kind:Bool
+point
+writable
+---
+dis:ZigBee PIR Sensor Installed
+bacnetCur:BV200
+bacnetWrite:BV200
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:ZigBee Sensor Motion
+bacnetCur:BV201
+bacnetWrite:BV201
+bacnetWriteLevel:16
+cmd
+enum:"No motion,Motion"
+kind:Bool
+point
+writable
+---
+dis:BACnet IP Status
+bacnetCur:MSI317
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+---
+dis:CO2 Effective Source
+bacnetCur:MSI324
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Internal,Error,Wired,WL 1,WL 2,WL 3,WL 4,WL 5,WL 6,WL 7,WL 8,WL 9,WL 10,WL 11,WL 12,WL 13,WL 14,WL 15,WL 16,WL 17,WL 18,WL 19,WL 20"
+kind:Str
+point
+---
+dis:Effective Occupancy
+bacnetCur:MSI33
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Occupied,Unoccupied,Override,Standby"
+kind:Str
+point
+---
+dis:Effective System Mode
+bacnetCur:MSI314
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Cool,Heat"
+kind:Str
+point
+---
+dis:Effective relative humidity sensor
+bacnetCur:MSI313
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Internal,WL 1,WL 2,WL 3,WL 4,WL 5,WL 6,WL 7,WL 8,WL 9,WL 10,WL 11,WL 12,WL 13,WL 14,WL 15,WL 16,WL 17,WL 18,WL 19,WL 20"
+kind:Str
+point
+---
+dis:Effective temperature sensor
+bacnetCur:MSI309
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Wired,Internal,WL IO,WL 1,WL 2,WL 3,WL 4,WL 5,WL 6,WL 7,WL 8,WL 9,WL 10,WL 11,WL 12,WL 13,WL 14,WL 15,WL 16,WL 17,WL 18,WL 19,WL 20"
+kind:Str
+point
+---
+dis:Facility Expert Enabled
+bacnetCur:MSI319
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+---
+dis:Facility Expert Status
+bacnetCur:MSI323
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Offline,Connect.,Online,Failure,Unknown"
+kind:Str
+point
+---
+dis:SMTP Server Status
+bacnetCur:MSI318
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Unknown,Disabled,Offline,Online"
+kind:Str
+point
+---
+dis:Time source
+bacnetCur:MSI325
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Local,BACnet,NTP,Cloud"
+kind:Str
+point
+---
+dis:Wi-Fi Module Status
+bacnetCur:MSI315
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Offline,Initializing,Ready,Booting,Resetting,Fail,Testing"
+kind:Str
+point
+---
+dis:Wi-Fi Status
+bacnetCur:MSI316
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Idle,Associate,Config.,Ready,Online,Disconn.,Failure"
+kind:Str
+point
+---
+dis:Wireless Device 1 - Battery
+bacnetCur:MSI211
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 1 - Communication Status
+bacnetCur:MSI212
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 1 - Sensor Type
+bacnetCur:MSI180
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 1 - Status
+bacnetCur:MSI210
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 10 - Battery
+bacnetCur:MSI301
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 10 - Communication Status
+bacnetCur:MSI302
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 10 - Sensor Type
+bacnetCur:MSI189
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 10 - Status
+bacnetCur:MSI300
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 11 - Battery
+bacnetCur:MSI311
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 11 - Communication Status
+bacnetCur:MSI312
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 11 - Sensor Type
+bacnetCur:MSI190
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 11 - Status
+bacnetCur:MSI310
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 12 - Battery
+bacnetCur:MSI321
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 12 - Communication Status
+bacnetCur:MSI322
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 12 - Sensor Type
+bacnetCur:MSI191
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 12 - Status
+bacnetCur:MSI320
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 13 - Battery
+bacnetCur:MSI331
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 13 - Communication Status
+bacnetCur:MSI332
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 13 - Sensor Type
+bacnetCur:MSI192
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 13 - Status
+bacnetCur:MSI330
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 14 - Battery
+bacnetCur:MSI341
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 14 - Communication Status
+bacnetCur:MSI342
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 14 - Sensor Type
+bacnetCur:MSI193
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 14 - Status
+bacnetCur:MSI340
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 15 - Battery
+bacnetCur:MSI351
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 15 - Communication Status
+bacnetCur:MSI352
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 15 - Sensor Type
+bacnetCur:MSI194
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 15 - Status
+bacnetCur:MSI350
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 16 - Battery
+bacnetCur:MSI361
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 16 - Communication Status
+bacnetCur:MSI362
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 16 - Sensor Type
+bacnetCur:MSI195
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 16 - Status
+bacnetCur:MSI360
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 17 - Battery
+bacnetCur:MSI371
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 17 - Communication Status
+bacnetCur:MSI372
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 17 - Sensor Type
+bacnetCur:MSI196
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 17 - Status
+bacnetCur:MSI370
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 18 - Battery
+bacnetCur:MSI381
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 18 - Communication Status
+bacnetCur:MSI382
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 18 - Sensor Type
+bacnetCur:MSI197
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 18 - Status
+bacnetCur:MSI380
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 19 - Battery
+bacnetCur:MSI391
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 19 - Communication Status
+bacnetCur:MSI392
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 19 - Sensor Type
+bacnetCur:MSI198
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 19 - Status
+bacnetCur:MSI390
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 2 - Battery
+bacnetCur:MSI221
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 2 - Communication Status
+bacnetCur:MSI222
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 2 - Sensor Type
+bacnetCur:MSI181
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 2 - Status
+bacnetCur:MSI220
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 20 - Battery
+bacnetCur:MSI401
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 20 - Communication Status
+bacnetCur:MSI402
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 20 - Sensor Type
+bacnetCur:MSI199
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 20 - Status
+bacnetCur:MSI400
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 3 - Battery
+bacnetCur:MSI231
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 3 - Communication Status
+bacnetCur:MSI232
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 3 - Sensor Type
+bacnetCur:MSI182
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 3 - Status
+bacnetCur:MSI230
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 4 - Battery
+bacnetCur:MSI241
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 4 - Communication Status
+bacnetCur:MSI242
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 4 - Sensor Type
+bacnetCur:MSI183
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 4 - Status
+bacnetCur:MSI240
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 5 - Battery
+bacnetCur:MSI251
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 5 - Communication Status
+bacnetCur:MSI252
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 5 - Sensor Type
+bacnetCur:MSI184
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 5 - Status
+bacnetCur:MSI250
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 6 - Battery
+bacnetCur:MSI261
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 6 - Communication Status
+bacnetCur:MSI262
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 6 - Sensor Type
+bacnetCur:MSI185
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 6 - Status
+bacnetCur:MSI260
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 7 - Battery
+bacnetCur:MSI271
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 7 - Communication Status
+bacnetCur:MSI272
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 7 - Sensor Type
+bacnetCur:MSI186
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 7 - Status
+bacnetCur:MSI270
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 8 - Battery
+bacnetCur:MSI281
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 8 - Communication Status
+bacnetCur:MSI282
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 8 - Sensor Type
+bacnetCur:MSI187
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 8 - Status
+bacnetCur:MSI280
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:Wireless Device 9 - Battery
+bacnetCur:MSI291
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Normal,Low"
+kind:Str
+point
+---
+dis:Wireless Device 9 - Communication Status
+bacnetCur:MSI292
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not paired,Online,Invalid,Offline"
+kind:Str
+point
+---
+dis:Wireless Device 9 - Sensor Type
+bacnetCur:MSI188
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Unknown,Motion,Contact,Water,Temp.,Temp./RH,CO2"
+kind:Str
+point
+---
+dis:Wireless Device 9 - Status
+bacnetCur:MSI290
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Closed,Opened,No motion,Motion,Normal,Leak"
+kind:Str
+point
+---
+dis:ZigBee Network Status
+bacnetCur:MSI2
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Not det.,Pwr on,No NWK,Joined,Online"
+kind:Str
+point
+---
+dis:ADR Permission
+bacnetCur:MSV152
+bacnetWrite:MSV152
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Arabic
+bacnetCur:MSV120
+bacnetWrite:MSV120
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Auto Mode Enable
+bacnetCur:MSV50
+bacnetWrite:MSV50
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Auto Mode Fan Function
+bacnetCur:MSV66
+bacnetWrite:MSV66
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"AS,AS / AD"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:BACnet Baud Rate
+bacnetCur:MSV8
+bacnetWrite:MSV8
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"9600,19200,38400,57600,76800,115200,Auto"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:BO8 Aux Output Configuration
+bacnetCur:MSV92
+bacnetWrite:MSV92
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Reheat NO,Aux NO,Aux NC,Aux F&NO,Aux F&NC,Reheat NC"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:BO8 Aux Output Time Base
+bacnetCur:MSV91
+bacnetWrite:MSV91
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"15 min.,10 sec."
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:CO2 Autocalibration
+bacnetCur:MSV147
+bacnetWrite:MSV147
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:CO2 Display
+bacnetCur:MSV146
+bacnetWrite:MSV146
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:CO2 source
+bacnetCur:MSV150
+bacnetWrite:MSV150
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Local,WL 1,WL 2,WL 3,WL 4,WL 5,WL 6,WL 7,WL 8,WL 9,WL 10,WL 11,WL 12,WL 13,WL 14,WL 15,WL 16,WL 17,WL 18,WL 19,WL 20"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Chinese
+bacnetCur:MSV103
+bacnetWrite:MSV103
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Control Status
+bacnetCur:MSV112
+bacnetWrite:MSV112
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,Cool,Heat"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Control Type Output 1
+bacnetCur:MSV81
+bacnetWrite:MSV81
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"On/Off,Floating,0-10V DA,0-10V RA"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Control Type Output 2
+bacnetCur:MSV160
+bacnetWrite:MSV160
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"On/Off,Floating,0-10V DA,0-10V RA,Same as 1"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Custom button behavior
+bacnetCur:MSV115
+bacnetWrite:MSV115
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Default function,No function,System mode function,Fan function,Override function,Schedule function,Units function,Help function,Language function,Configuration function,Custom function,Standby function"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Custom button icon
+bacnetCur:MSV114
+bacnetDesc:Custom Page
+bacnetWrite:MSV114
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Default Button,No Button,System Mode Heat/Cool,System Mode On/Off,Fan Mode,Override Button,Units Button,Help Button,Language Button,Schedule Button,Lighting Button,Blind Button,Lamp Button,Energy Button,Make Room Button,Setting Button,Timer Button"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Czech
+bacnetCur:MSV122
+bacnetWrite:MSV122
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Danish
+bacnetCur:MSV123
+bacnetWrite:MSV123
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Dehumidification Lockout
+bacnetCur:MSV13
+bacnetWrite:MSV13
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Display Language
+bacnetCur:MSV4
+bacnetWrite:MSV4
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"English,French,Spanish,Chinese,Russian,Arabic,Bulgarian,Czech,Danish,Dutch,Finnish,German,Hungarian,Indones.,Italian,Norwegian,Polish,Portug.,Slovak,Swedish,Turkish,Japanese,Hebrew"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Display the Fan Status icon
+bacnetCur:MSV180
+bacnetWrite:MSV180
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Display the Help button
+bacnetCur:MSV182
+bacnetWrite:MSV182
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Display the System Status icon
+bacnetCur:MSV181
+bacnetWrite:MSV181
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Dutch
+bacnetCur:MSV124
+bacnetWrite:MSV124
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Enable Smart Recovery
+bacnetCur:MSV71
+bacnetWrite:MSV71
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Fan Control in Heating Mode
+bacnetCur:MSV95
+bacnetWrite:MSV95
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"On,Off-Auto,Off-All"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Fan Mode
+bacnetCur:MSV17
+bacnetWrite:MSV17
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Low,Med,High,Auto,On"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Fan Sequence
+bacnetCur:MSV57
+bacnetWrite:MSV57
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"L-M-H,L-H,L-M-H-A,L-H-A,On-Auto"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Fan Type
+bacnetCur:MSV154
+bacnetWrite:MSV154
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"3 speed,ECM"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Finnish
+bacnetCur:MSV125
+bacnetWrite:MSV125
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:French
+bacnetCur:MSV101
+bacnetWrite:MSV101
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:German
+bacnetCur:MSV126
+bacnetWrite:MSV126
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:HMI Color
+bacnetCur:MSV2
+bacnetWrite:MSV2
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"White,Green,Blue,Grey,Dark grey,Pink,Purple,Red,Orange,Black"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Hebrew
+bacnetCur:MSV156
+bacnetWrite:MSV156
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Hungarian
+bacnetCur:MSV127
+bacnetWrite:MSV127
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Indonesian
+bacnetCur:MSV128
+bacnetWrite:MSV128
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Italian
+bacnetCur:MSV129
+bacnetWrite:MSV129
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Japanese
+bacnetCur:MSV155
+bacnetWrite:MSV155
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Lock Screen
+bacnetCur:MSV148
+bacnetWrite:MSV148
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No,Yes"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Long Message Background Colour
+bacnetCur:MSV1
+bacnetWrite:MSV1
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"White,Green,Blue,Grey,Dark grey,Pink,Purple,Red,Orange,Black,Default"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Main Display
+bacnetCur:MSV3
+bacnetWrite:MSV3
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Temp.,Setpoint,T. + set."
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Mode Button
+bacnetCur:MSV111
+bacnetWrite:MSV111
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Normal,Off-Auto"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Network Language
+bacnetCur:MSV7
+bacnetWrite:MSV7
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"English,French,Spanish"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Network Units
+bacnetCur:MSV6
+bacnetWrite:MSV6
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"SI,Imperial"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:No Activity Sleep Mode Time
+bacnetCur:MSV9
+bacnetWrite:MSV9
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Norwegian
+bacnetCur:MSV130
+bacnetWrite:MSV130
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Occupancy Command
+bacnetCur:MSV10
+bacnetWrite:MSV10
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Loc occ.,Occupied,Unocc."
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Occupancy Source
+bacnetCur:MSV110
+bacnetWrite:MSV110
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Motion,Schedule,Mot. occ.,Mot. unoc."
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Polish
+bacnetCur:MSV131
+bacnetWrite:MSV131
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Portuguese
+bacnetCur:MSV132
+bacnetWrite:MSV132
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Relative humidity sensor
+bacnetCur:MSV149
+bacnetWrite:MSV149
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Internal,WL 1,WL 2,WL 3,WL 4,WL 5,WL 6,WL 7,WL 8,WL 9,WL 10,WL 11,WL 12,WL 13,WL 14,WL 15,WL 16,WL 17,WL 18,WL 19,WL 20"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Room Humidity Display
+bacnetCur:MSV70
+bacnetWrite:MSV70
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Room Temperature Sensor
+bacnetCur:MSV145
+bacnetWrite:MSV145
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Wired,Internal,WL IO,WL 1,WL 2,WL 3,WL 4,WL 5,WL 6,WL 7,WL 8,WL 9,WL 10,WL 11,WL 12,WL 13,WL 14,WL 15,WL 16,WL 17,WL 18,WL 19,WL 20"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Russian
+bacnetCur:MSV104
+bacnetWrite:MSV104
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Schedule Menu
+bacnetCur:MSV73
+bacnetWrite:MSV73
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled,Dis.no.clk,En.no.clk"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Schedule Type
+bacnetCur:MSV136
+bacnetWrite:MSV136
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"7 days,5+2 days,5+1+1 day"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Sequence of Operation
+bacnetCur:MSV15
+bacnetWrite:MSV15
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Cool only,Heat only,Cool-rht,Heat-rht,Cool/Heat,Cl/ht-rht"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Setpoint Function
+bacnetCur:MSV58
+bacnetWrite:MSV58
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Dual SP,Attach SP"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Slovak
+bacnetCur:MSV133
+bacnetWrite:MSV133
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Spanish
+bacnetCur:MSV102
+bacnetWrite:MSV102
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Standby Mode Configuration
+bacnetCur:MSV11
+bacnetWrite:MSV11
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Absolute,Offset"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Swedish
+bacnetCur:MSV134
+bacnetWrite:MSV134
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:System Mode
+bacnetCur:MSV16
+bacnetWrite:MSV16
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,Auto,Cool,Heat"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Temperature Alarm Enabled
+bacnetCur:MSV151
+bacnetWrite:MSV151
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Off,On"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Temperature Scale
+bacnetCur:MSV51
+bacnetWrite:MSV51
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:°C,°F
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Time Format
+bacnetCur:MSV5
+bacnetWrite:MSV5
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"AM-PM,24 Hours"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Turkish
+bacnetCur:MSV135
+bacnetWrite:MSV135
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Disabled,Enabled"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI16 Configuration
+bacnetCur:MSV46
+bacnetWrite:MSV46
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Rem NSB,Motion NO,Motion NC,Window"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI16 Input Type
+bacnetCur:MSV138
+bacnetWrite:MSV138
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI17 Configuration
+bacnetCur:MSV47
+bacnetWrite:MSV47
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Door dry,Override,Filter,Service"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI17 Input Type
+bacnetCur:MSV139
+bacnetWrite:MSV139
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI19 Configuration
+bacnetCur:MSV49
+bacnetWrite:MSV49
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,COC/NH,COC/NC,COS"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI19 Input Type
+bacnetCur:MSV140
+bacnetWrite:MSV140
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI20 Input Type
+bacnetCur:MSV141
+bacnetWrite:MSV141
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI22 Input Type
+bacnetCur:MSV142
+bacnetWrite:MSV142
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI23 Input Type
+bacnetCur:MSV143
+bacnetWrite:MSV143
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UI24 Input Type
+bacnetCur:MSV144
+bacnetWrite:MSV144
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Therm.,Binary,Voltage"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UO10 Configuration
+bacnetCur:MSV97
+bacnetWrite:MSV97
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Analog,Binary,Relay RC"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UO11 Configuration
+bacnetCur:MSV98
+bacnetWrite:MSV98
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Analog,Binary"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UO12 Configuration
+bacnetCur:MSV99
+bacnetWrite:MSV99
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Analog,Binary"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:UO9 Configuration
+bacnetCur:MSV96
+bacnetWrite:MSV96
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Analog,Binary,Relay RC,Relay RH"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Use Standby Screen
+bacnetCur:MSV32
+bacnetWrite:MSV32
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"No,Yes,Occ. only,Screen sav"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 1 - Function
+bacnetCur:MSV210
+bacnetWrite:MSV210
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 10 - Function
+bacnetCur:MSV300
+bacnetWrite:MSV300
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 11 - Function
+bacnetCur:MSV310
+bacnetWrite:MSV310
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 12 - Function
+bacnetCur:MSV320
+bacnetWrite:MSV320
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 13 - Function
+bacnetCur:MSV330
+bacnetWrite:MSV330
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 14 - Function
+bacnetCur:MSV340
+bacnetWrite:MSV340
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 15 - Function
+bacnetCur:MSV350
+bacnetWrite:MSV350
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 16 - Function
+bacnetCur:MSV360
+bacnetWrite:MSV360
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 17 - Function
+bacnetCur:MSV370
+bacnetWrite:MSV370
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 18 - Function
+bacnetCur:MSV380
+bacnetWrite:MSV380
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 19 - Function
+bacnetCur:MSV390
+bacnetWrite:MSV390
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 2 - Function
+bacnetCur:MSV220
+bacnetWrite:MSV220
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 20 - Function
+bacnetCur:MSV400
+bacnetWrite:MSV400
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 3 - Function
+bacnetCur:MSV230
+bacnetWrite:MSV230
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 4 - Function
+bacnetCur:MSV240
+bacnetWrite:MSV240
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 5 - Function
+bacnetCur:MSV250
+bacnetWrite:MSV250
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 6 - Function
+bacnetCur:MSV260
+bacnetWrite:MSV260
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 7 - Function
+bacnetCur:MSV270
+bacnetWrite:MSV270
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 8 - Function
+bacnetCur:MSV280
+bacnetWrite:MSV280
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Wireless Device 9 - Function
+bacnetCur:MSV290
+bacnetWrite:MSV290
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"None,Window,Door,Motion,Env. data,Remove,Water,Refrig.,Freezer"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:Occupancy Schedule
+bacnetCur:SCH1
+kind:Str
+point

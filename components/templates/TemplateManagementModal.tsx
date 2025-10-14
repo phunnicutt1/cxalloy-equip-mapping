@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { MappingTemplate, TemplateMatchingOptions } from '../../types/template-mapping';
 import { CxAlloyEquipment, Equipment } from '../../types/equipment';
 import { NormalizedPoint } from '../../types/normalized';
-import { TemplateMappingService } from '../../lib/services/template-mapping-service';
+// import { TemplateMappingService } from '../../lib/services/template-mapping-service'; // Removed service
 import { useAppStore } from '../../store/app-store';
 
 interface TemplateManagementModalProps {
@@ -45,8 +45,10 @@ export const TemplateManagementModal: React.FC<TemplateManagementModalProps> = (
 
   const loadTemplates = async () => {
     try {
-      const loadedTemplates = await TemplateMappingService.getTemplates();
-      setTemplates(loadedTemplates);
+      // TODO: Replace with new template service
+      // const loadedTemplates = await TemplateMappingService.getTemplates();
+      // setTemplates(loadedTemplates);
+      setTemplates([]);
     } catch (error) {
       console.error('Error loading templates:', error);
     }
@@ -68,7 +70,7 @@ export const TemplateManagementModal: React.FC<TemplateManagementModalProps> = (
       }
 
       // Find the corresponding BACnet equipment and its points
-      const mapping = equipmentMappings.find(m => m.cxalloyEquipmentId === selectedCxAlloyEquipment.id);
+      const mapping = equipmentMappings.find(m => m.cxAlloyEquipmentId === selectedCxAlloyEquipment.id);
       if (!mapping) {
         throw new Error('Equipment mapping not found');
       }
@@ -80,22 +82,25 @@ export const TemplateManagementModal: React.FC<TemplateManagementModalProps> = (
 
       const bacnetPoints = bacnetEquipment.points || [];
 
-      const template = await TemplateMappingService.createTemplateFromMappedEquipment(
-        selectedCxAlloyEquipment,
-        bacnetEquipment,
-        bacnetPoints,
-        createForm.templateName,
-        createForm.templateDescription,
-        'user'
-      );
+      // TODO: Replace with new template service
+      // const template = await TemplateMappingService.createTemplateFromMappedEquipment(
+      //   selectedCxAlloyEquipment,
+      //   bacnetEquipment,
+      //   bacnetPoints,
+      //   createForm.templateName,
+      //   createForm.templateDescription,
+      //   'user'
+      // );
+
+      console.log('Template creation disabled - service removed');
 
       await loadTemplates();
       setCreateForm({ sourceEquipmentId: '', templateName: '', templateDescription: '' });
       setIsCreating(false);
-      
-      if (onTemplateCreated) {
-        onTemplateCreated(template);
-      }
+
+      // if (onTemplateCreated) {
+      //   onTemplateCreated(template);
+      // }
     } catch (error) {
       console.error('Error creating template:', error);
       alert('Failed to create template: ' + (error instanceof Error ? error.message : 'Unknown error'));
@@ -110,7 +115,9 @@ export const TemplateManagementModal: React.FC<TemplateManagementModalProps> = (
     }
 
     try {
-      await TemplateMappingService.deleteTemplate(templateId);
+      // TODO: Replace with new template service
+      // await TemplateMappingService.deleteTemplate(templateId);
+      console.log('Template deletion disabled - service removed');
       await loadTemplates();
       if (selectedTemplate?.id === templateId) {
         setSelectedTemplate(null);

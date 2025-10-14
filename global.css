@@ -1,0 +1,6 @@
+/* global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: if not using Shadow DOM, scope everything under #equip-mapper-root */

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConnectionPool } from '../../../../lib/database/config';
 import { RowDataPacket, ResultSetHeader } from 'mysql2/promise';
 import type { CxAlloyEquipment } from '../../../../types/equipment';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface CxAlloyEquipmentRow extends RowDataPacket {
   equipment_id: number;
@@ -33,13 +35,30 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get('projectId') || '2'; // Default to project 2
-    
+    const useMock = searchParams.get('useMock') === 'true' || process.env.USE_MOCK_DATA === 'true';
+
+    // If mock data is enabled, return mock equipment
+    if (useMock) {
+      const mockDataPath = path.join(process.cwd(), 'data', 'mock-cxalloy-equipment.json');
+      const mockData = JSON.parse(fs.readFileSync(mockDataPath, 'utf-8'));
+
+      console.log(`[CXALLOY API] Retrieved ${mockData.length} mock equipment items for project ${projectId}`);
+
+      return NextResponse.json({
+        success: true,
+        equipment: mockData,
+        projectId: parseInt(projectId),
+        total: mockData.length,
+        isMockData: true
+      });
+    }
+
     const pool = getConnectionPool();
-    
+
     // Query CxAlloy equipment with related information
     // Note: equipmenttype table doesn't exist, so we'll get type info differently
     const query = `
-      SELECT 
+      SELECT
         e.equipment_id,
         e.fk_project,
         e.fk_type,
@@ -69,14 +88,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       WHERE e.fk_project = ? AND e.is_deleted = 0
       ORDER BY e.name
     `;
-    
+
     const [rows] = await pool.execute<CxAlloyEquipmentRow[]>(query, [projectId]);
-    
+
     // Transform database rows to CxAlloyEquipment format
     const equipment: CxAlloyEquipment[] = rows.map(row => ({
       id: row.equipment_id.toString(),
       name: row.name,
-      type: row.name.includes('AHU') ? 'Air Handler' : 
+      type: row.name.includes('AHU') ? 'Air Handler' :
             row.name.includes('CH-') ? 'Chiller' :
             row.name.includes('VAV') ? 'VAV' :
             row.name.includes('RTU') ? 'RTU' :
@@ -95,22 +114,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       createdAt: row.dt_created ? row.dt_created.toISOString() : new Date().toISOString(),
       updatedAt: row.dt_modified ? row.dt_modified.toISOString() : new Date().toISOString(),
     }));
-    
+
     console.log(`[CXALLOY API] Retrieved ${equipment.length} equipment items for project ${projectId}`);
-    
+
     return NextResponse.json({
       success: true,
       equipment,
       projectId: parseInt(projectId),
       total: equipment.length
     });
-    
+
   } catch (error) {
     console.error('[CXALLOY API] Error fetching equipment:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch CxAlloy equipment' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch CxAlloy equipment'
       },
       { status: 500 }
     );

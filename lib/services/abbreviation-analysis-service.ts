@@ -99,12 +99,12 @@ const KNOWN_BACNET_ABBREVIATIONS: Record<string, string> = {
   
   // Time
   'SEC': 'Seconds',
-  'MIN': 'Minutes',
+  'MINS': 'Minutes',
   'HR': 'Hours',
   'DAY': 'Days',
-  
+
   // Directions/positions
-  'CW': 'Clockwise',
+  'CLKW': 'Clockwise',
   'UP': 'Up',
   'DN': 'Down',
   'IN': 'Inlet',

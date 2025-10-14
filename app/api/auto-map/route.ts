@@ -6,120 +6,20 @@ import type { Equipment, CxAlloyEquipment } from '../../../types/equipment';
 export async function POST(request: NextRequest) {
   try {
     const startTime = Date.now();
-    console.log('[AUTO-MAP API] Starting auto-mapping process with real database data...');
+    const body = await request.json();
 
-    // Fetch real BACnet equipment from equipment_mapping table (where processed data is stored)
-    const bacnetQuery = `
-      SELECT 
-        id,
-        equipment_name as name,
-        equipment_type as type,
-        metadata,
-        original_filename as filename,
-        total_points as totalPoints,
-        created_at,
-        last_updated as updated_at
-      FROM equipment_mapping
-      WHERE status = 'ACTIVE'
-      ORDER BY equipment_name
-    `;
+    console.log('[AUTO-MAP API] Starting auto-mapping process...');
 
-    // Fetch real CxAlloy equipment from database  
-    const cxAlloyQuery = `
-      SELECT 
-        e.equipment_id as id,
-        e.fk_project as projectId,
-        e.name,
-        e.description,
-        e.nat_name as serialNumber,
-        s.name as space,
-        COALESCE(b.name, '') as location,
-        f.name as floor,
-        es.name as status,
-        CASE 
-          WHEN LOWER(e.name) LIKE '%ahu%' OR LOWER(e.name) LIKE '%air handler%' THEN 'Air Handler Unit'
-          WHEN LOWER(e.name) LIKE '%vav%' OR LOWER(e.name) LIKE '%variable air%' THEN 'VAV Controller'
-          WHEN LOWER(e.name) LIKE '%rtu%' OR LOWER(e.name) LIKE '%rooftop%' THEN 'RTU Controller'
-          WHEN LOWER(e.name) LIKE '%chiller%' OR LOWER(e.name) LIKE '%ch-%' THEN 'Chiller'
-          WHEN LOWER(e.name) LIKE '%boiler%' OR LOWER(e.name) LIKE '%bl-%' THEN 'Boiler'
-          WHEN LOWER(e.name) LIKE '%pump%' OR LOWER(e.name) LIKE '%p-%' THEN 'Pump'
-          WHEN LOWER(e.name) LIKE '%fan%' OR LOWER(e.name) LIKE '%sf-%' OR LOWER(e.name) LIKE '%ef-%' THEN 'Fan'
-          WHEN LOWER(e.name) LIKE '%valve%' OR LOWER(e.name) LIKE '%vlv%' THEN 'Valve'
-          WHEN LOWER(e.name) LIKE '%damper%' OR LOWER(e.name) LIKE '%dmp%' THEN 'Damper'
-          ELSE 'Unknown'
-        END as type,
-        e.dt_created as created_at,
-        e.dt_modified as updated_at
-      FROM equipment e
-      LEFT JOIN space s ON e.fk_space = s.space_id
-      LEFT JOIN floor f ON s.fk_floor = f.floor_id
-      LEFT JOIN building b ON f.fk_building = b.building_id
-      LEFT JOIN equipmentstatus es ON e.fk_equipmentstatus = es.equipmentstatus_id
-      WHERE e.fk_project = 2 AND e.is_deleted = 0
-      ORDER BY e.name
-    `;
+    // Get equipment data from request body (passed from client store)
+    const bacnetEquipment: Equipment[] = body.bacnetEquipment || [];
+    const cxAlloyEquipment: CxAlloyEquipment[] = body.cxAlloyEquipment || [];
 
-    console.log('[AUTO-MAP API] Fetching equipment data from consolidated database...');
-    const [bacnetResults, cxAlloyResults] = await Promise.all([
-      executeQuery(bacnetQuery, []),
-      executeQuery(cxAlloyQuery, [])
-    ]);
-
-    // Transform bacnet results to Equipment format, extracting description from metadata
-    const bacnetEquipment: Equipment[] = bacnetResults.map((row: any) => {
-      let description = '';
-      let vendor = 'Unknown';
-      let modelName = 'Unknown';
-      
-      try {
-        if (row.metadata) {
-          const metadata = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;
-          description = metadata.description || '';
-          vendor = metadata.vendor || 'Unknown';
-          modelName = metadata.model || 'Unknown';
-        }
-      } catch (e) {
-        console.warn('[AUTO-MAP API] Failed to parse metadata for equipment', row.id);
-      }
-      
-      return {
-        id: row.id,
-        name: row.name,
-        displayName: row.name,
-        type: row.type,
-        filename: row.filename,
-        vendor: vendor,
-        modelName: modelName,
-        model: modelName,
-        description: description,
-        location: '',
-        totalPoints: row.totalPoints,
-        processedPoints: 0,
-        status: 'ACTIVE' as any,
-        connectionState: 'UNKNOWN' as any,
-        connectionStatus: 'unknown',
-        bacnetAddress: '',
-        bacnetDeviceId: 0,
-        bacnetNetwork: 0,
-        classification: {
-          confidence: 0.8,
-          reasoning: 'Auto-mapped equipment',
-          alternatives: []
-        },
-        createdAt: new Date(row.created_at),
-        updatedAt: new Date(row.updated_at),
-        disabled: false
-      };
-    });
-    
-    const cxAlloyEquipment = cxAlloyResults as CxAlloyEquipment[];
-
-    console.log(`[AUTO-MAP API] Loaded ${bacnetEquipment.length} BACnet equipment and ${cxAlloyEquipment.length} CxAlloy equipment`);
+    console.log(`[AUTO-MAP API] Received ${bacnetEquipment.length} BACnet equipment and ${cxAlloyEquipment.length} CxAlloy equipment from client`);
 
     if (bacnetEquipment.length === 0 || cxAlloyEquipment.length === 0) {
       return NextResponse.json({
         success: false,
-        error: 'No equipment data available for auto-mapping',
+        error: 'No equipment data provided for auto-mapping',
         bacnetCount: bacnetEquipment.length,
         cxAlloyCount: cxAlloyEquipment.length
       }, { status: 400 });

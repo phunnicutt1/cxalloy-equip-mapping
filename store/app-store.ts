@@ -8,12 +8,15 @@ import type {
 import type { UnifiedTemplate } from '../types/unified-template';
 import type { NormalizedPoint } from '../types/normalized';
 import type { AutoMappingResult, AutoMappingMatch } from '../lib/services/auto-mapping-service';
+import { apiAdapter } from '../lib/api-adapter';
 
 interface ViewMode {
   left: 'equipment' | 'templates';
   middle: 'all-points' | 'template-points';
   right: 'all' | 'mapped' | 'unmapped';
 }
+
+type EquipmentFilter = 'all' | 'mapped' | 'unmapped';
 
 interface AppState {
   // Equipment Data
@@ -36,6 +39,7 @@ interface AppState {
   viewMode: ViewMode;
   isLoading: boolean;
   searchTerm: string;
+  equipmentFilter: EquipmentFilter; // Filter for left panel equipment list
   equipmentTemplateMap: Record<string, string>; // equipment ID -> template ID
   
   // Point Selection State
@@ -57,6 +61,7 @@ interface AppState {
   setCxAlloyEquipment: (equipment: CxAlloyEquipment[]) => void;
   setViewMode: (panel: keyof ViewMode, mode: ViewMode[keyof ViewMode]) => void;
   setSearchTerm: (term: string) => void;
+  setEquipmentFilter: (filter: EquipmentFilter) => void;
   setSelectedTemplate: (templateId: string | null) => void;
   setEquipmentTemplate: (equipmentId: string, templateId: string | null) => void;
   setLoading: (loading: boolean) => void;
@@ -162,6 +167,7 @@ export const useAppStore = create<AppState>()(
       
       isLoading: false,
       searchTerm: '',
+      equipmentFilter: 'all' as EquipmentFilter,
       equipmentTemplateMap: {},
       
       // Point Selection State
@@ -212,8 +218,7 @@ export const useAppStore = create<AppState>()(
         // Otherwise, fetch full equipment data with points from the database
         try {
           set({ isLoading: true });
-          const response = await fetch(`/api/equipment/${equipment.id}`);
-          const data = await response.json();
+          const data = await apiAdapter.fetchEquipmentById(equipment.id);
           if (data.success && data.equipment) {
             // Attach points to the equipment object
             const equipmentWithPoints = {
@@ -233,6 +238,7 @@ export const useAppStore = create<AppState>()(
       },
       setCxAlloyEquipment: (equipment) => set({ cxAlloyEquipment: equipment }),
       setSearchTerm: (term) => set({ searchTerm: term }),
+      setEquipmentFilter: (filter) => set({ equipmentFilter: filter }),
       setSelectedTemplate: (templateId) => {
         const { selectedEquipment } = get();
         if (selectedEquipment) {
@@ -252,12 +258,7 @@ export const useAppStore = create<AppState>()(
       fetchEquipment: async (page, filters) => {
         set({ isLoading: true });
         try {
-          const params = new URLSearchParams({
-            page: page.toString(),
-            ...filters,
-          });
-          const response = await fetch(`/api/equipment?${params.toString()}`);
-          const data = await response.json();
+          const data = await apiAdapter.fetchEquipment(page, filters);
           if (data.success) {
             set({ equipment: data.equipment, isLoading: false });
           } else {
@@ -333,13 +334,28 @@ export const useAppStore = create<AppState>()(
       performAutoMapping: async () => {
         set({ autoMappingInProgress: true });
         try {
-          const response = await fetch('/api/auto-map', { method: 'POST' });
+          const state = get();
+
+          // Pass current equipment data from store to API
+          const response = await fetch('/api/auto-map', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              bacnetEquipment: state.equipment,
+              cxAlloyEquipment: state.cxAlloyEquipment
+            })
+          });
           const data = await response.json();
-          
+
           if (data.success) {
-            set({ 
+            // After auto-mapping, filter left panel to show only unmapped equipment
+            // so users can see the dramatic difference
+            set({
               autoMappingResult: data.data,
-              autoMappingInProgress: false 
+              autoMappingInProgress: false,
+              equipmentFilter: 'unmapped' // Show unmapped BACnet equipment
             });
             return data.data;
           } else {
@@ -397,7 +413,7 @@ export const useAppStore = create<AppState>()(
           await recordEquipmentMapping(
             mapping.bacnetEquipmentId,
             mapping.bacnetEquipmentName,
-            mapping.cxalloyEquipmentId,
+            mapping.cxAlloyEquipmentId,
             mapping.cxalloyEquipmentName,
             'created',
             'auto-mapping',
@@ -410,32 +426,20 @@ export const useAppStore = create<AppState>()(
           equipmentMappings: [
             ...state.equipmentMappings,
             ...newMappings
-          ]
+          ],
+          // After applying exact mappings, filter left panel to show unmapped equipment
+          equipmentFilter: 'unmapped' // Show unmapped BACnet equipment
         }));
       },
       
       applySuggestedMapping: (mapping) => {
         const newMapping = {
-          id: `suggested-${mapping.bacnetEquipment.id}-${mapping.cxAlloyEquipment.id}`,
           bacnetEquipmentId: mapping.bacnetEquipment.id,
-          bacnetEquipmentName: mapping.bacnetEquipment.name,
-          bacnetEquipmentType: mapping.bacnetEquipment.type || 'Unknown',
-          cxalloyEquipmentId: mapping.cxAlloyEquipment.id,
-          cxalloyEquipmentName: mapping.cxAlloyEquipment.name,
-          cxalloyCategory: mapping.cxAlloyEquipment.type as any,
+          cxAlloyEquipmentId: mapping.cxAlloyEquipment.id,
           mappingType: 'manual' as const,
           confidence: mapping.confidence,
-          mappingReason: mapping.reasons.join('; '),
-          totalBacnetPoints: mapping.bacnetEquipment.totalPoints || 0,
-          mappedPointsCount: 0,
-          unmappedPointsCount: 0,
-          isActive: true,
-          isVerified: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          createdBy: 'user-selection',
-          mappingMethod: 'manual' as const
-        };
+          mappedAt: new Date().toISOString()
+        } as EquipmentMapping;
         
         set((state) => ({
           equipmentMappings: [
@@ -483,7 +487,7 @@ export const useAppStore = create<AppState>()(
           }
         } catch (error) {
           console.error('Error fetching templates:', error);
-          set({ isLoading: false, error: 'Failed to fetch templates' });
+          set({ isLoading: false });
         }
       },
       
@@ -517,9 +521,15 @@ export const useAppStore = create<AppState>()(
 
             if (isSelecting) {
               newTrackedByEquipment[equipmentId].add(pointId);
+              console.log('[STORE] Tracked point:', pointId, 'for equipment:', equipmentId);
             } else {
               newTrackedByEquipment[equipmentId].delete(pointId);
+              console.log('[STORE] Untracked point:', pointId, 'for equipment:', equipmentId);
             }
+
+            console.log('[STORE] Total tracked for equipment', equipmentId, ':', newTrackedByEquipment[equipmentId].size);
+          } else {
+            console.warn('[STORE] Cannot track point - no equipment selected!');
           }
 
           return {
@@ -649,7 +659,7 @@ export const useAppStore = create<AppState>()(
       
       getMappedCxAlloyEquipment: () => {
         const { cxAlloyEquipment, equipmentMappings } = get();
-        const mappedIds = new Set(equipmentMappings.map(m => Number(m.cxalloyEquipmentId)));
+        const mappedIds = new Set(equipmentMappings.map(m => Number(m.cxAlloyEquipmentId)));
         return cxAlloyEquipment.filter(eq => mappedIds.has(Number(eq.id)));
       },
       
@@ -658,14 +668,14 @@ export const useAppStore = create<AppState>()(
         const { cxAlloyEquipment, equipmentMappings } = get();
         const mapping = equipmentMappings.find(m => m.bacnetEquipmentId === bacnetEquipmentId);
         if (mapping) {
-          return cxAlloyEquipment.find(eq => Number(eq.id) === Number(mapping.cxalloyEquipmentId));
+          return cxAlloyEquipment.find(eq => Number(eq.id) === Number(mapping.cxAlloyEquipmentId));
         }
         return null;
       },
       
       getUnmappedCxAlloyEquipment: () => {
         const { cxAlloyEquipment, equipmentMappings } = get();
-        const mappedIds = new Set(equipmentMappings.map(m => Number(m.cxalloyEquipmentId)));
+        const mappedIds = new Set(equipmentMappings.map(m => Number(m.cxAlloyEquipmentId)));
         return cxAlloyEquipment.filter(eq => !mappedIds.has(Number(eq.id)));
       },
       

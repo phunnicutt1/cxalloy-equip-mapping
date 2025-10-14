@@ -191,30 +191,8 @@ export function PointDetails() {
   const isMappedEquipment = equipmentMappings?.some(m => m.bacnetEquipmentId === selectedEquipment?.id) || false;
 
   // Sync tracked points when equipment changes
-  // Compute a stable key for the tracked points to detect changes
-  const trackedPointsForEquipment = selectedEquipment ? trackedPointsByEquipment[selectedEquipment.id] : null;
-  const trackedPointsKey = React.useMemo(() => {
-    if (!trackedPointsForEquipment || trackedPointsForEquipment.size === 0) return '';
-    return Array.from(trackedPointsForEquipment).sort().join(',');
-  }, [trackedPointsForEquipment]);
-
-  useEffect(() => {
-    if (!selectedEquipment) {
-      clearPointSelection();
-      return;
-    }
-
-    // Get tracked points for this equipment from the persistent store
-    const trackedPoints = trackedPointsByEquipment[selectedEquipment.id];
-
-    if (trackedPoints && trackedPoints.size > 0) {
-      // Update the selectedPoints in the store to match tracked points
-      useAppStore.setState({ selectedPoints: new Set(trackedPoints) });
-    } else {
-      // Clear selections if no tracked points for this equipment
-      useAppStore.setState({ selectedPoints: new Set() });
-    }
-  }, [selectedEquipment?.id, trackedPointsKey]);
+  // This effect is handled by setSelectedEquipment in the store, so we don't need it here
+  // Removing this useEffect to prevent infinite loops
 
 
   // Filter points based on search and filter criteria

@@ -1,0 +1,1297 @@
+dis:CoilLvgTemp
+bacnetCur:AI14
+bacnetDesc:Coil Lvg Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:EaEntHumidity
+bacnetCur:AI16
+bacnetDesc:Exhaust Air Entering Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:EaEntTemp
+bacnetCur:AI15
+bacnetDesc:Exhaust Air Entering Temp
+kind:Number
+point
+unit:°F
+---
+dis:EaLvgCFM
+bacnetCur:AI60
+bacnetDesc:EA Leaving CFM
+kind:Number
+point
+unit:cfm
+---
+dis:EaLvgHumidity
+bacnetCur:AI59
+bacnetDesc:Exhaust Air Leaving Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:EaLvgTemp
+bacnetCur:AI18
+bacnetDesc:Exhaust Air Leaving Temp
+kind:Number
+point
+unit:°F
+---
+dis:LvgOAHumidity
+bacnetCur:AI63
+bacnetDesc:Leaving OA Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:LvgOATemp
+bacnetCur:AI62
+bacnetDesc:Leaving Outside Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:MATemp
+bacnetCur:AI13
+bacnetDesc:Mixed Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:OACfm
+bacnetCur:AI66
+bacnetDesc:OA CFM
+kind:Number
+point
+unit:cfm
+---
+dis:OACoilLvgTemp
+bacnetCur:AI64
+bacnetDesc:Coil Lvg Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:OaDATemp
+bacnetCur:AI65
+bacnetDesc:ERV OA Discharge Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:RAHum
+bacnetCur:AI12
+bacnetDesc:Return Air Humidity
+kind:Number
+point
+unit:"%RH"
+---
+dis:RATemp
+bacnetCur:AI11
+bacnetDesc:Return Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:SATemp
+bacnetCur:AI10
+bacnetDesc:Supply Air Temp
+kind:Number
+point
+unit:°F
+---
+dis:SETPOINT_OFFSET
+bacnetCur:AI2
+bacnetDesc:Space Setpoint Offset
+kind:Number
+point
+unit:°F
+---
+dis:SPACE_SENSOR
+bacnetCur:AI1
+bacnetDesc:Space Sensor
+kind:Number
+point
+unit:°F
+---
+dis:StaticPress
+bacnetCur:AI9
+bacnetDesc:Static Pressure
+kind:Number
+point
+unit:"inH₂O"
+---
+dis:Vfd1FB
+bacnetCur:AI4
+bacnetDesc:Fan 1 VFD Feedback
+kind:Number
+point
+unit:"%"
+---
+dis:Vfd2FB
+bacnetCur:AI7
+bacnetDesc:Fan 2 VFD Feedback
+kind:Number
+point
+unit:"%"
+---
+dis:CHWVlv
+bacnetCur:AO5
+bacnetDesc:Chilled Water Valve
+bacnetWrite:AO5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:EAFanSpeed
+bacnetCur:AO11
+bacnetDesc:Exhaust Air Fan Speed
+bacnetWrite:AO11
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:OAFanSpeed
+bacnetCur:AO9
+bacnetDesc:Outside Air Fan Speed
+bacnetWrite:AO9
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:OaLvgCHWVlv
+bacnetCur:AO13
+bacnetDesc:OA Leaving Chilled Water Valve
+bacnetWrite:AO13
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:RADMP
+bacnetCur:AO8
+bacnetDesc:Return Air Damper
+bacnetWrite:AO8
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:VFD1Speed
+bacnetCur:AO2
+bacnetDesc:VFD 1 Speed
+bacnetWrite:AO2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:VFD2Speed
+bacnetCur:AO4
+bacnetDesc:VFD 2 Speed
+bacnetWrite:AO4
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:AV_06
+bacnetCur:AV6
+bacnetDesc:"Analog Value #6"
+bacnetWrite:AV6
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_10
+bacnetCur:AV10
+bacnetDesc:"Analog Value #10"
+bacnetWrite:AV10
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_23
+bacnetCur:AV23
+bacnetDesc:"Analog Value #23"
+bacnetWrite:AV23
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_24
+bacnetCur:AV24
+bacnetDesc:"Analog Value #24"
+bacnetWrite:AV24
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_27
+bacnetCur:AV27
+bacnetDesc:"Analog Value #27"
+bacnetWrite:AV27
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_29
+bacnetCur:AV29
+bacnetDesc:"Analog Value #29"
+bacnetWrite:AV29
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_31
+bacnetCur:AV31
+bacnetDesc:"Analog Value #31"
+bacnetWrite:AV31
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_32
+bacnetCur:AV32
+bacnetDesc:"Analog Value #32"
+bacnetWrite:AV32
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_33
+bacnetCur:AV33
+bacnetDesc:"Analog Value #33"
+bacnetWrite:AV33
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_34
+bacnetCur:AV34
+bacnetDesc:"Analog Value #34"
+bacnetWrite:AV34
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_35
+bacnetCur:AV35
+bacnetDesc:"Analog Value #35"
+bacnetWrite:AV35
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_36
+bacnetCur:AV36
+bacnetDesc:"Analog Value #36"
+bacnetWrite:AV36
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_37
+bacnetCur:AV37
+bacnetDesc:"Analog Value #37"
+bacnetWrite:AV37
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_38
+bacnetCur:AV38
+bacnetDesc:"Analog Value #38"
+bacnetWrite:AV38
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_40
+bacnetCur:AV40
+bacnetDesc:"Analog Value #40"
+bacnetWrite:AV40
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_41
+bacnetCur:AV41
+bacnetDesc:"Analog Value #41"
+bacnetWrite:AV41
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_42
+bacnetCur:AV42
+bacnetDesc:"Analog Value #42"
+bacnetWrite:AV42
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_43
+bacnetCur:AV43
+bacnetDesc:"Analog Value #43"
+bacnetWrite:AV43
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_44
+bacnetCur:AV44
+bacnetDesc:"Analog Value #44"
+bacnetWrite:AV44
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_45
+bacnetCur:AV45
+bacnetDesc:"Analog Value #45"
+bacnetWrite:AV45
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_50
+bacnetCur:AV50
+bacnetDesc:"Analog Value #50"
+bacnetWrite:AV50
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_52
+bacnetCur:AV52
+bacnetDesc:"Analog Value #52"
+bacnetWrite:AV52
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_53
+bacnetCur:AV53
+bacnetDesc:"Analog Value #53"
+bacnetWrite:AV53
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_54
+bacnetCur:AV54
+bacnetDesc:"Analog Value #54"
+bacnetWrite:AV54
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_55
+bacnetCur:AV55
+bacnetDesc:"Analog Value #55"
+bacnetWrite:AV55
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_56
+bacnetCur:AV56
+bacnetDesc:"Analog Value #56"
+bacnetWrite:AV56
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_57
+bacnetCur:AV57
+bacnetDesc:"Analog Value #57"
+bacnetWrite:AV57
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_58
+bacnetCur:AV58
+bacnetDesc:"Analog Value #58"
+bacnetWrite:AV58
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_59
+bacnetCur:AV59
+bacnetDesc:"Analog Value #59"
+bacnetWrite:AV59
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:AV_60
+bacnetCur:AV60
+bacnetDesc:"Analog Value #60"
+bacnetWrite:AV60
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:ApplicationID
+bacnetCur:AV51
+bacnetDesc:"GPe v1.0.0.14"
+bacnetWrite:AV51
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:CLGLOOP
+bacnetCur:AV20
+bacnetDesc:Cooling Loop
+bacnetWrite:AV20
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:CORREACFM
+bacnetCur:AV15
+bacnetDesc:Corrected EA CFM
+bacnetWrite:AV15
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:CORROACFM
+bacnetCur:AV12
+bacnetDesc:Corrected OA CFM
+bacnetWrite:AV12
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:DxStgDelay
+bacnetCur:AV30
+bacnetDesc:DX Stage Delay
+bacnetWrite:AV30
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:s
+writable
+---
+dis:EACFMSP
+bacnetCur:AV14
+bacnetDesc:EA CFM Setpoint
+bacnetWrite:AV14
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:EACORR
+bacnetCur:AV16
+bacnetDesc:EA Correction Factor
+bacnetWrite:AV16
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:ERVCLGLOOP
+bacnetCur:AV21
+bacnetDesc:ERV CLG LOOP
+bacnetWrite:AV21
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:ErvSASP
+bacnetCur:AV3
+bacnetDesc:ERV Supply Air Setpoint
+bacnetWrite:AV3
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:FreezeModeStpt
+bacnetCur:AV28
+bacnetDesc:Freeze Mode Setpoint
+bacnetWrite:AV28
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:HumiditySetpoint
+bacnetCur:AV4
+bacnetDesc:Humidity Setpoint
+bacnetWrite:AV4
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%RH"
+writable
+---
+dis:MAXCLGSASP
+bacnetCur:AV18
+bacnetDesc:Max Clg SA Setpoint
+bacnetWrite:AV18
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:MAXSTCSP
+bacnetCur:AV8
+bacnetDesc:Max Static Setpoint
+bacnetWrite:AV8
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"inH₂O"
+writable
+---
+dis:MAXVAVDMPPOS
+bacnetCur:AV9
+bacnetDesc:Max VAV Dmpr Pos
+bacnetWrite:AV9
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:MINCLGSASP
+bacnetCur:AV17
+bacnetDesc:Min Clg SA Setpoint
+bacnetWrite:AV17
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:MINSTCSP
+bacnetCur:AV7
+bacnetDesc:Min Static Setpoint
+bacnetWrite:AV7
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"inH₂O"
+writable
+---
+dis:MINVFDSPD
+bacnetCur:AV5
+bacnetDesc:Minimum VFD Speed
+bacnetWrite:AV5
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:MaxClgDemand
+bacnetCur:AV22
+bacnetDesc:Max Cooling Demand
+bacnetWrite:AV22
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:NORSASP
+bacnetCur:AV19
+bacnetDesc:Normal SA Setpt
+bacnetWrite:AV19
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:OACFMSP
+bacnetCur:AV11
+bacnetDesc:OA CFM Setpoint
+bacnetWrite:AV11
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:cfm
+writable
+---
+dis:OACORR
+bacnetCur:AV13
+bacnetDesc:OA Correction Factor
+bacnetWrite:AV13
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:RADMPLOLMT
+bacnetCur:AV39
+bacnetDesc:RA Damper Low Limit
+bacnetWrite:AV39
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:SARSETINC
+bacnetCur:AV26
+bacnetDesc:SA Reset Increment
+bacnetWrite:AV26
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:SARSETTIME
+bacnetCur:AV25
+bacnetDesc:SA Reset Interval
+bacnetWrite:AV25
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:min
+writable
+---
+dis:SASP
+bacnetCur:AV1
+bacnetDesc:Supply Air Setpoint
+bacnetWrite:AV1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:°F
+writable
+---
+dis:STCRSETHITRIG
+bacnetCur:AV48
+bacnetDesc:Static Reset High Trigger
+bacnetWrite:AV48
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:STCRSETINC
+bacnetCur:AV47
+bacnetDesc:Static Reset Increment
+bacnetWrite:AV47
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+writable
+---
+dis:STCRSETLOWTRIG
+bacnetCur:AV49
+bacnetDesc:Static Reset Low Trigger
+bacnetWrite:AV49
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:STCRSETTIME
+bacnetCur:AV46
+bacnetDesc:Static Reset Interval
+bacnetWrite:AV46
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:min
+writable
+---
+dis:STCSP
+bacnetCur:AV2
+bacnetDesc:Static Setpoint
+bacnetWrite:AV2
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"inH₂O"
+writable
+---
+dis:EALvgFanSts
+bacnetCur:BI17
+bacnetDesc:Exhaust Air Leaving Fan Status
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:Fan1Alarm
+bacnetCur:BI5
+bacnetDesc:Fan 1 Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:Fan2Alarm
+bacnetCur:BI8
+bacnetDesc:Fan 2 Alarm
+enum:"Normal,Alarm"
+kind:Bool
+point
+---
+dis:FanSts1
+bacnetCur:BI3
+bacnetDesc:Fan Status 1
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:FanSts2
+bacnetCur:BI6
+bacnetDesc:Fan Status 2
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:OALvgFanSts
+bacnetCur:BI61
+bacnetDesc:Outdoor Air Leaving Fan Status
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:DxClgStg1
+bacnetCur:BO6
+bacnetDesc:DX Cooling Stage 1
+bacnetWrite:BO6
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:DxClgStg2
+bacnetCur:BO7
+bacnetDesc:DX Cooling Stage 2
+bacnetWrite:BO7
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:"EALvgFanStart/Stop"
+bacnetCur:BO10
+bacnetDesc:"EA Leaving Fan Start/Stop"
+bacnetWrite:BO10
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:"Fan1S/S"
+bacnetCur:BO1
+bacnetDesc:"Fan 1 Start/Stop"
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"DISABLE,ENABLE"
+kind:Bool
+point
+writable
+---
+dis:"Fan2S/S"
+bacnetCur:BO3
+bacnetDesc:"Fan 2 Start/Stop"
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"DISABLE,ENABLE"
+kind:Bool
+point
+writable
+---
+dis:"OALvgFanStart/Stop"
+bacnetCur:BO12
+bacnetDesc:"OA Leaving Fan Start/Stop"
+bacnetWrite:BO12
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:BV_01
+bacnetCur:BV1
+bacnetDesc:"Binary Value #1"
+bacnetWrite:BV1
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_04
+bacnetCur:BV4
+bacnetDesc:"Binary Value #4"
+bacnetWrite:BV4
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_05
+bacnetCur:BV5
+bacnetDesc:"Binary Value #5"
+bacnetWrite:BV5
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_06
+bacnetCur:BV6
+bacnetDesc:"Binary Value #6"
+bacnetWrite:BV6
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_07
+bacnetCur:BV7
+bacnetDesc:"Binary Value #7"
+bacnetWrite:BV7
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_09
+bacnetCur:BV9
+bacnetDesc:"Binary Value #9"
+bacnetWrite:BV9
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_10
+bacnetCur:BV10
+bacnetDesc:"Binary Value #10"
+bacnetWrite:BV10
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_13
+bacnetCur:BV13
+bacnetDesc:"Binary Value #13"
+bacnetWrite:BV13
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_14
+bacnetCur:BV14
+bacnetDesc:"Binary Value #14"
+bacnetWrite:BV14
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_15
+bacnetCur:BV15
+bacnetDesc:"Binary Value #15"
+bacnetWrite:BV15
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_16
+bacnetCur:BV16
+bacnetDesc:"Binary Value #16"
+bacnetWrite:BV16
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_17
+bacnetCur:BV17
+bacnetDesc:"Binary Value #17"
+bacnetWrite:BV17
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_18
+bacnetCur:BV18
+bacnetDesc:"Binary Value #18"
+bacnetWrite:BV18
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_19
+bacnetCur:BV19
+bacnetDesc:"Binary Value #19"
+bacnetWrite:BV19
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:BV_20
+bacnetCur:BV20
+bacnetDesc:"Binary Value #20"
+bacnetWrite:BV20
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:DehumMode
+bacnetCur:BV11
+bacnetDesc:Dehumidify Mode
+bacnetWrite:BV11
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:DxMode
+bacnetCur:BV12
+bacnetDesc:DX Mode
+bacnetWrite:BV12
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:FreezeMode
+bacnetCur:BV8
+bacnetDesc:Freeze Mode
+bacnetWrite:BV8
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:OccupiedMode
+bacnetCur:BV3
+bacnetDesc:Occupied Mode
+bacnetWrite:BV3
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:StandbyMode
+bacnetCur:BV2
+bacnetDesc:Standby Mode
+bacnetWrite:BV2
+bacnetWriteLevel:16
+cmd
+enum:"Off,On"
+kind:Bool
+point
+writable
+---
+dis:FAN_MODE
+bacnetCur:MSV3
+bacnetDesc:Fan Auto-Manual Mode
+bacnetWrite:MSV3
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"AUTO,ON"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:MSV_05
+bacnetCur:MSV5
+bacnetDesc:"Multistate Variable #5"
+bacnetWrite:MSV5
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:InActive
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:OCCUPIED_MODE
+bacnetCur:MSV1
+bacnetDesc:Occupied Mode
+bacnetWrite:MSV1
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"OCCUPIED,STANDBY,UNOCCUPIED"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:STPT_MODE
+bacnetCur:MSV4
+bacnetDesc:User Setpoint Mode
+bacnetWrite:MSV4
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"Heat,Cool,Unocc Heat,Unocc Cool"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:SYSTEM_MODE
+bacnetCur:MSV2
+bacnetDesc:Control Mode
+bacnetWrite:MSV2
+bacnetWriteLevel:16
+cmd
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"OFF,AUTO,COOL,HEAT"
+kind:Str
+point
+writable
+writeConvert:"enumStrToNumber(self, false) +1"
+---
+dis:OccupiedSchedule
+bacnetCur:SCH2
+bacnetDesc:Occupied Schedule
+kind:Str
+point
+---
+dis:StandbySchedule
+bacnetCur:SCH1
+bacnetDesc:Standby Schedule
+kind:Str
+point
+---
+dis:TL_01
+bacnetHis:TL1
+kind:Number
+point
+---
+dis:TL_02
+bacnetHis:TL2
+kind:Number
+point
+---
+dis:TL_03
+bacnetHis:TL3
+kind:Number
+point
+---
+dis:TL_04
+bacnetHis:TL4
+kind:Number
+point
+---
+dis:TL_05
+bacnetHis:TL5
+kind:Number
+point
+---
+dis:TL_06
+bacnetHis:TL6
+kind:Number
+point
+---
+dis:TL_07
+bacnetHis:TL7
+kind:Number
+point
+---
+dis:TL_08
+bacnetHis:TL8
+kind:Number
+point
+---
+dis:TL_09
+bacnetHis:TL9
+kind:Number
+point
+---
+dis:TL_10
+bacnetHis:TL10
+kind:Number
+point

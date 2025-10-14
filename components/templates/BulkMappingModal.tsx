@@ -159,7 +159,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
       // Apply the template to each target CxAlloy equipment
       const targetEquipmentIds = Array.from(selectedTargetEquipment);
       for (const targetId of targetEquipmentIds) {
-        const targetEquipment = getFilteredCxAlloyEquipment().find(eq => eq.id === parseInt(targetId));
+        const targetEquipment = getFilteredCxAlloyEquipment().find(eq => eq.id === targetId);
         if (!targetEquipment) {
           console.warn('[BulkMappingModal] Target CxAlloy equipment not found:', targetId);
           continue;
@@ -193,10 +193,28 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
           const targetPoints = targetData.points;
           console.log('[BulkMappingModal] Target equipment', targetEquipment.name, 'has', targetPoints.length, 'points');
 
+          // Create a stub Equipment object from CxAlloyEquipment for template application
+          const stubEquipment = {
+            id: targetEquipment.id,
+            name: targetEquipment.name,
+            displayName: targetEquipment.name,
+            type: targetEquipment.type,
+            filename: '',
+            vendor: targetEquipment.vendor || '',
+            modelName: targetEquipment.model || '',
+            status: 'OPERATIONAL' as const,
+            connectionState: 'open' as const,
+            connectionStatus: 'ok',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            points: targetPoints,
+            totalPoints: targetPoints.length
+          };
+
           // Apply the template to the target equipment
           const application = await UnifiedTemplateService.applyTemplate(
             template,
-            targetEquipment,
+            stubEquipment as any,
             targetPoints,
             matchingOptions,
             'bulk-template-application'
@@ -454,7 +472,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                             />
                             <div className="flex-1">
                               <div className="font-medium text-sm">{equipment.name}</div>
-                              <div className="text-xs text-gray-500">{equipment.type} • {equipment.totalPoints} points</div>
+                              <div className="text-xs text-gray-500">{equipment.type}</div>
                             </div>
                             {selectedTemplate && equipment.type === selectedTemplate.equipmentType && (
                               <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Match</span>
@@ -597,7 +615,7 @@ export const BulkMappingModal: React.FC<BulkMappingModalProps> = ({
                           <div className="font-medium text-blue-800">Apply Template To ({selectedTargetEquipment.size} equipment):</div>
                           <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
                             {Array.from(selectedTargetEquipment).map(equipmentId => {
-                              const equipment = getFilteredCxAlloyEquipment().find(eq => eq.id === parseInt(equipmentId));
+                              const equipment = getFilteredCxAlloyEquipment().find(eq => eq.id === equipmentId);
                               return equipment ? (
                                 <div key={equipmentId} className="text-blue-700 text-xs flex justify-between">
                                   <span>{equipment.name}</span>

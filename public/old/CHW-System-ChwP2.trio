@@ -1,0 +1,802 @@
+dis:AI1 ACT
+bacnetCur:AI0
+kind:Number
+point
+unit:"%"
+---
+dis:AI2 ACT
+bacnetCur:AI1
+kind:Number
+point
+unit:"%"
+---
+dis:AO1 CMD
+bacnetCur:AO0
+bacnetWrite:AO0
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:AO2 CMD
+bacnetCur:AO1
+bacnetWrite:AO1
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:ACCEL1 TIME
+bacnetCur:AV23
+kind:Number
+point
+unit:s
+---
+dis:AO1 ACT
+bacnetCur:AV21
+kind:Number
+point
+unit:"%"
+---
+dis:AO2 ACT
+bacnetCur:AV22
+kind:Number
+point
+unit:"%"
+---
+dis:CUR OUT PCT
+bacnetCur:AV32
+kind:Number
+point
+unit:"%"
+---
+dis:CURRENT
+bacnetCur:AV4
+kind:Number
+point
+unit:A
+---
+dis:DC BUS VOLT
+bacnetCur:AV2
+kind:Number
+point
+unit:V
+---
+dis:DECEL1 TIME
+bacnetCur:AV24
+kind:Number
+point
+unit:s
+---
+dis:DRIVE TEMP
+bacnetCur:AV7
+kind:Number
+point
+unit:"%"
+---
+dis:EXT PID DEV MON - 550
+bacnetCur:AV13
+kind:Number
+point
+unit:"%"
+---
+dis:EXT PID DEV MON - 580
+bacnetCur:AV64
+kind:Number
+point
+unit:"%"
+---
+dis:EXT PID FBK MON - 550
+bacnetCur:AV12
+kind:Number
+point
+unit:"%"
+---
+dis:EXT PID FBK MON - 580
+bacnetCur:AV55
+kind:Number
+point
+unit:"%"
+---
+dis:EXT PID ITIME
+bacnetCur:AV61
+kind:Number
+point
+unit:s
+---
+dis:EXT PID OUT
+bacnetCur:AV59
+kind:Number
+point
+unit:"%"
+---
+dis:EXT PID PGAIN
+bacnetCur:AV60
+kind:Number
+point
+---
+dis:EXT PID STPT RD
+bacnetCur:AV56
+kind:Number
+point
+unit:"%"
+---
+dis:FRQ OUT MAX
+bacnetCur:AV30
+kind:Number
+point
+unit:Hz
+---
+dis:FRQ OUT MIN
+bacnetCur:AV29
+kind:Number
+point
+unit:Hz
+---
+dis:INPUT REF1
+bacnetCur:AV16
+bacnetWrite:AV16
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:INPUT REF2
+bacnetCur:AV17
+bacnetWrite:AV17
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:"KWH (NR)"
+bacnetCur:AV9
+kind:Number
+point
+unit:kWh
+---
+dis:"KWH (R)"
+bacnetCur:AV8
+kind:Number
+point
+unit:kWh
+---
+dis:KWH CUR DAY
+bacnetCur:AV132
+kind:Number
+point
+unit:kWh
+---
+dis:KWH CUR HR
+bacnetCur:AV130
+kind:Number
+point
+unit:kWh
+---
+dis:KWH PRV DAY
+bacnetCur:AV133
+kind:Number
+point
+unit:kWh
+---
+dis:KWH PRV HR
+bacnetCur:AV131
+kind:Number
+point
+unit:kWh
+---
+dis:LAST FLT
+bacnetCur:AV18
+kind:Number
+point
+---
+dis:MAX CURRENT
+bacnetCur:AV33
+kind:Number
+point
+unit:A
+---
+dis:MBOX DATA
+bacnetCur:AV26
+kind:Number
+point
+---
+dis:MBOX PARAM
+bacnetCur:AV25
+kind:Number
+point
+---
+dis:MOTOR TEMP
+bacnetCur:AV15
+kind:Number
+point
+unit:°C
+---
+dis:OUTPUT FREQ
+bacnetCur:AV1
+kind:Number
+point
+unit:Hz
+---
+dis:OUTPUT SPEED
+bacnetCur:AV0
+kind:Number
+point
+unit:rpm
+---
+dis:OUTPUT VOLT
+bacnetCur:AV3
+kind:Number
+point
+unit:V
+---
+dis:PID SET1 ITIME
+bacnetCur:AV46
+kind:Number
+point
+unit:s
+---
+dis:PID SET1 PGAIN
+bacnetCur:AV45
+kind:Number
+point
+---
+dis:PID SET2 ITIME
+bacnetCur:AV54
+kind:Number
+point
+unit:s
+---
+dis:PID SET2 PGAIN
+bacnetCur:AV53
+kind:Number
+point
+---
+dis:POWER
+bacnetCur:AV6
+kind:Number
+point
+unit:kW
+---
+dis:PRC PID DEV MON - 550
+bacnetCur:AV11
+kind:Number
+point
+unit:"%"
+---
+dis:PRC PID DEV MON - 580
+bacnetCur:AV49
+kind:Number
+point
+unit:"%"
+---
+dis:PRC PID FBK MON - 550
+bacnetCur:AV10
+kind:Number
+point
+unit:"%"
+---
+dis:PRC PID FBK MON - 580
+bacnetCur:AV40
+kind:Number
+point
+unit:"%"
+---
+dis:PRC PID FBK WR
+bacnetCur:AV43
+bacnetWrite:AV43
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:PRC PID OUT
+bacnetCur:AV44
+kind:Number
+point
+unit:"%"
+---
+dis:PRC PID STPT RD
+bacnetCur:AV41
+kind:Number
+point
+unit:"%"
+---
+dis:PRC PID STPT WR
+bacnetCur:AV42
+bacnetWrite:AV42
+bacnetWriteLevel:16
+cmd
+kind:Number
+point
+unit:"%"
+writable
+---
+dis:PREV FLT 1
+bacnetCur:AV19
+kind:Number
+point
+---
+dis:PREV FLT 2
+bacnetCur:AV20
+kind:Number
+point
+---
+dis:"RUN TIME (NR)"
+bacnetCur:AV14
+kind:Number
+point
+unit:h
+---
+dis:SPD OUT PCT
+bacnetCur:AV31
+kind:Number
+point
+unit:"%"
+---
+dis:TORQUE
+bacnetCur:AV5
+kind:Number
+point
+unit:"%"
+---
+dis:DI1 ACT
+bacnetCur:BI6
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:DI2 ACT
+bacnetCur:BI7
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:DI3 ACT
+bacnetCur:BI8
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:DI4 ACT
+bacnetCur:BI9
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:DI5 ACT
+bacnetCur:BI10
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:DI6 ACT
+bacnetCur:BI11
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO1 ACT
+bacnetCur:BI0
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO2 ACT
+bacnetCur:BI1
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO3 ACT
+bacnetCur:BI2
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO4 ACT
+bacnetCur:BI3
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO5 ACT
+bacnetCur:BI4
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO6 ACT
+bacnetCur:BI5
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:RO1 CMD
+bacnetCur:BO0
+bacnetWrite:BO0
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:RO2 CMD
+bacnetCur:BO1
+bacnetWrite:BO1
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:RO3 CMD
+bacnetCur:BO2
+bacnetWrite:BO2
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:RO4 CMD
+bacnetCur:BO3
+bacnetWrite:BO3
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:RO5 CMD
+bacnetCur:BO4
+bacnetWrite:BO4
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:RO6 CMD
+bacnetCur:BO5
+bacnetWrite:BO5
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:ALARM ACT
+bacnetCur:BV5
+enum:"OK,ALARM"
+kind:Bool
+point
+---
+dis:AT SETPOINT
+bacnetCur:BV8
+enum:"NO,YES"
+kind:Bool
+point
+---
+dis:CTL OVERRIDE ACT
+bacnetCur:BV19
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:CTL OVERRIDE CMD
+bacnetCur:BV18
+bacnetWrite:BV18
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:"EXT 1/2 ACT"
+bacnetCur:BV3
+enum:"EXT1,EXT2"
+kind:Bool
+point
+---
+dis:"EXT 1/2 CMD"
+bacnetCur:BV13
+bacnetWrite:BV13
+bacnetWriteLevel:16
+cmd
+enum:"EXT1,EXT2"
+kind:Bool
+point
+writable
+---
+dis:FAULT ACT
+bacnetCur:BV2
+enum:"OK,FAULT"
+kind:Bool
+point
+---
+dis:FAULT RESET
+bacnetCur:BV14
+bacnetWrite:BV14
+bacnetWriteLevel:16
+cmd
+enum:"NO,RESET"
+kind:Bool
+point
+writable
+---
+dis:"FWD/REV ACT"
+bacnetCur:BV1
+enum:"FWD,REV"
+kind:Bool
+point
+---
+dis:"FWD/REV CMD"
+bacnetCur:BV11
+bacnetWrite:BV11
+bacnetWriteLevel:16
+cmd
+enum:"FWD,REV"
+kind:Bool
+point
+writable
+---
+dis:"HAND/AUTO ACT"
+bacnetCur:BV4
+enum:"AUTO,HAND"
+kind:Bool
+point
+---
+dis:LOCK PANEL
+bacnetCur:BV17
+enum:"UNLOCK,LOCK"
+kind:Bool
+point
+---
+dis:MBOX READ
+bacnetCur:BV15
+enum:"RESET,READ"
+kind:Bool
+point
+---
+dis:MBOX WRITE
+bacnetCur:BV16
+enum:"RESET,WRITE"
+kind:Bool
+point
+---
+dis:MTR HTG CMD
+bacnetCur:BV28
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:MTR HTG MON
+bacnetCur:BV29
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:OL MON
+bacnetCur:BV27
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:PAR SAV CMD
+bacnetCur:BV39
+enum:"DONE,SAVE"
+kind:Bool
+point
+---
+dis:PID SET2 SEL
+bacnetCur:BV40
+enum:"SET1,SET2"
+kind:Bool
+point
+---
+dis:READY TO RUN
+bacnetCur:BV7
+enum:"NOT READY,READY"
+kind:Bool
+point
+---
+dis:RUN ENA ACT
+bacnetCur:BV9
+enum:"DISABLE,ENABLE"
+kind:Bool
+point
+---
+dis:RUN PERMISSIVE CMD
+bacnetCur:BV12
+bacnetWrite:BV12
+bacnetWriteLevel:16
+cmd
+enum:"DISABLE,ENABLE"
+kind:Bool
+point
+writable
+---
+dis:"RUN/STOP ACT"
+bacnetCur:BV0
+enum:"STOP,RUN"
+kind:Bool
+point
+---
+dis:"RUN/STOP CMD"
+bacnetCur:BV10
+bacnetWrite:BV10
+bacnetWriteLevel:16
+cmd
+enum:"STOP,RUN"
+kind:Bool
+point
+writable
+---
+dis:START INTERLOCK 1
+bacnetCur:BV20
+bacnetWrite:BV20
+bacnetWriteLevel:16
+cmd
+enum:"DISABLE,ENABLE"
+kind:Bool
+point
+writable
+---
+dis:START INTERLOCK 2
+bacnetCur:BV21
+bacnetWrite:BV21
+bacnetWriteLevel:16
+cmd
+enum:"DISABLE,ENABLE"
+kind:Bool
+point
+writable
+---
+dis:STARTED MON
+bacnetCur:BV24
+enum:"NO START,START"
+kind:Bool
+point
+---
+dis:STO MON
+bacnetCur:BV25
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:UL MON
+bacnetCur:BV26
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:USER0 CMD
+bacnetCur:BV34
+bacnetWrite:BV34
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:USER0 MON
+bacnetCur:BV30
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:USER1 CMD
+bacnetCur:BV35
+bacnetWrite:BV35
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:USER1 MON
+bacnetCur:BV31
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:USER2 CMD
+bacnetCur:BV36
+bacnetWrite:BV36
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:USER2 MON
+bacnetCur:BV32
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:USER3 CMD
+bacnetCur:BV37
+bacnetWrite:BV37
+bacnetWriteLevel:16
+cmd
+enum:"OFF,ON"
+kind:Bool
+point
+writable
+---
+dis:USER3 MON
+bacnetCur:BV33
+enum:"OFF,ON"
+kind:Bool
+point
+---
+dis:ACTIVE FAULT 1
+bacnetCur:MSV1
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"NONE,COMM ERROR,OVERCURRENT,OVERTEMPERATURE,OVERSPEED,OVERVOLTAGE,UNDERVOLTAGE,SHORT CIRC,GROUND FAULT,MOT OVERLOAD,INV OVERLOAD,MOT UNDERLOAD,EXT FAULT,OP INTERFACE ERROR,CONFIG ERROR,FEEDBACK FAILURE,OUTPUT PHASE,MOTOR STALL,POWER UNIT ERROR,INPUT PHASE,INTERNAL FAILURE,STO ACTIVE,OTHER"
+kind:Str
+point
+---
+dis:ACTIVE FAULT 2
+bacnetCur:MSV2
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"NONE,COMM ERROR,OVERCURRENT,OVERTEMPERATURE,OVERSPEED,OVERVOLTAGE,UNDERVOLTAGE,SHORT CIRC,GROUND FAULT,MOT OVERLOAD,INV OVERLOAD,MOT UNDERLOAD,EXT FAULT,OP INTERFACE ERROR,CONFIG ERROR,FEEDBACK FAILURE,OUTPUT PHASE,MOTOR STALL,POWER UNIT ERROR,INPUT PHASE,INTERNAL FAILURE,STO ACTIVE,OTHER"
+kind:Str
+point
+---
+dis:ACTIVE FAULT 3
+bacnetCur:MSV3
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"NONE,COMM ERROR,OVERCURRENT,OVERTEMPERATURE,OVERSPEED,OVERVOLTAGE,UNDERVOLTAGE,SHORT CIRC,GROUND FAULT,MOT OVERLOAD,INV OVERLOAD,MOT UNDERLOAD,EXT FAULT,OP INTERFACE ERROR,CONFIG ERROR,FEEDBACK FAILURE,OUTPUT PHASE,MOTOR STALL,POWER UNIT ERROR,INPUT PHASE,INTERNAL FAILURE,STO ACTIVE,OTHER"
+kind:Str
+point
+---
+dis:ACTIVE WARNING 1
+bacnetCur:MSV4
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"NONE,COMM ERROR,CURRENT LIMIT,OVERTEMPERATURE,START INTERLOCK 1,START INTERLOCK 2,START INTERLOCK 3,START INTERLOCK 4,RUN PERMISSIVE,INTERNAL WARNING,START DELAY,OTHER"
+kind:Str
+point
+---
+dis:ACTIVE WARNING 2
+bacnetCur:MSV5
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"NONE,COMM ERROR,CURRENT LIMIT,OVERTEMPERATURE,START INTERLOCK 1,START INTERLOCK 2,START INTERLOCK 3,START INTERLOCK 4,RUN PERMISSIVE,INTERNAL WARNING,START DELAY,OTHER"
+kind:Str
+point
+---
+dis:ACTIVE WARNING 3
+bacnetCur:MSV6
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"NONE,COMM ERROR,CURRENT LIMIT,OVERTEMPERATURE,START INTERLOCK 1,START INTERLOCK 2,START INTERLOCK 3,START INTERLOCK 4,RUN PERMISSIVE,INTERNAL WARNING,START DELAY,OTHER"
+kind:Str
+point
+---
+dis:HAND_OFF_AUTO
+bacnetCur:MSV0
+curConvert:"-1 enumNumberToStr(self, false)"
+enum:"OFF,HAND,AUTO,OVERRIDE"
+kind:Str
+point

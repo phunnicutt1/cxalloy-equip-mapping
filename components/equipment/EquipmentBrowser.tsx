@@ -150,8 +150,10 @@ export function EquipmentBrowser() {
     selectedEquipment,
     cxAlloyEquipment,
     equipmentMappings,
+    equipmentFilter,
     setViewMode,
     setSearchTerm,
+    setEquipmentFilter,
     setSelectedEquipment,
     getEquipmentByType,
     getFilteredEquipment,
@@ -160,7 +162,6 @@ export function EquipmentBrowser() {
   } = useAppStore();
 
   const [expandedGroups, setExpandedGroups] = React.useState<Set<string>>(new Set());
-  const [equipmentFilter, setEquipmentFilter] = React.useState<'all' | 'mapped' | 'unmapped'>('all');
   const [templateModal, setTemplateModal] = React.useState<{
     isOpen: boolean;
     mode: 'create' | 'edit';
@@ -176,7 +177,8 @@ export function EquipmentBrowser() {
     if (viewMode.left === 'templates') {
       fetchEquipmentTemplates();
     }
-  }, [viewMode.left, fetchEquipmentTemplates]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode.left]);
 
   const equipmentByType = getEquipmentByType();
   const filteredEquipment = getFilteredEquipment();
@@ -194,13 +196,16 @@ export function EquipmentBrowser() {
   // Auto-expand groups with filtered results
   React.useEffect(() => {
     if (searchTerm) {
+      // Get fresh filtered equipment inside the effect
+      const currentFiltered = getFilteredEquipment();
       const typesWithResults = new Set<string>();
-      filteredEquipment.forEach(eq => {
+      currentFiltered.forEach(eq => {
         if (eq.type) typesWithResults.add(eq.type);
       });
       setExpandedGroups(typesWithResults);
     }
-  }, [searchTerm, filteredEquipment]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   const handleSelectEquipment = (equipment: Equipment) => {
     setSelectedEquipment(equipment);

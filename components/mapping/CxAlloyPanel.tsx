@@ -319,7 +319,7 @@ export function CxAlloyPanel() {
         bacnetEquipmentId: selectedEquipment.id,
         bacnetEquipmentName: selectedEquipment.name,
         bacnetEquipmentType: selectedEquipment.type || 'Unknown',
-        cxalloyEquipmentId: Number(cxAlloyEquipmentItem.id),
+        cxAlloyEquipmentId: cxAlloyEquipmentItem.id,
         cxAlloyEquipmentName: cxAlloyEquipmentItem.name,
         cxalloyCategory: cxAlloyEquipmentItem.type as any,
         mappingType: 'manual' as const,
@@ -336,7 +336,7 @@ export function CxAlloyPanel() {
         updatedAt: new Date(),
         createdBy: 'manual-mapping',
         mappingMethod: 'manual' as const,
-        mappedAt: new Date()
+        mappedAt: new Date().toISOString()
       };
 
       // Add the mapping to the store
@@ -454,9 +454,9 @@ export function CxAlloyPanel() {
       
       if (data.success) {
         console.log('[CxAlloyPanel] Created new CxAlloy equipment:', data.equipment);
-        
+
         // Refresh CxAlloy equipment list to include the new equipment
-        const equipmentResponse = await fetch('/api/cxalloy/equipment?projectId=2');
+        const equipmentResponse = await fetch('/api/cxalloy/equipment?projectId=2&useMock=true');
         const equipmentData = await equipmentResponse.json();
         if (equipmentData.success) {
           setCxAlloyEquipment(equipmentData.equipment);
@@ -724,7 +724,8 @@ function CreateMappingTemplateDialog({
       setTemplateName(`${cxalloyEquipment.type} - ${cxalloyEquipment.name} Template`);
       setTemplateDescription(`Template based on ${bacnetEquipment?.name} → ${cxalloyEquipment.name} mapping with ${selectedPoints.length} tracked points`);
     }
-  }, [isOpen, cxalloyEquipment, bacnetEquipment, selectedPoints]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, cxalloyEquipment?.id, bacnetEquipment?.id, selectedPoints.length]);
 
   const handleSave = async () => {
     console.log('[CreateMappingTemplateDialog] handleSave called');

@@ -1,0 +1,3038 @@
+dis:Act Setpt
+bacnetCur:AI114
+bacnetDesc:Act Setpt
+kind:Number
+point
+unit:°F
+---
+dis:"Auto-Manager Transfer:"
+bacnetCur:AI105
+bacnetDesc:"Auto-Manager Transfer:"
+kind:Number
+point
+---
+dis:BST Fire Rate
+bacnetCur:AI112
+bacnetDesc:BST Fire Rate
+kind:Number
+point
+unit:"%"
+---
+dis:"BST Outdoor Temp:"
+bacnetCur:AI111
+bacnetDesc:"BST Outdoor Temp:"
+kind:Number
+point
+unit:°F
+---
+dis:Communication Address
+bacnetCur:AI300
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI400
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI500
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI600
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI700
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI800
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI900
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1000
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1100
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1200
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1300
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1400
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1500
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1600
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1700
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:Communication Address
+bacnetCur:AI1800
+bacnetDesc:Communication Address
+kind:Number
+point
+---
+dis:"Communication Address:"
+bacnetCur:AI109
+bacnetDesc:"Communication Address:"
+kind:Number
+point
+---
+dis:"DHW Header Temp :"
+bacnetCur:AI126
+bacnetDesc:"DHW Header Temp :"
+kind:Number
+point
+unit:°F
+---
+dis:"DHW Header Temp:"
+bacnetCur:AI120
+bacnetDesc:"DHW Header Temp:"
+kind:Number
+point
+unit:°F
+---
+dis:"DHW Setpoint:"
+bacnetCur:AI121
+bacnetDesc:"DHW Setpoint:"
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI306
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI406
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI506
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI606
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI706
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI806
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI906
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1006
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1106
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1206
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1306
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1406
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1506
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1606
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1706
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Exhaust Temperature
+bacnetCur:AI1806
+bacnetDesc:Exhaust Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI304
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI404
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI504
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI604
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI704
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI804
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI904
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1004
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1104
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1204
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1304
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1404
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1504
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1604
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1704
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:FFWD Temperature
+bacnetCur:AI1804
+bacnetDesc:FFWD Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Fault Code
+bacnetCur:AI302
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI402
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI502
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI602
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI702
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI802
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI902
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1002
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1102
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1202
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1302
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1402
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1502
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1602
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1702
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fault Code
+bacnetCur:AI1802
+bacnetDesc:Fault Code
+kind:Number
+point
+---
+dis:Fire Rate In
+bacnetCur:AI309
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI409
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI509
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI609
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI709
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI809
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI909
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1009
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1109
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1209
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1309
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1409
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1509
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1609
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1709
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate In
+bacnetCur:AI1809
+bacnetDesc:Fire Rate In
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI310
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI410
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI510
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI610
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI710
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI810
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI910
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1010
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1110
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1210
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1310
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1410
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1510
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1610
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1710
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Fire Rate Out
+bacnetCur:AI1810
+bacnetDesc:Fire Rate Out
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI308
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI408
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI508
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI608
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI708
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI808
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI908
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1008
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1108
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1208
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1308
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1408
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1508
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1608
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1708
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:Flame Strength
+bacnetCur:AI1808
+bacnetDesc:Flame Strength
+kind:Number
+point
+unit:"%"
+---
+dis:"Fuel Type:"
+bacnetCur:AI122
+bacnetDesc:"Fuel Type:"
+kind:Number
+point
+---
+dis:Inlet Air Temperature
+bacnetCur:AI307
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI407
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI507
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI607
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI707
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI807
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI907
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1007
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1107
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1207
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1307
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1407
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1507
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1607
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1707
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Air Temperature
+bacnetCur:AI1807
+bacnetDesc:Inlet Air Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI305
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI405
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI505
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI605
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI705
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI805
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI905
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1005
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1105
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1205
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1305
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1405
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1505
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1605
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1705
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Inlet Temperature
+bacnetCur:AI1805
+bacnetDesc:Inlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:"Loop Return Temp:"
+bacnetCur:AI125
+bacnetDesc:"Loop Return Temp:"
+kind:Number
+point
+unit:°F
+---
+dis:Net Remote Setpoint
+bacnetCur:AI314
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI414
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI514
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI614
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI714
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI814
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI914
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1014
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1114
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1214
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1314
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1414
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1514
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1614
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1714
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Net Remote Setpoint
+bacnetCur:AI1814
+bacnetDesc:Net Remote Setpoint
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI134
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI135
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI136
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI137
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI138
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI139
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI140
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI141
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI142
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI143
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI144
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI145
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI146
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI147
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI148
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI149
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI150
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI151
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI154
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI155
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI156
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AI157
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:"Number of SmartPlates:"
+bacnetCur:AI133
+bacnetDesc:"Number of SmartPlates:"
+kind:Number
+point
+---
+dis:Outlet Temperature
+bacnetCur:AI303
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI403
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI503
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI603
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI703
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI803
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI903
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1003
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1103
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1203
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1303
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1403
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1503
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1603
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1703
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:Outlet Temperature
+bacnetCur:AI1803
+bacnetDesc:Outlet Temperature
+kind:Number
+point
+unit:°F
+---
+dis:OutletTemp
+bacnetCur:AI106
+bacnetDesc:OutletTemp
+kind:Number
+point
+unit:°F
+---
+dis:Oxygen Lvel
+bacnetCur:AI319
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI419
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI519
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI619
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI719
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI819
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI919
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1019
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1119
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1219
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1319
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1419
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1519
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1619
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1719
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Oxygen Lvel
+bacnetCur:AI1819
+bacnetDesc:Oxygen Lvel
+kind:Number
+point
+unit:"%"
+---
+dis:Run Cycle Lower
+bacnetCur:AI316
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI416
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI516
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI616
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI716
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI816
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI916
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1016
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1116
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1216
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1316
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1416
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1516
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1616
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1716
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Lower
+bacnetCur:AI1816
+bacnetDesc:Run Cycle Lower
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI315
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI415
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI515
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI615
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI715
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI815
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI915
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1015
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1115
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1215
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1315
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1415
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1515
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1615
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1715
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Cycle Upper
+bacnetCur:AI1815
+bacnetDesc:Run Cycle Upper
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI318
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI418
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI518
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI618
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI718
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI818
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI918
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1018
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1118
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1218
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1318
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1418
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1518
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1618
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1718
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Lower
+bacnetCur:AI1818
+bacnetDesc:Run Hours Lower
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI317
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI417
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI517
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI617
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI717
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI817
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI917
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1017
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1117
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1217
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1317
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1417
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1517
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1617
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1717
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:Run Hours Upper
+bacnetCur:AI1817
+bacnetDesc:Run Hours Upper
+kind:Number
+point
+---
+dis:"SH Next On Valve Pos:"
+bacnetCur:AI115
+bacnetDesc:"SH Next On Valve Pos:"
+kind:Number
+point
+unit:"%"
+---
+dis:"SH Operating Mode:"
+bacnetCur:AI119
+bacnetDesc:"SH Operating Mode:"
+kind:Number
+point
+---
+dis:"SH Setpoint:"
+bacnetCur:AI101
+bacnetDesc:"SH Setpoint:"
+kind:Number
+point
+unit:°F
+---
+dis:SH Setpt Hi Lim
+bacnetCur:AI116
+bacnetDesc:SH Setpt Hi Lim
+kind:Number
+point
+unit:°F
+---
+dis:"SH Setpt Low Limit:"
+bacnetCur:AI117
+bacnetDesc:"SH Setpt Low Limit:"
+kind:Number
+point
+unit:°F
+---
+dis:"SH Temp Hi Limit:"
+bacnetCur:AI118
+bacnetDesc:"SH Temp Hi Limit:"
+kind:Number
+point
+unit:°F
+---
+dis:SP1 Boiler Inlet
+bacnetCur:AI3507
+bacnetDesc:SP1 Boiler Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP1 DHW Inlet
+bacnetCur:AI3505
+bacnetDesc:SP1 DHW Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP1 Delta Pres
+bacnetCur:AI3504
+bacnetDesc:SP1 Delta Pres
+kind:Number
+point
+---
+dis:"SP1 Error #"
+bacnetCur:AI3503
+bacnetDesc:"SP1 Error #"
+kind:Number
+point
+---
+dis:SP1 Flow
+bacnetCur:AI3506
+bacnetDesc:SP1 Flow
+kind:Number
+point
+---
+dis:SP1 Outlet
+bacnetCur:AI3500
+bacnetDesc:SP1 Outlet
+kind:Number
+point
+---
+dis:SP1 Setpoint
+bacnetCur:AI3502
+bacnetDesc:SP1 Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SP1 Valve Pos
+bacnetCur:AI3501
+bacnetDesc:SP1 Valve Pos
+kind:Number
+point
+unit:"%"
+---
+dis:SP2 Boiler Inlet
+bacnetCur:AI3607
+bacnetDesc:SP2 Boiler Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP2 DHW Inlet
+bacnetCur:AI3605
+bacnetDesc:SP2 DHW Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP2 Delta Pres
+bacnetCur:AI3604
+bacnetDesc:SP2 Delta Pres
+kind:Number
+point
+---
+dis:"SP2 Error #"
+bacnetCur:AI3603
+bacnetDesc:"SP2 Error #"
+kind:Number
+point
+---
+dis:SP2 Flow
+bacnetCur:AI3606
+bacnetDesc:SP2 Flow
+kind:Number
+point
+---
+dis:SP2 Outlet
+bacnetCur:AI3600
+bacnetDesc:SP2 Outlet
+kind:Number
+point
+---
+dis:SP2 Setpoint
+bacnetCur:AI3602
+bacnetDesc:SP2 Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SP2 Valve Pos
+bacnetCur:AI3601
+bacnetDesc:SP2 Valve Pos
+kind:Number
+point
+unit:"%"
+---
+dis:SP3 Boiler Inlet
+bacnetCur:AI3707
+bacnetDesc:SP3 Boiler Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP3 DHW Inlet
+bacnetCur:AI3705
+bacnetDesc:SP3 DHW Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP3 Delta Pres
+bacnetCur:AI3704
+bacnetDesc:SP3 Delta Pres
+kind:Number
+point
+---
+dis:"SP3 Error #"
+bacnetCur:AI3703
+bacnetDesc:"SP3 Error #"
+kind:Number
+point
+---
+dis:SP3 Flow
+bacnetCur:AI3706
+bacnetDesc:SP3 Flow
+kind:Number
+point
+---
+dis:SP3 Outlet
+bacnetCur:AI3700
+bacnetDesc:SP3 Outlet
+kind:Number
+point
+---
+dis:SP3 Setpoint
+bacnetCur:AI3702
+bacnetDesc:SP3 Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SP3 Valve Pos
+bacnetCur:AI3701
+bacnetDesc:SP3 Valve Pos
+kind:Number
+point
+unit:"%"
+---
+dis:SP4 Boiler Inlet
+bacnetCur:AI3807
+bacnetDesc:SP4 Boiler Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP4 DHW Inlet
+bacnetCur:AI3805
+bacnetDesc:SP4 DHW Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP4 Delta Pres
+bacnetCur:AI3804
+bacnetDesc:SP4 Delta Pres
+kind:Number
+point
+---
+dis:"SP4 Error #"
+bacnetCur:AI3803
+bacnetDesc:"SP4 Error #"
+kind:Number
+point
+---
+dis:SP4 Flow
+bacnetCur:AI3806
+bacnetDesc:SP4 Flow
+kind:Number
+point
+---
+dis:SP4 Outlet
+bacnetCur:AI3800
+bacnetDesc:SP4 Outlet
+kind:Number
+point
+---
+dis:SP4 Setpoint
+bacnetCur:AI3802
+bacnetDesc:SP4 Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SP4 Valve Pos
+bacnetCur:AI3801
+bacnetDesc:SP4 Valve Pos
+kind:Number
+point
+unit:"%"
+---
+dis:SP5 Boiler Inlet
+bacnetCur:AI3907
+bacnetDesc:SP5 Boiler Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP5 DHW Inlet
+bacnetCur:AI3905
+bacnetDesc:SP5 DHW Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP5 Delta Pres
+bacnetCur:AI3904
+bacnetDesc:SP5 Delta Pres
+kind:Number
+point
+---
+dis:"SP5 Error #"
+bacnetCur:AI3903
+bacnetDesc:"SP5 Error #"
+kind:Number
+point
+---
+dis:SP5 Flow
+bacnetCur:AI3906
+bacnetDesc:SP5 Flow
+kind:Number
+point
+---
+dis:SP5 Outlet
+bacnetCur:AI3900
+bacnetDesc:SP5 Outlet
+kind:Number
+point
+---
+dis:SP5 Setpoint
+bacnetCur:AI3902
+bacnetDesc:SP5 Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SP5 Valve Pos
+bacnetCur:AI3901
+bacnetDesc:SP5 Valve Pos
+kind:Number
+point
+unit:"%"
+---
+dis:SP6 Boiler Inlet
+bacnetCur:AI4007
+bacnetDesc:SP6 Boiler Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP6 DHW Inlet
+bacnetCur:AI4005
+bacnetDesc:SP6 DHW Inlet
+kind:Number
+point
+unit:°F
+---
+dis:SP6 Delta Pres
+bacnetCur:AI4004
+bacnetDesc:SP6 Delta Pres
+kind:Number
+point
+---
+dis:"SP6 Error #"
+bacnetCur:AI4003
+bacnetDesc:"SP6 Error #"
+kind:Number
+point
+---
+dis:SP6 Flow
+bacnetCur:AI4006
+bacnetDesc:SP6 Flow
+kind:Number
+point
+---
+dis:SP6 Outlet
+bacnetCur:AI4000
+bacnetDesc:SP6 Outlet
+kind:Number
+point
+---
+dis:SP6 Setpoint
+bacnetCur:AI4002
+bacnetDesc:SP6 Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:SP6 Valve Pos
+bacnetCur:AI4001
+bacnetDesc:SP6 Valve Pos
+kind:Number
+point
+unit:"%"
+---
+dis:"Setback Setpoint:"
+bacnetCur:AI102
+bacnetDesc:"Setback Setpoint:"
+kind:Number
+point
+unit:°F
+---
+dis:"Setback Start Time:"
+bacnetCur:AI103
+bacnetDesc:"Setback Start Time:"
+kind:Number
+point
+---
+dis:"Setback Stop Time:"
+bacnetCur:AI104
+bacnetDesc:"Setback Stop Time:"
+kind:Number
+point
+---
+dis:SmartPlate Error Number
+bacnetCur:AI130
+bacnetDesc:SmartPlate Error Number
+kind:Number
+point
+---
+dis:SmartPlate Outlet
+bacnetCur:AI127
+bacnetDesc:SmartPlate Outlet
+kind:Number
+point
+---
+dis:"SmartPlate Pmp Unit Addr:"
+bacnetCur:AI131
+bacnetDesc:"SmartPlate Pmp Unit Addr:"
+kind:Number
+point
+---
+dis:SmartPlate Setpoint
+bacnetCur:AI129
+bacnetDesc:SmartPlate Setpoint
+kind:Number
+point
+---
+dis:"SmartPlate Start Address:"
+bacnetCur:AI132
+bacnetDesc:"SmartPlate Start Address:"
+kind:Number
+point
+---
+dis:SmartPlate Valve Pos
+bacnetCur:AI128
+bacnetDesc:SmartPlate Valve Pos
+kind:Number
+point
+---
+dis:Test Header Temp
+bacnetCur:AI110
+bacnetDesc:Test Header Temp
+kind:Number
+point
+unit:°F
+---
+dis:UEnabled
+bacnetCur:AI107
+bacnetDesc:UEnabled
+kind:Number
+point
+---
+dis:"Unit Mode:"
+bacnetCur:AI100
+bacnetDesc:"Unit Mode:"
+kind:Number
+point
+---
+dis:"Unit Mode:"
+bacnetCur:AI152
+bacnetDesc:"Unit Mode:"
+kind:Number
+point
+---
+dis:"Unit Mode:"
+bacnetCur:AI153
+bacnetDesc:"Unit Mode:"
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI312
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI412
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI512
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI612
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI712
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI812
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI912
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1012
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1112
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1212
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1312
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1412
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1512
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1612
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1712
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Size
+bacnetCur:AI1812
+bacnetDesc:Unit Size
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI311
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI411
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI511
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI611
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI711
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI811
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI911
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1011
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1111
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1211
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1311
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1411
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1511
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1611
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1711
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Unit Type
+bacnetCur:AI1811
+bacnetDesc:Unit Type
+kind:Number
+point
+---
+dis:Units Faulted
+bacnetCur:AI108
+bacnetDesc:Units Faulted
+kind:Number
+point
+---
+dis:Units Ignited
+bacnetCur:AI113
+bacnetDesc:Units Ignited
+kind:Number
+point
+---
+dis:"VSP Pump Output:"
+bacnetCur:AI123
+bacnetDesc:"VSP Pump Output:"
+kind:Number
+point
+---
+dis:"VSP Pump Relay:"
+bacnetCur:AI124
+bacnetDesc:"VSP Pump Relay:"
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI313
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI413
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI513
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI613
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI713
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI813
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI913
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1013
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1113
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1213
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1313
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1413
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1513
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1613
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1713
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:Valve State
+bacnetCur:AI1813
+bacnetDesc:Valve State
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI301
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI401
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI501
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI601
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI701
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI801
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI901
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1001
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1101
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1201
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1301
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1401
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1501
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1601
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1701
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:unit Status
+bacnetCur:AI1801
+bacnetDesc:unit Status
+kind:Number
+point
+---
+dis:"AERtrim:"
+bacnetCur:AV224
+bacnetDesc:"AERtrim:"
+kind:Number
+point
+---
+dis:Allow BAS to Write
+bacnetCur:AV51
+bacnetDesc:Allow BAS to Write
+kind:Number
+point
+---
+dis:"Auto Failover Type:"
+bacnetCur:AV235
+bacnetDesc:"Auto Failover Type:"
+kind:Number
+point
+---
+dis:"BAS Header Temp:"
+bacnetCur:AV214
+bacnetDesc:"BAS Header Temp:"
+kind:Number
+point
+unit:°F
+---
+dis:"BAS:"
+bacnetCur:AV219
+bacnetDesc:"BAS:"
+kind:Number
+point
+---
+dis:"BLR Pump Manual Adjust:"
+bacnetCur:AV244
+bacnetDesc:"BLR Pump Manual Adjust:"
+kind:Number
+point
+unit:"%"
+---
+dis:"Baud Rate:"
+bacnetCur:AV220
+bacnetDesc:"Baud Rate:"
+kind:Number
+point
+---
+dis:"Blr VSP Pump max spd:"
+bacnetCur:AV239
+bacnetDesc:"Blr VSP Pump max spd:"
+kind:Number
+point
+---
+dis:"Blr VSP Pump min spd:"
+bacnetCur:AV238
+bacnetDesc:"Blr VSP Pump min spd:"
+kind:Number
+point
+---
+dis:"Boiler Plant Size:"
+bacnetCur:AV242
+bacnetDesc:"Boiler Plant Size:"
+kind:Number
+point
+---
+dis:DHW BAS Remote Setpoint
+bacnetCur:AV209
+bacnetDesc:DHW BAS Remote Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"DHW Header Temp:"
+bacnetCur:AV206
+bacnetDesc:"DHW Header Temp:"
+kind:Number
+point
+unit:°F
+---
+dis:"DHW Operating Mode:"
+bacnetCur:AV207
+bacnetDesc:"DHW Operating Mode:"
+kind:Number
+point
+---
+dis:"DHW Rmt Setpt Signal:"
+bacnetCur:AV208
+bacnetDesc:"DHW Rmt Setpt Signal:"
+kind:Number
+point
+---
+dis:"DHW Temp Sensor:"
+bacnetCur:AV205
+bacnetDesc:"DHW Temp Sensor:"
+kind:Number
+point
+---
+dis:"Hdr Temp Sensor:"
+bacnetCur:AV213
+bacnetDesc:"Hdr Temp Sensor:"
+kind:Number
+point
+---
+dis:INTL Communication
+bacnetCur:AV221
+bacnetDesc:INTL Communication
+kind:Number
+point
+---
+dis:Intl Baud Rate
+bacnetCur:AV222
+bacnetDesc:Intl Baud Rate
+kind:Number
+point
+---
+dis:"Min # Valves Open:"
+bacnetCur:AV236
+bacnetDesc:"Min # Valves Open:"
+kind:Number
+point
+---
+dis:"Network Timeout:"
+bacnetCur:AV53
+bacnetDesc:"Network Timeout:"
+kind:Number
+point
+---
+dis:Not In Use
+bacnetCur:AV225
+bacnetDesc:Not In Use
+kind:Number
+point
+---
+dis:"OAT BAS Temp:"
+bacnetCur:AV218
+bacnetDesc:"OAT BAS Temp:"
+kind:Number
+point
+unit:°F
+---
+dis:"Other PRI Remote Signl:"
+bacnetCur:AV211
+bacnetDesc:"Other PRI Remote Signl:"
+kind:Number
+point
+---
+dis:"Other PRI Setpoint:"
+bacnetCur:AV212
+bacnetDesc:"Other PRI Setpoint:"
+kind:Number
+point
+unit:°F
+---
+dis:"Other PRI Setpt Mode:"
+bacnetCur:AV210
+bacnetDesc:"Other PRI Setpt Mode:"
+kind:Number
+point
+---
+dis:"Outdoor Air Temp Sens:"
+bacnetCur:AV217
+bacnetDesc:"Outdoor Air Temp Sens:"
+kind:Number
+point
+---
+dis:"Plant Pump Manual Adjust:"
+bacnetCur:AV243
+bacnetDesc:"Plant Pump Manual Adjust:"
+kind:Number
+point
+unit:"%"
+---
+dis:"Plant VSP Pump max spd:"
+bacnetCur:AV241
+bacnetDesc:"Plant VSP Pump max spd:"
+kind:Number
+point
+---
+dis:"Plant VSP Pump min spd:"
+bacnetCur:AV240
+bacnetDesc:"Plant VSP Pump min spd:"
+kind:Number
+point
+---
+dis:Remote Disable Code
+bacnetCur:AV229
+bacnetDesc:Remote Disable Code
+kind:Number
+point
+---
+dis:Remote Setpoint
+bacnetCur:AV200
+bacnetDesc:Remote Setpoint
+kind:Number
+point
+unit:°F
+---
+dis:"Rtn Hdr Temp Sensor:"
+bacnetCur:AV215
+bacnetDesc:"Rtn Hdr Temp Sensor:"
+kind:Number
+point
+---
+dis:"Rtn Hdr Temp Sensor:"
+bacnetCur:AV216
+bacnetDesc:"Rtn Hdr Temp Sensor:"
+kind:Number
+point
+unit:°F
+---
+dis:"SH Setpoint:"
+bacnetCur:AV245
+bacnetDesc:"SH Setpoint:"
+kind:Number
+point
+unit:°F
+---
+dis:SP Pump Out Signal
+bacnetCur:AV227
+bacnetDesc:SP Pump Out Signal
+kind:Number
+point
+---
+dis:"Setback Schedule:"
+bacnetCur:AV204
+bacnetDesc:"Setback Schedule:"
+kind:Number
+point
+---
+dis:"Setback Setpoint:"
+bacnetCur:AV201
+bacnetDesc:"Setback Setpoint:"
+kind:Number
+point
+unit:°F
+---
+dis:"Setback Start Time:"
+bacnetCur:AV202
+bacnetDesc:"Setback Start Time:"
+kind:Number
+point
+---
+dis:"Setback Stop Time:"
+bacnetCur:AV203
+bacnetDesc:"Setback Stop Time:"
+kind:Number
+point
+---
+dis:"SmartPlate Pmp Unit Addr:"
+bacnetCur:AV228
+bacnetDesc:"SmartPlate Pmp Unit Addr:"
+kind:Number
+point
+---
+dis:"SmartPlate Setpoint:"
+bacnetCur:AV226
+bacnetDesc:"SmartPlate Setpoint:"
+kind:Number
+point
+---
+dis:"VSP Fast Rise Time:"
+bacnetCur:AV232
+bacnetDesc:"VSP Fast Rise Time:"
+kind:Number
+point
+---
+dis:"VSP Piping Configuration:"
+bacnetCur:AV237
+bacnetDesc:"VSP Piping Configuration:"
+kind:Number
+point
+---
+dis:"VSP Pump Adjust Time:"
+bacnetCur:AV231
+bacnetDesc:"VSP Pump Adjust Time:"
+kind:Number
+point
+---
+dis:"VSP Pump Adjust Value:"
+bacnetCur:AV233
+bacnetDesc:"VSP Pump Adjust Value:"
+kind:Number
+point
+unit:"%"
+---
+dis:"VSP Pump Mode:"
+bacnetCur:AV230
+bacnetDesc:"VSP Pump Mode:"
+kind:Number
+point
+---
+dis:"VSP Pump Off Delay:"
+bacnetCur:AV234
+bacnetDesc:"VSP Pump Off Delay:"
+kind:Number
+point
+---
+dis:"onAER Mode:"
+bacnetCur:AV223
+bacnetDesc:"onAER Mode:"
+kind:Number
+point

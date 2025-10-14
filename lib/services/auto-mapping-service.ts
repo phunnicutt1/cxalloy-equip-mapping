@@ -314,25 +314,10 @@ export class AutoMappingService {
     return matches.map(match => ({
       id: `auto-${match.bacnetEquipment.id}-${match.cxAlloyEquipment.id}`,
       bacnetEquipmentId: match.bacnetEquipment.id,
-      bacnetEquipmentName: match.bacnetEquipment.name,
-      bacnetEquipmentType: match.bacnetEquipment.type || 'Unknown',
-      cxalloyEquipmentId: match.cxAlloyEquipment.id,
-      cxalloyEquipmentName: match.cxAlloyEquipment.name,
-      cxalloyCategory: match.cxAlloyEquipment.type as any, // Type casting needed
-      mappingType: match.matchType === 'exact' ? 'exact' : 'automatic',
+      cxAlloyEquipmentId: match.cxAlloyEquipment.id,
+      mappingType: 'automatic' as const,
       confidence: match.confidence,
-      mappingReason: match.reasons.join('; '),
-      totalBacnetPoints: match.bacnetEquipment.totalPoints || 0,
-      mappedPointsCount: 0,
-      unmappedPointsCount: 0,
-      isActive: true,
-      isVerified: match.matchType === 'exact' || match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD,
-      verifiedBy: (match.matchType === 'exact' || match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD) ? 'auto-mapping' : undefined,
-      verifiedAt: (match.matchType === 'exact' || match.confidence >= AutoMappingService.EXACT_MATCH_THRESHOLD) ? new Date() : undefined,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      createdBy: 'auto-mapping-service',
-      mappingMethod: 'auto'
+      mappedAt: new Date().toISOString()
     }));
   }
 }
